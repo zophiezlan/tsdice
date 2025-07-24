@@ -2,10 +2,8 @@
 <html lang="en-AU">
 <head>
     <meta charset="UTF-8" />
-    <title>tsParticles Vibe Randomiser</title>
+    <title>ket.horse | tsParticles Vibe Randomiser</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Font Awesome for custom particle shapes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
       html, body {
         margin: 0;
@@ -14,6 +12,7 @@
         background: #111;
         overflow: hidden;
         transition: background-color 0.5s ease;
+        font-family: sans-serif;
       }
       body.light-mode {
         background: #f0f0f0;
@@ -28,6 +27,65 @@
         z-index: 1;
       }
 
+      /* --- Glassmorphism Button Base Style --- */
+      .glass-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        user-select: none;
+      }
+      .glass-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+      .glass-button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: scale(1) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+      body.light-mode .glass-button {
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #333;
+      }
+      body.light-mode .glass-button:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      body.light-mode .glass-button.disabled {
+        background: rgba(0, 0, 0, 0.1) !important;
+      }
+
+      /* --- Corner Buttons --- */
+      #fullscreen-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+      }
+      #tsparticles-link {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        height: auto;
+        width: auto;
+      }
+
       /* --- Menu Styles --- */
       .menu-container {
         position: fixed;
@@ -40,32 +98,11 @@
       }
 
       .menu-button {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: white;
-        user-select: none;
-      }
-      .menu-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.1);
+        /* Inherit from glass-button */
       }
       .menu-button.active {
         background: rgba(142, 45, 226, 0.5);
         color: #fff;
-      }
-      body.light-mode .menu-button {
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: #333;
       }
       body.light-mode .menu-button.active {
         background: rgba(67, 97, 238, 0.5);
@@ -109,45 +146,116 @@
         width: 40px;
         height: 40px;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
       }
       body.light-mode .counter-bubble .menu-button {
           background: rgba(0, 0, 0, 0.1);
-      }
-      .counter-bubble .menu-button:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-      body.light-mode .counter-bubble .menu-button:hover {
-        background: rgba(0, 0, 0, 0.2);
       }
       #randomisation-display {
         font-size: 18px;
         font-weight: bold;
       }
+
+      /* --- Modal Styles --- */
+      .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 200; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
+      }
+      .modal-overlay.visible { opacity: 1; visibility: visible; }
+      .modal-content {
+        background: rgba(40, 40, 40, 0.8); color: #eee;
+        padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+        width: 90%; max-width: 550px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        max-height: 85vh; overflow-y: auto;
+      }
+      .modal-overlay.visible .modal-content { transform: scale(1); }
+      body.light-mode .modal-content { background: rgba(255, 255, 255, 0.8); color: #333; border-color: rgba(0, 0, 0, 0.2); }
+      .modal-content h2 { margin-top: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 10px; }
+      body.light-mode .modal-content h2 { border-bottom-color: rgba(0, 0, 0, 0.2); }
+      .modal-content p { line-height: 1.6; }
+      .modal-close-btn {
+        display: block; margin: 20px auto 0; padding: 12px 25px; border: none;
+        border-radius: 25px; background: rgba(142, 45, 226, 0.8); color: white;
+        font-size: 16px; cursor: pointer; transition: background 0.3s ease;
+      }
+      .modal-close-btn:hover { background: rgba(142, 45, 226, 1); }
+      body.light-mode .modal-close-btn { background: rgba(67, 97, 238, 0.8); }
+      body.light-mode .modal-close-btn:hover { background: rgba(67, 97, 238, 1); }
+      
+      .info-list { list-style: none; padding: 0; }
+      .info-list li { display: flex; align-items: center; margin-bottom: 15px; }
+      .info-list .icon-wrapper { width: 30px; height: 30px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; }
+       .info-list .icon-wrapper svg { width: 20px; height: 20px; }
+      .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
+      .info-text span { font-size: 0.9em; opacity: 0.8; }
+      #info-button-welcome { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; font-size: 14px; margin-top: 10px; }
+      #info-button-welcome svg { width: 18px; height: 18px; margin-right: 8px; }
     </style>
 </head>
 <body>
     <div id="tsparticles"></div>
 
+    <!-- Welcome Modal -->
+    <div class="modal-overlay" id="welcome-modal">
+        <div class="modal-content">
+            <h2>Welcome to ket.horse!</h2>
+            <p>This is an interactive playground for creating beautiful particle animations.</p>
+            <p>Use the menu in the bottom-left to get started. Confused? Click the button below for a full guide on what each control does.</p>
+            <button class="modal-close-btn" id="info-button-welcome">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Show Me How It Works
+            </button>
+            <button class="modal-close-btn" id="close-welcome-modal">Got it, let's play!</button>
+            <a href="https://particles.js.org/" target="_blank" style="display: block; text-align: center; font-size: 12px; opacity: 0.7; margin-top: 20px; color: inherit;">Powered by tsParticles</a>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal-overlay" id="info-modal">
+        <div class="modal-content">
+            <h2>How It Works</h2>
+            <ul class="info-list"></ul>
+            <button class="modal-close-btn" id="close-info-modal">Close</button>
+        </div>
+    </div>
+
+    <!-- Fullscreen Button -->
+    <div class="glass-button" id="fullscreen-btn" title="Toggle Fullscreen">
+      <svg id="icon-fullscreen-enter" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      <svg id="icon-fullscreen-exit" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+    </div>
+
+    <!-- Main Menu Container -->
     <div class="menu-container" id="menu-container">
-        <div class="menu-button" id="main-menu-btn">
+        <!-- Main Menu Toggle Button -->
+        <div class="glass-button menu-button" id="main-menu-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
+        <!-- Sub-Menu with all controls -->
         <div class="sub-menu" id="sub-menu">
-            <div class="menu-button" id="btn-refresh" title="Refresh Vibe"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></div>
-            <div class="menu-button" id="btn-shuffle-all" title="Shuffle All"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
-            <div class="menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-            <div class="menu-button" id="btn-shuffle-movement" title="Shuffle Movement"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h8.5a2.5 2.5 0 0 1 0 5H11"/><path d="m11 18 4-4-4-4"/></svg></div>
-            <div class="menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 13v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v1"/><path d="M12 19V5"/><path d="m8 15 4 4 4-4"/></svg></div>
-            <div class="menu-button" id="btn-shuffle-fx" title="Shuffle Special FX"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
-            <div class="menu-button" id="btn-theme" title="Toggle Theme"><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
-            <div class="menu-button" id="btn-cursor" title="Toggle Cursor Particle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
-            <div class="menu-button" id="btn-kill-switch" title="Toggle Particle Death"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <!-- Primary Shuffle Actions -->
+            <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
+            
+            <!-- Randomness Level Control -->
             <div class="counter-bubble">
-                <div class="menu-button" id="btn-minus" title="Less Random"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></div>
+                <div class="glass-button menu-button" id="btn-minus" title="Less Random"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></div>
                 <div id="randomisation-display">5</div>
-                <div class="menu-button" id="btn-plus" title="More Random"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></div>
+                <div class="glass-button menu-button" id="btn-plus" title="More Random"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></div>
             </div>
+
+            <!-- Toggles & Utilities -->
+            <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme"><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+            <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+            <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Death"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <div class="glass-button menu-button" id="btn-back" title="Go Back"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h10a8 8 0 0 1 8 8v2M3 10l4-4 4 4"/></svg></div>
+            <div class="glass-button menu-button" id="btn-info" title="Info"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <div class="glass-button menu-button" id="btn-refresh" title="Refresh Vibe"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></div>
         </div>
     </div>
 
@@ -155,9 +263,10 @@
       import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.4.0/+esm";
       import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.4.0/+esm";
 
-      document.addEventListener('DOMContentLoaded', async () => {
+      (async () => {
         await loadAll(tsParticles);
 
+        // --- Element Selectors ---
         const mainMenuBtn = document.getElementById('main-menu-btn');
         const btnRefresh = document.getElementById('btn-refresh');
         const btnShuffleAll = document.getElementById('btn-shuffle-all');
@@ -168,35 +277,64 @@
         const btnTheme = document.getElementById('btn-theme');
         const btnCursor = document.getElementById('btn-cursor');
         const btnKillSwitch = document.getElementById('btn-kill-switch');
+        const btnBack = document.getElementById('btn-back');
+        const btnInfo = document.getElementById('btn-info');
         const btnMinus = document.getElementById('btn-minus');
         const btnPlus = document.getElementById('btn-plus');
         const randomDisplay = document.getElementById('randomisation-display');
+        const welcomeModal = document.getElementById('welcome-modal');
+        const closeModalBtn = document.getElementById('close-welcome-modal');
+        const infoModal = document.getElementById('info-modal');
+        const closeInfoModalBtn = document.getElementById('close-info-modal');
+        const infoBtnWelcome = document.getElementById('info-button-welcome');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const iconEnter = document.getElementById('icon-fullscreen-enter');
+        const iconExit = document.getElementById('icon-fullscreen-exit');
         
+        // --- State Variables ---
         let randomisationLevel = 5;
         let isDarkMode = true;
         let isCursorParticle = false;
         let particleDeathAllowed = false;
         let currentConfig = {};
+        let originalInteractionModes = {};
+        let configHistory = [];
 
+        // --- Data Arrays ---
         const darkColorPalette = ["#ff007b", "#33ff57", "#3357ff", "#ffc300", "#ffffff", "#ad55ff"];
         const lightColorPalette = ["#f72585", "#7209b7", "#3a0ca3", "#4361ee", "#4cc9f0"];
         const shapeOptions = ["circle", "square", "triangle", "star", "polygon", "line"];
         const directionOptions = ["none", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left"];
-        const outModeOptions = ["out", "bounce"];
         const hoverModeOptions = ["repulse", "grab", "bubble"];
         const safeClickModes = ["push", "bubble"];
-        const faCharOptions = ["\uf013", "\uf005", "\uf004", "\uf121", "\uf188", "\uf21e", "\uf0e7"];
         
+        // --- Utility Functions ---
         const getRandomInRange = (min, max) => Math.random() * (max - min) + min;
         const getRandomBool = (probability = 0.5) => Math.random() < probability;
         const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
         
+        const updateRandomisationDisplay = () => {
+            randomDisplay.textContent = randomisationLevel;
+        };
+
+        const updateBackButtonState = () => {
+            btnBack.classList.toggle('disabled', configHistory.length === 0);
+        };
+
+        const saveHistory = () => {
+            if (Object.keys(currentConfig).length > 0) {
+                configHistory.push(JSON.parse(JSON.stringify(currentConfig)));
+                if (configHistory.length > 20) {
+                    configHistory.shift();
+                }
+                updateBackButtonState();
+            }
+        };
+
+        // --- Config Generation Functions ---
         const generateAppearance = () => {
             const chaos = randomisationLevel / 5;
             let shapeConfig = { type: getRandomItem(shapeOptions) };
-            if (randomisationLevel >= 8 && getRandomBool(0.3)) {
-                shapeConfig = { type: 'char', options: { char: { font: 'Font Awesome 6 Free', weight: '900', style: 'solid', value: faCharOptions } } };
-            }
             return {
                 color: { value: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
                 shape: shapeConfig,
@@ -209,13 +347,14 @@
         const generateMovement = () => {
             const chaos = randomisationLevel / 5;
             return {
+                enable: true,
                 speed: getRandomInRange(1, 2 + 6 * chaos),
                 direction: getRandomItem(directionOptions),
                 random: true,
                 straight: false,
-                outModes: { default: getRandomItem(outModeOptions) },
+                outModes: { default: "bounce" },
                 gravity: { enable: randomisationLevel >= 9 && getRandomBool(0.4), acceleration: getRandomInRange(5, 20) },
-                trail: { enable: getRandomBool(0.1 * chaos), length: getRandomInRange(5, 15), fill: { color: { value: isDarkMode ? '#111' : '#f0f0f0' } } }
+                trail: { enable: getRandomBool(0.1 * chaos), length: getRandomInRange(5, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
             };
         };
         
@@ -223,55 +362,62 @@
             let clickMode = getRandomItem(safeClickModes);
             let hoverMode = getRandomItem(hoverModeOptions);
             if (isDeathActive && !getRandomBool(0.8)) {
-                clickMode = 'push';
+                clickMode = "push";
             }
             if (randomisationLevel >= 7 && getRandomBool(0.3)) hoverMode = "parallax";
-            if (randomisationLevel === 10 && getRandomBool(0.8)) clickMode = 'pop';
             
-            return {
+            const interaction = {
                 events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
                 modes: { repulse: { distance: 100 }, push: { quantity: 4 }, bubble: { distance: 200, size: 20, duration: 2 }, parallax: { enable: true, force: 10, smooth: 10 } }
             };
+            
+            originalInteractionModes = {
+                click: interaction.events.onClick.mode,
+                hover: interaction.events.onHover.mode
+            };
+
+            return interaction;
         };
 
         const generateSpecialFX = () => {
             const chaos = randomisationLevel / 5;
-            let lifeEnabled = false;
-            let collisionMode = "bounce";
-            let clickModeForFX = null;
-            let emittersEnabled = false;
-            let destroy = null;
-
-            if (particleDeathAllowed && randomisationLevel >= 6) {
-                if (getRandomBool((randomisationLevel - 5) / 5)) collisionMode = "absorb";
-                if (getRandomBool((randomisationLevel - 5) / 5)) clickModeForFX = "remove";
-            }
-            if (particleDeathAllowed && randomisationLevel >= 7 && getRandomBool((randomisationLevel - 6) / 4)) lifeEnabled = true;
-            
-            if (randomisationLevel === 10 && getRandomBool(0.8)) {
-                clickModeForFX = 'pop';
-                destroy = { mode: "split", split: { count: 1, factor: { value: { min: 2, max: 4 } }, rate: { value: 100 }, particles: { life: { count: 1, duration: { value: { min: 0.5, max: 1 } } }, move: { speed: { min: 5, max: 10 } } } } };
-            }
-
-            const deathIsEnabled = lifeEnabled || collisionMode === 'absorb' || clickModeForFX === 'remove';
-            if (deathIsEnabled) {
-                emittersEnabled = true;
-            }
-
-            return {
-                life: { enable: lifeEnabled, duration: { sync: false, value: getRandomInRange(3, 8) }, count: 1 },
-                collisions: { enable: getRandomBool(0.2 * chaos), mode: collisionMode },
+            const fx = {
+                life: { enable: false, count: 0 },
+                collisions: { enable: getRandomBool(0.2 * chaos), mode: "bounce" },
                 wobble: { enable: getRandomBool(0.2 * chaos), distance: getRandomInRange(5, 15), speed: getRandomInRange(5, 15) },
                 rotate: { animation: { enable: getRandomBool(0.3 * chaos), speed: getRandomInRange(5, 20), sync: false } },
                 links: { enable: getRandomBool(0.5), distance: 150, color: isDarkMode ? "#ffffff" : "#333333", opacity: 0.4, width: 1, triangles: { enable: getRandomBool(0.2 * chaos) } },
-                destroy: destroy,
-                emitters: emittersEnabled ? [{ direction: "top", life: { duration: 0, count: 0 }, position: { x: 50, y: 110 }, rate: { quantity: 1, delay: 0.3 } }] : [],
-                clickModeOverride: clickModeForFX
+                destroy: { mode: "none" },
+                emitters: [],
+                clickModeOverride: null
             };
+
+            if (particleDeathAllowed) {
+                fx.life = { enable: true, duration: { sync: false, value: getRandomInRange(3, 8) }, count: 1 };
+                if (randomisationLevel >= 6) {
+                    if (getRandomBool(0.4)) {
+                        fx.collisions.mode = "absorb";
+                        fx.collisions.enable = true;
+                    }
+                    if (getRandomBool(0.4)) fx.clickModeOverride = "remove";
+                }
+                if (randomisationLevel === 10 && getRandomBool(0.8)) {
+                    fx.clickModeOverride = 'pop';
+                    fx.destroy = { mode: "split", split: { count: 1, factor: { value: { min: 2, max: 4 } }, rate: { value: 100 }, particles: { life: { count: 1, duration: { value: { min: 0.5, max: 1 } } }, move: { speed: { min: 5, max: 10 } } } } };
+                }
+            }
+            
+            const deathIsEnabled = fx.life.enable || fx.collisions.mode === 'absorb' || fx.clickModeOverride === 'remove' || fx.clickModeOverride === 'pop' || fx.destroy.mode !== "none";
+            if (deathIsEnabled) {
+                fx.emitters = [{ direction: "top", life: { duration: 0, count: 0 }, position: { x: 50, y: 110 }, rate: { quantity: 1, delay: 0.3 } }];
+            }
+            return fx;
         };
 
         const buildConfig = (shuffleOptions) => {
-            if (shuffleOptions.all) {
+            const isNew = !currentConfig || Object.keys(currentConfig).length === 0;
+
+            if (shuffleOptions.all || isNew) {
                 currentConfig.particles = { ...generateAppearance() };
                 currentConfig.particles.move = generateMovement();
                 const fx = generateSpecialFX();
@@ -298,65 +444,177 @@
                  currentConfig.interactivity = generateInteraction(deathIsEnabled);
             }
             
-            currentConfig.background = { color: { value: isDarkMode ? '#111' : '#f0f0f0' } };
+            currentConfig.background = { color: { value: isDarkMode ? "#111" : "#f0f0f0" } };
             currentConfig.fpsLimit = 120;
             currentConfig.detectRetina = true;
-            currentConfig.particles.number = { value: getRandomInRange(40, 80 + (randomisationLevel / 5) * 120) };
-
-            if (isCursorParticle) {
-              currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
-              currentConfig.interactivity.events.onHover.mode = "trail";
+            if (shuffleOptions.all || shuffleOptions.appearance || shuffleOptions.movement || isNew) {
+              currentConfig.particles.number = { value: getRandomInRange(40, 80 + (randomisationLevel / 5) * 120) };
             }
             
             return currentConfig;
         };
-
-        const updateThemeInConfig = () => {
-            if (!currentConfig || Object.keys(currentConfig).length === 0) return;
-            const newPalette = isDarkMode ? darkColorPalette : lightColorPalette;
-            currentConfig.background.color.value = isDarkMode ? '#111' : '#f0f0f0';
-            currentConfig.particles.color.value = getRandomItem(newPalette);
-            if(currentConfig.particles.stroke.width > 0) currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
-            if(currentConfig.particles.links.enable) currentConfig.particles.links.color = isDarkMode ? "#ffffff" : "#333333";
-            if(currentConfig.particles.move.trail.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? '#111' : '#f0f0f0';
-            loadParticles(currentConfig);
-        };
-
+        
         const loadParticles = async (config) => {
+          currentConfig = config;
           await tsParticles.load({ id: "tsparticles", options: config });
         };
+        
+        const applyCursorMode = () => {
+            if (isCursorParticle) {
+                currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
+                currentConfig.interactivity.events.onHover.mode = "trail";
+                currentConfig.interactivity.events.onClick.enable = false;
+            } else {
+                currentConfig.interactivity.events.onHover.mode = originalInteractionModes.hover || "repulse";
+                currentConfig.interactivity.events.onClick.enable = true;
+                delete currentConfig.interactivity.modes.trail;
+            }
+        };
 
-        mainMenuBtn.addEventListener('click', () => document.getElementById('menu-container').classList.toggle('active'));
-        btnRefresh.addEventListener('click', async () => { if (Object.keys(currentConfig).length > 0) await loadParticles(currentConfig); });
-        btnShuffleAll.addEventListener('click', async () => await loadParticles(buildConfig({all: true})));
-        btnShuffleAppearance.addEventListener('click', async () => await loadParticles(buildConfig({appearance: true})));
-        btnShuffleMovement.addEventListener('click', async () => await loadParticles(buildConfig({movement: true})));
-        btnShuffleInteraction.addEventListener('click', async () => await loadParticles(buildConfig({interaction: true})));
-        btnShuffleFx.addEventListener('click', async () => await loadParticles(buildConfig({fx: true})));
+        const updateTheme = () => {
+          document.body.classList.toggle("light-mode", !isDarkMode);
+          document.getElementById("theme-icon-sun").style.display = isDarkMode ? "block" : "none";
+          document.getElementById("theme-icon-moon").style.display = isDarkMode ? "none" : "block";
+          
+          if (!currentConfig || Object.keys(currentConfig).length === 0) return;
 
-        btnTheme.addEventListener('click', () => {
+          const newPalette = isDarkMode ? darkColorPalette : lightColorPalette;
+          currentConfig.background.color.value = isDarkMode ? "#111" : "#f0f0f0";
+          currentConfig.particles.color.value = getRandomItem(newPalette);
+          if(currentConfig.particles.stroke.width > 0) currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
+          if(currentConfig.particles.links.enable) currentConfig.particles.links.color = isDarkMode ? "#ffffff" : "#333333";
+          if(currentConfig.particles.move.trail.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? "#111" : "#f0f0f0";
+          
+          loadParticles(currentConfig);
+        };
+
+        const toggleFullScreen = () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          } else if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        };
+
+        const updateFullscreenIcons = () => {
+          if (!document.fullscreenElement) {
+            iconEnter.style.display = "block";
+            iconExit.style.display = "none";
+          } else {
+            iconEnter.style.display = "none";
+            iconExit.style.display = "block";
+          }
+        };
+
+        const populateInfoModal = () => {
+            const infoList = infoModal.querySelector('.info-list');
+            infoList.innerHTML = '';
+            const buttons = document.querySelectorAll('.sub-menu .menu-button, .sub-menu .counter-bubble');
+            
+            buttons.forEach(button => {
+                const title = button.title;
+                if (!title) return;
+
+                const [name, description] = title.split(': ');
+                const icon = button.querySelector('svg')?.cloneNode(true);
+                
+                const li = document.createElement('li');
+                const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'icon-wrapper';
+                if (icon) {
+                    iconWrapper.appendChild(icon);
+                } else if (button.classList.contains('counter-bubble')) {
+                    iconWrapper.innerHTML = `<div id="randomisation-display">${button.querySelector('#randomisation-display').textContent}</div>`;
+                }
+                
+                const textWrapper = document.createElement('div');
+                textWrapper.className = 'info-text';
+                textWrapper.innerHTML = `<strong>${name}</strong><span>${description || ''}</span>`;
+                
+                li.appendChild(iconWrapper);
+                li.appendChild(textWrapper);
+                infoList.appendChild(li);
+            });
+        };
+
+        // --- Event Listeners ---
+        mainMenuBtn.addEventListener("click", () => document.getElementById("menu-container").classList.toggle("active"));
+        btnRefresh.addEventListener("click", async () => { if (Object.keys(currentConfig).length > 0) await loadParticles(currentConfig); });
+        
+        const createShuffleHandler = (options) => async () => {
+            saveHistory();
+            buildConfig(options);
+            applyCursorMode();
+            await loadParticles(currentConfig);
+        };
+
+        btnShuffleAll.addEventListener("click", createShuffleHandler({all: true}));
+        btnShuffleAppearance.addEventListener("click", createShuffleHandler({appearance: true}));
+        btnShuffleMovement.addEventListener("click", createShuffleHandler({movement: true}));
+        btnShuffleInteraction.addEventListener("click", createShuffleHandler({interaction: true}));
+        btnShuffleFx.addEventListener("click", createShuffleHandler({fx: true}));
+
+        btnTheme.addEventListener("click", () => {
           isDarkMode = !isDarkMode;
-          document.body.classList.toggle('light-mode', !isDarkMode);
-          document.getElementById('theme-icon-sun').style.display = isDarkMode ? 'block' : 'none';
-          document.getElementById('theme-icon-moon').style.display = isDarkMode ? 'none' : 'block';
-          updateThemeInConfig();
+          updateTheme();
         });
-        btnCursor.addEventListener('click', () => {
-            isCursorParticle = !isCursorParticle;
-            btnCursor.classList.toggle('active', isCursorParticle);
-            loadParticles(buildConfig({}));
-        });
-        btnKillSwitch.addEventListener('click', () => {
-            particleDeathAllowed = !particleDeathAllowed;
-            btnKillSwitch.classList.toggle('active', particleDeathAllowed);
-            loadParticles(buildConfig({fx: true, interaction: true}));
-        });
-        btnPlus.addEventListener('click', () => { if (randomisationLevel < 10) { randomisationLevel++; randomDisplay.textContent = randomisationLevel; } });
-        btnMinus.addEventListener('click', () => { if (randomisationLevel > 1) { randomisationLevel--; randomDisplay.textContent = randomisationLevel; } });
 
-        randomDisplay.textContent = randomisationLevel;
+        btnCursor.addEventListener("click", () => {
+            isCursorParticle = !isCursorParticle;
+            btnCursor.classList.toggle("active", isCursorParticle);
+            applyCursorMode();
+            loadParticles(currentConfig);
+        });
+
+        btnKillSwitch.addEventListener("click", () => {
+            particleDeathAllowed = !particleDeathAllowed;
+            btnKillSwitch.classList.toggle("active", particleDeathAllowed);
+            createShuffleHandler({fx: true, interaction: true})();
+        });
+        
+        btnBack.addEventListener("click", async () => {
+            if (configHistory.length > 0) {
+                const lastConfig = configHistory.pop();
+                await loadParticles(lastConfig);
+                updateBackButtonState();
+            }
+        });
+
+        btnInfo.addEventListener('click', () => {
+            populateInfoModal();
+            infoModal.classList.add('visible');
+        });
+        infoBtnWelcome.addEventListener('click', () => {
+            welcomeModal.classList.remove('visible');
+            populateInfoModal();
+            infoModal.classList.add('visible');
+        });
+        closeInfoModalBtn.addEventListener('click', () => infoModal.classList.remove('visible'));
+
+        const changeRandomisation = (amount) => {
+            const newLevel = randomisationLevel + amount;
+            if (newLevel >= 1 && newLevel <= 10) {
+                randomisationLevel = newLevel;
+                updateRandomisationDisplay();
+            }
+        };
+
+        btnPlus.addEventListener("click", () => changeRandomisation(1));
+        btnMinus.addEventListener("click", () => changeRandomisation(-1));
+
+        closeModalBtn.addEventListener("click", () => welcomeModal.classList.remove("visible"));
+        fullscreenBtn.addEventListener("click", toggleFullScreen);
+        document.addEventListener("fullscreenchange", updateFullscreenIcons);
+
+        // --- Initialisation ---
+        updateRandomisationDisplay();
+        updateBackButtonState();
         await loadParticles(buildConfig({all: true}));
-      });
+        
+        setTimeout(() => {
+            welcomeModal.classList.add("visible");
+        }, 500);
+      })();
     </script>
 </body>
 </html>
