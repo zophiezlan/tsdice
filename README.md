@@ -1,8 +1,8 @@
 # tsDice | tsParticles Scene Randomiser
 
-Welcome to **tsDice**, an interactive playground for creating and discovering beautiful, dynamic particle animations. Built on the powerful tsParticles library, this tool allows you to generate, tweak, and explore an endless variety of particle "vibes" right in your browser.
+Welcome to **tsDice**, an interactive playground for creating and discovering beautiful, dynamic particle animations. Built on the powerful tsParticles library, this tool allows you to generate, tweak, and explore an endless variety of particle "scenes" right in your browser.
 
-Whether you're looking for inspiration for a web project or just want a mesmerising visual experience, the Vibe Randomiser has you covered.
+Whether you're looking for inspiration for a web project or just want a mesmerising visual experience, the Scene Randomiser has you covered.
 
 ---
 
@@ -15,7 +15,7 @@ Whether you're looking for inspiration for a web project or just want a mesmeris
     * **Interaction:** How particles react to your mouse on hover and click.
     * **Special FX:** Effects like links, rotation, wobble, and collisions.
 * **Intensity Scale:** A 1-10 slider to control the overall chaos and intensity of the random effects.
-* **Interactive Toggles:** Fine-tune the vibe with toggles for common settings like theme, cursor focus, and particle death.
+* **Interactive Toggles:** Fine-tune the scene with toggles for common settings like theme, cursor focus, and particle death.
 * **History:** Made a change you don't like? The "Back" button lets you step back through your last 20 shuffles.
 * **Responsive Design:** A clean, glassmorphism-style UI that works beautifully on both desktop and mobile.
 
