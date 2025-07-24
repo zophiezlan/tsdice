@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8" />
+    <title>tsParticles Vibe Randomiser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Font Awesome for custom particle shapes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #111;
+        overflow: hidden;
+        transition: background-color 0.5s ease;
+      }
+      body.light-mode {
+        background: #f0f0f0;
+      }
+
+      #tsparticles {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      /* --- Menu Styles --- */
+      .menu-container {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 100;
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+      }
+
+      .menu-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: white;
+        user-select: none;
+      }
+      .menu-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+      .menu-button.active {
+        background: rgba(142, 45, 226, 0.5);
+        color: #fff;
+      }
+      body.light-mode .menu-button {
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #333;
+      }
+      body.light-mode .menu-button.active {
+        background: rgba(67, 97, 238, 0.5);
+        color: #fff;
+      }
+
+      .sub-menu {
+        display: flex;
+        flex-wrap: wrap;
+        width: 340px;
+        gap: 10px;
+        transform-origin: left center;
+        transform: scaleX(0);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
+      }
+      .menu-container.active .sub-menu {
+        transform: scaleX(1);
+        opacity: 1;
+      }
+      
+      .counter-bubble {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 130px;
+        height: 50px;
+        border-radius: 25px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 0 5px;
+      }
+      body.light-mode .counter-bubble {
+        background: rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #333;
+      }
+      .counter-bubble .menu-button {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+      }
+      body.light-mode .counter-bubble .menu-button {
+          background: rgba(0, 0, 0, 0.1);
+      }
+      .counter-bubble .menu-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      body.light-mode .counter-bubble .menu-button:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
+      #randomisation-display {
+        font-size: 18px;
+        font-weight: bold;
+      }
+    </style>
+</head>
+<body>
+    <div id="tsparticles"></div>
+
+    <div class="menu-container" id="menu-container">
+        <div class="menu-button" id="main-menu-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="sub-menu" id="sub-menu">
+            <div class="menu-button" id="btn-refresh" title="Refresh Vibe"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></div>
+            <div class="menu-button" id="btn-shuffle-all" title="Shuffle All"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
+            <div class="menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="menu-button" id="btn-shuffle-movement" title="Shuffle Movement"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h8.5a2.5 2.5 0 0 1 0 5H11"/><path d="m11 18 4-4-4-4"/></svg></div>
+            <div class="menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 13v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v1"/><path d="M12 19V5"/><path d="m8 15 4 4 4-4"/></svg></div>
+            <div class="menu-button" id="btn-shuffle-fx" title="Shuffle Special FX"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
+            <div class="menu-button" id="btn-theme" title="Toggle Theme"><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+            <div class="menu-button" id="btn-cursor" title="Toggle Cursor Particle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+            <div class="menu-button" id="btn-kill-switch" title="Toggle Particle Death"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <div class="counter-bubble">
+                <div class="menu-button" id="btn-minus" title="Less Random"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></div>
+                <div id="randomisation-display">5</div>
+                <div class="menu-button" id="btn-plus" title="More Random"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+      import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.4.0/+esm";
+      import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.4.0/+esm";
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        await loadAll(tsParticles);
+
+        const mainMenuBtn = document.getElementById('main-menu-btn');
+        const btnRefresh = document.getElementById('btn-refresh');
+        const btnShuffleAll = document.getElementById('btn-shuffle-all');
+        const btnShuffleAppearance = document.getElementById('btn-shuffle-appearance');
+        const btnShuffleMovement = document.getElementById('btn-shuffle-movement');
+        const btnShuffleInteraction = document.getElementById('btn-shuffle-interaction');
+        const btnShuffleFx = document.getElementById('btn-shuffle-fx');
+        const btnTheme = document.getElementById('btn-theme');
+        const btnCursor = document.getElementById('btn-cursor');
+        const btnKillSwitch = document.getElementById('btn-kill-switch');
+        const btnMinus = document.getElementById('btn-minus');
+        const btnPlus = document.getElementById('btn-plus');
+        const randomDisplay = document.getElementById('randomisation-display');
+        
+        let randomisationLevel = 5;
+        let isDarkMode = true;
+        let isCursorParticle = false;
+        let particleDeathAllowed = false;
+        let currentConfig = {};
+
+        const darkColorPalette = ["#ff007b", "#33ff57", "#3357ff", "#ffc300", "#ffffff", "#ad55ff"];
+        const lightColorPalette = ["#f72585", "#7209b7", "#3a0ca3", "#4361ee", "#4cc9f0"];
+        const shapeOptions = ["circle", "square", "triangle", "star", "polygon", "line"];
+        const directionOptions = ["none", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left"];
+        const outModeOptions = ["out", "bounce"];
+        const hoverModeOptions = ["repulse", "grab", "bubble"];
+        const safeClickModes = ["push", "bubble"];
+        const faCharOptions = ["\uf013", "\uf005", "\uf004", "\uf121", "\uf188", "\uf21e", "\uf0e7"];
+        
+        const getRandomInRange = (min, max) => Math.random() * (max - min) + min;
+        const getRandomBool = (probability = 0.5) => Math.random() < probability;
+        const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        
+        const generateAppearance = () => {
+            const chaos = randomisationLevel / 5;
+            let shapeConfig = { type: getRandomItem(shapeOptions) };
+            if (randomisationLevel >= 8 && getRandomBool(0.3)) {
+                shapeConfig = { type: 'char', options: { char: { font: 'Font Awesome 6 Free', weight: '900', style: 'solid', value: faCharOptions } } };
+            }
+            return {
+                color: { value: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
+                shape: shapeConfig,
+                opacity: { value: { min: 0.4, max: 0.9 } },
+                size: { value: { min: 1, max: 2 + 5 * chaos } },
+                stroke: { width: getRandomBool(0.3 * chaos) ? getRandomInRange(1, 3) : 0, color: { value: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) } },
+            };
+        };
+
+        const generateMovement = () => {
+            const chaos = randomisationLevel / 5;
+            return {
+                speed: getRandomInRange(1, 2 + 6 * chaos),
+                direction: getRandomItem(directionOptions),
+                random: true,
+                straight: false,
+                outModes: { default: getRandomItem(outModeOptions) },
+                gravity: { enable: randomisationLevel >= 9 && getRandomBool(0.4), acceleration: getRandomInRange(5, 20) },
+                trail: { enable: getRandomBool(0.1 * chaos), length: getRandomInRange(5, 15), fill: { color: { value: isDarkMode ? '#111' : '#f0f0f0' } } }
+            };
+        };
+        
+        const generateInteraction = (isDeathActive) => {
+            let clickMode = getRandomItem(safeClickModes);
+            let hoverMode = getRandomItem(hoverModeOptions);
+            if (isDeathActive && !getRandomBool(0.8)) {
+                clickMode = 'push';
+            }
+            if (randomisationLevel >= 7 && getRandomBool(0.3)) hoverMode = "parallax";
+            if (randomisationLevel === 10 && getRandomBool(0.8)) clickMode = 'pop';
+            
+            return {
+                events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
+                modes: { repulse: { distance: 100 }, push: { quantity: 4 }, bubble: { distance: 200, size: 20, duration: 2 }, parallax: { enable: true, force: 10, smooth: 10 } }
+            };
+        };
+
+        const generateSpecialFX = () => {
+            const chaos = randomisationLevel / 5;
+            let lifeEnabled = false;
+            let collisionMode = "bounce";
+            let clickModeForFX = null;
+            let emittersEnabled = false;
+            let destroy = null;
+
+            if (particleDeathAllowed && randomisationLevel >= 6) {
+                if (getRandomBool((randomisationLevel - 5) / 5)) collisionMode = "absorb";
+                if (getRandomBool((randomisationLevel - 5) / 5)) clickModeForFX = "remove";
+            }
+            if (particleDeathAllowed && randomisationLevel >= 7 && getRandomBool((randomisationLevel - 6) / 4)) lifeEnabled = true;
+            
+            if (randomisationLevel === 10 && getRandomBool(0.8)) {
+                clickModeForFX = 'pop';
+                destroy = { mode: "split", split: { count: 1, factor: { value: { min: 2, max: 4 } }, rate: { value: 100 }, particles: { life: { count: 1, duration: { value: { min: 0.5, max: 1 } } }, move: { speed: { min: 5, max: 10 } } } } };
+            }
+
+            const deathIsEnabled = lifeEnabled || collisionMode === 'absorb' || clickModeForFX === 'remove';
+            if (deathIsEnabled) {
+                emittersEnabled = true;
+            }
+
+            return {
+                life: { enable: lifeEnabled, duration: { sync: false, value: getRandomInRange(3, 8) }, count: 1 },
+                collisions: { enable: getRandomBool(0.2 * chaos), mode: collisionMode },
+                wobble: { enable: getRandomBool(0.2 * chaos), distance: getRandomInRange(5, 15), speed: getRandomInRange(5, 15) },
+                rotate: { animation: { enable: getRandomBool(0.3 * chaos), speed: getRandomInRange(5, 20), sync: false } },
+                links: { enable: getRandomBool(0.5), distance: 150, color: isDarkMode ? "#ffffff" : "#333333", opacity: 0.4, width: 1, triangles: { enable: getRandomBool(0.2 * chaos) } },
+                destroy: destroy,
+                emitters: emittersEnabled ? [{ direction: "top", life: { duration: 0, count: 0 }, position: { x: 50, y: 110 }, rate: { quantity: 1, delay: 0.3 } }] : [],
+                clickModeOverride: clickModeForFX
+            };
+        };
+
+        const buildConfig = (shuffleOptions) => {
+            if (shuffleOptions.all) {
+                currentConfig.particles = { ...generateAppearance() };
+                currentConfig.particles.move = generateMovement();
+                const fx = generateSpecialFX();
+                Object.assign(currentConfig.particles, fx);
+                delete currentConfig.particles.clickModeOverride;
+                delete currentConfig.particles.emitters;
+                currentConfig.emitters = fx.emitters;
+                currentConfig.interactivity = generateInteraction(fx.emitters.length > 0);
+                if (fx.clickModeOverride) currentConfig.interactivity.events.onClick.mode = fx.clickModeOverride;
+            }
+            if (shuffleOptions.appearance) Object.assign(currentConfig.particles, generateAppearance());
+            if (shuffleOptions.movement) currentConfig.particles.move = generateMovement();
+            if (shuffleOptions.fx) {
+                const fx = generateSpecialFX();
+                Object.assign(currentConfig.particles, fx);
+                delete currentConfig.particles.clickModeOverride;
+                delete currentConfig.particles.emitters;
+                currentConfig.emitters = fx.emitters;
+                currentConfig.interactivity = generateInteraction(fx.emitters.length > 0);
+                 if (fx.clickModeOverride) currentConfig.interactivity.events.onClick.mode = fx.clickModeOverride;
+            }
+            if (shuffleOptions.interaction) {
+                 const deathIsEnabled = currentConfig.emitters && currentConfig.emitters.length > 0;
+                 currentConfig.interactivity = generateInteraction(deathIsEnabled);
+            }
+            
+            currentConfig.background = { color: { value: isDarkMode ? '#111' : '#f0f0f0' } };
+            currentConfig.fpsLimit = 120;
+            currentConfig.detectRetina = true;
+            currentConfig.particles.number = { value: getRandomInRange(40, 80 + (randomisationLevel / 5) * 120) };
+
+            if (isCursorParticle) {
+              currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
+              currentConfig.interactivity.events.onHover.mode = "trail";
+            }
+            
+            return currentConfig;
+        };
+
+        const updateThemeInConfig = () => {
+            if (!currentConfig || Object.keys(currentConfig).length === 0) return;
+            const newPalette = isDarkMode ? darkColorPalette : lightColorPalette;
+            currentConfig.background.color.value = isDarkMode ? '#111' : '#f0f0f0';
+            currentConfig.particles.color.value = getRandomItem(newPalette);
+            if(currentConfig.particles.stroke.width > 0) currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
+            if(currentConfig.particles.links.enable) currentConfig.particles.links.color = isDarkMode ? "#ffffff" : "#333333";
+            if(currentConfig.particles.move.trail.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? '#111' : '#f0f0f0';
+            loadParticles(currentConfig);
+        };
+
+        const loadParticles = async (config) => {
+          await tsParticles.load({ id: "tsparticles", options: config });
+        };
+
+        mainMenuBtn.addEventListener('click', () => document.getElementById('menu-container').classList.toggle('active'));
+        btnRefresh.addEventListener('click', async () => { if (Object.keys(currentConfig).length > 0) await loadParticles(currentConfig); });
+        btnShuffleAll.addEventListener('click', async () => await loadParticles(buildConfig({all: true})));
+        btnShuffleAppearance.addEventListener('click', async () => await loadParticles(buildConfig({appearance: true})));
+        btnShuffleMovement.addEventListener('click', async () => await loadParticles(buildConfig({movement: true})));
+        btnShuffleInteraction.addEventListener('click', async () => await loadParticles(buildConfig({interaction: true})));
+        btnShuffleFx.addEventListener('click', async () => await loadParticles(buildConfig({fx: true})));
+
+        btnTheme.addEventListener('click', () => {
+          isDarkMode = !isDarkMode;
+          document.body.classList.toggle('light-mode', !isDarkMode);
+          document.getElementById('theme-icon-sun').style.display = isDarkMode ? 'block' : 'none';
+          document.getElementById('theme-icon-moon').style.display = isDarkMode ? 'none' : 'block';
+          updateThemeInConfig();
+        });
+        btnCursor.addEventListener('click', () => {
+            isCursorParticle = !isCursorParticle;
+            btnCursor.classList.toggle('active', isCursorParticle);
+            loadParticles(buildConfig({}));
+        });
+        btnKillSwitch.addEventListener('click', () => {
+            particleDeathAllowed = !particleDeathAllowed;
+            btnKillSwitch.classList.toggle('active', particleDeathAllowed);
+            loadParticles(buildConfig({fx: true, interaction: true}));
+        });
+        btnPlus.addEventListener('click', () => { if (randomisationLevel < 10) { randomisationLevel++; randomDisplay.textContent = randomisationLevel; } });
+        btnMinus.addEventListener('click', () => { if (randomisationLevel > 1) { randomisationLevel--; randomDisplay.textContent = randomisationLevel; } });
+
+        randomDisplay.textContent = randomisationLevel;
+        await loadParticles(buildConfig({all: true}));
+      });
+    </script>
+</body>
+</html>
