@@ -31,8 +31,8 @@
 
       /* --- Glassmorphism Button Base Style --- */
       .glass-button {
-        width: 50px;
-        height: 50px;
+        width: 48px; /* Slightly smaller for mobile */
+        height: 48px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -45,6 +45,7 @@
         transition: all 0.3s ease;
         color: white;
         user-select: none;
+        flex-shrink: 0; /* Prevent buttons from shrinking */
       }
       .glass-button:hover {
         background: rgba(255, 255, 255, 0.2);
@@ -96,7 +97,8 @@
         z-index: 100;
         display: flex;
         align-items: flex-end;
-        gap: 10px;
+        gap: 8px;
+        max-width: calc(100vw - 40px); /* Ensure menu doesn't overflow */
       }
 
       .menu-button {
@@ -113,48 +115,94 @@
 
       .sub-menu {
         display: flex;
-        flex-wrap: wrap;
-        width: 340px;
-        gap: 10px;
+        flex-wrap: wrap; /* Allow items to wrap */
+        gap: 8px;
         transform-origin: left center;
         transform: scaleX(0);
         opacity: 0;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
+        max-width: 340px; /* Max width on larger screens */
+      }
+       @media (max-width: 480px) {
+        .sub-menu {
+            max-width: calc(100vw - 140px); /* Adjust for smaller screens */
+        }
       }
       .menu-container.active .sub-menu {
         transform: scaleX(1);
         opacity: 1;
       }
       
-      .counter-bubble {
+      /* --- Intensity Slider --- */
+      .slider-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 130px;
-        height: 50px;
-        border-radius: 25px;
+        width: 180px; /* Adjusted width */
+        height: 48px;
+        border-radius: 24px;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
         color: white;
-        padding: 0 5px;
+        padding: 0 15px;
+        box-sizing: border-box;
       }
-      body.light-mode .counter-bubble {
+      body.light-mode .slider-container {
         background: rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(0, 0, 0, 0.2);
         color: #333;
       }
-      .counter-bubble .menu-button {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
+      #chaos-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+        transition: background 0.3s;
       }
-      body.light-mode .counter-bubble .menu-button {
-          background: rgba(0, 0, 0, 0.1);
+      body.light-mode #chaos-slider {
+        background: rgba(0, 0, 0, 0.2);
       }
-      #randomisation-display {
+      #chaos-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        border: 2px solid #8e2de2;
+        transition: transform 0.2s ease;
+      }
+      #chaos-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        border: 2px solid #8e2de2;
+        transition: transform 0.2s ease;
+      }
+      #chaos-slider:hover::-webkit-slider-thumb {
+        transform: scale(1.2);
+      }
+      #chaos-slider:hover::-moz-range-thumb {
+        transform: scale(1.2);
+      }
+      body.light-mode #chaos-slider::-webkit-slider-thumb {
+        border-color: #4361ee;
+      }
+       body.light-mode #chaos-slider::-moz-range-thumb {
+        border-color: #4361ee;
+      }
+      #chaos-display {
         font-size: 18px;
         font-weight: bold;
+        min-width: 24px;
+        text-align: center;
+        margin-left: 10px;
       }
 
       /* --- Modal Styles --- */
@@ -284,8 +332,9 @@
 
     <div class="modal-overlay" id="welcome-modal">
         <div class="modal-content">
-            <h2>Welcome to the Scene Randomiser!</h2>
-            <p>This is an interactive playground built on the powerful <strong>tsParticles</strong> library. It's a fun way to discover unique and beautiful particle animations with just a few clicks.</p>
+            <h2>ket.horse particle randomiser</h2>
+            <p><strong>Now even kettier!</strong></p>
+            <p>This is an interactive playground built on the powerful <strong>tsParticles</strong> library. It's a fun way to discover unique and fun particle animations with just a click.</p>
             <p>While this tool is great for getting exciting, random results, if you want to fine-tune every detail, head over to the official website to build your own from scratch!</p>
             <a href="https://particles.js.org/" target="_blank" class="modal-close-btn" style="background-color: transparent; border: 1px solid; margin-bottom: 10px;">Powered by tsParticles</a>
             <button class="modal-close-btn" id="close-welcome-modal">Start Creating!</button>
@@ -316,10 +365,9 @@
             <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction: Modifies how particles respond to your cursor. This changes the effect of mouse hovers (e.g., repel, grab, bubble) and clicks (e.g., push, remove, create trail)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
             <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX: Toggles and randomises advanced visual effects. This can add or remove particle links, rotation, wobble, twinkle effects, and particle collision physics. Note: This may also change interaction settings."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
             
-            <div class="counter-bubble" title="Randomness Intensity: Controls the overall chaos of generated effects. Higher values lead to more particles, faster speeds, and more complex physics like gravity or collisions. Lower values create calmer, more subtle scenes.">
-                <div class="glass-button menu-button" id="btn-minus" title="Less Random: Decreases the intensity and complexity of randomised effects. Results in calmer animations with fewer particles, slower speeds, and more basic effects."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></div>
-                <div id="randomisation-display">5</div>
-                <div class="glass-button menu-button" id="btn-plus" title="More Random: Increases the intensity and complexity of randomised effects. Results in more dynamic animations with more particles, higher speeds, and a greater chance of advanced effects like gravity and collisions."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></div>
+            <div class="slider-container" title="Chaos Level: Controls the overall intensity of generated effects. Higher values lead to more particles, faster speeds, and more complex physics. Lower values create calmer, more subtle scenes.">
+                <input type="range" min="1" max="10" value="5" id="chaos-slider">
+                <div id="chaos-display">5</div>
             </div>
 
             <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
@@ -354,9 +402,8 @@
         const btnInfo = document.getElementById('btn-info');
         const btnShare = document.getElementById('btn-share');
         const btnGravity = document.getElementById('btn-gravity');
-        const btnMinus = document.getElementById('btn-minus');
-        const btnPlus = document.getElementById('btn-plus');
-        const randomDisplay = document.getElementById('randomisation-display');
+        const chaosSlider = document.getElementById('chaos-slider');
+        const chaosDisplay = document.getElementById('chaos-display');
         const welcomeModal = document.getElementById('welcome-modal');
         const closeModalBtn = document.getElementById('close-welcome-modal');
         const infoModal = document.getElementById('info-modal');
@@ -367,7 +414,7 @@
         const toastNotification = document.getElementById('toast-notification');
         
         // --- State Variables ---
-        let randomisationLevel = 5;
+        let chaosLevel = 5;
         let isDarkMode = true;
         let isCursorParticle = false;
         let particleDeathAllowed = false;
@@ -394,9 +441,11 @@
         const getRandomInRange = (min, max) => Math.random() * (max - min) + min;
         const getRandomBool = (probability = 0.5) => Math.random() < probability;
         const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-        
-        const updateRandomisationDisplay = () => {
-            randomDisplay.textContent = randomisationLevel;
+        const getChaosProbability = (baseProb) => Math.min(baseProb * (chaosLevel / 5), 1);
+
+        const updateChaosDisplay = () => {
+            chaosDisplay.textContent = chaosLevel;
+            chaosSlider.value = chaosLevel;
         };
 
         const updateBackButtonState = () => {
@@ -448,28 +497,25 @@
 
         // --- Config Generation Functions ---
         const generateAppearance = () => {
-            const chaos = randomisationLevel / 5;
-            const useRandomColor = getRandomBool(0.2); // 20% chance for fully random colors
-            
+            const useRandomColor = getRandomBool(0.2);
             return {
                 color: { value: useRandomColor ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
                 shape: { type: getRandomItem(shapeOptions) },
-                opacity: { value: { min: 0.4, max: 0.9 } },
-                size: { value: { min: 1, max: 2 + 5 * chaos } },
-                stroke: { width: getRandomBool(0.3 * chaos) ? getRandomInRange(1, 3) : 0, color: { value: useRandomColor ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) } },
+                opacity: { value: { min: 0.3, max: 1 } },
+                size: { value: { min: 1, max: 1 + chaosLevel * 1.5 } },
+                stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: useRandomColor ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) } },
             };
         };
 
         const generateMovement = () => {
-            const chaos = randomisationLevel / 5;
             return {
                 enable: true,
-                speed: getRandomInRange(1, 2 + 6 * chaos),
+                speed: getRandomInRange(chaosLevel * 0.5, chaosLevel * 2),
                 direction: getRandomItem(directionOptions),
                 random: true,
                 straight: false,
-                outModes: { default: "bounce" },
-                trail: { enable: getRandomBool(0.1 * chaos), length: getRandomInRange(5, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
+                outModes: { default: "out" },
+                trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
             };
         };
         
@@ -477,14 +523,14 @@
             let clickMode = getRandomItem(safeClickModes);
             let hoverMode = getRandomItem(hoverModeOptions);
             
-            if (isDeathActive && !getRandomBool(0.8)) {
+            if (isDeathActive && clickMode === "remove") {
                 clickMode = "push";
             }
-            if (randomisationLevel >= 7 && getRandomBool(0.3)) hoverMode = "parallax";
+            if (getRandomBool(getChaosProbability(0.4))) hoverMode = "parallax";
             
             const interaction = {
                 events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
-                modes: { repulse: { distance: 100 }, push: { quantity: 4 }, bubble: { distance: 200, size: 20, duration: 2 }, parallax: { enable: true, force: 10, smooth: 10 } }
+                modes: { repulse: { distance: 50 + chaosLevel * 10 }, push: { quantity: chaosLevel }, bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 }, parallax: { enable: true, force: 5 * chaosLevel, smooth: 10 } }
             };
             
             originalInteractionModes = {
@@ -495,75 +541,63 @@
             return interaction;
         };
 
-        const generateSpecialFX = () => {
-            const chaos = randomisationLevel / 5;
+        const generateSpecialFX = (currentFx = {}) => {
             const fx = {
-                life: { enable: false, count: 0 },
-                collisions: { enable: getRandomBool(0.2 * chaos), mode: "bounce" },
-                wobble: { enable: getRandomBool(0.2 * chaos), distance: getRandomInRange(5, 15), speed: getRandomInRange(5, 15) },
-                rotate: { animation: { enable: getRandomBool(0.3 * chaos), speed: getRandomInRange(5, 20), sync: false } },
-                links: { enable: getRandomBool(0.5), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(0.2 * chaos) } },
-                destroy: { mode: "none" },
-                emitters: [],
+                life: currentFx.life || { enable: false, count: 0 },
+                collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
+                wobble: { enable: getRandomBool(getChaosProbability(0.5)), distance: 2 + chaosLevel, speed: 5 + chaosLevel },
+                rotate: { animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false } },
+                links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
+                destroy: currentFx.destroy || { mode: "none" },
+                emitters: currentFx.emitters || [],
                 clickModeOverride: null,
-                twinkle: { particles: { enable: getRandomBool(0.1 * chaos), frequency: 0.05, opacity: 1 } }
+                twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
             };
-
-            if (particleDeathAllowed) {
-                fx.life = { enable: true, duration: { sync: false, value: getRandomInRange(3, 8) }, count: 1 };
-                if (randomisationLevel >= 6) {
-                    if (getRandomBool(0.4)) {
-                        fx.collisions.mode = "absorb";
-                        fx.collisions.enable = true;
-                    }
-                    if (getRandomBool(0.4)) fx.clickModeOverride = "remove";
-                }
-                if (randomisationLevel === 10 && getRandomBool(0.8)) {
-                    fx.clickModeOverride = 'pop';
-                    fx.destroy = { mode: "split", split: { count: 1, factor: { value: { min: 2, max: 4 } }, rate: { value: 100 }, particles: { life: { count: 1, duration: { value: { min: 0.5, max: 1 } } }, move: { speed: { min: 5, max: 10 } } } } };
-                }
-            }
-            
-            const deathIsEnabled = fx.life.enable || fx.collisions.mode === 'absorb' || fx.clickModeOverride === 'remove' || fx.clickModeOverride === 'pop' || fx.destroy.mode !== "none";
-            if (deathIsEnabled) {
-                fx.emitters = [{ direction: "top", life: { duration: 0, count: 0 }, position: { x: 50, y: 110 }, rate: { quantity: 1, delay: 0.3 } }];
-            }
             return fx;
         };
 
         const buildConfig = (shuffleOptions) => {
             const isNew = !currentConfig || Object.keys(currentConfig).length === 0;
-            let newConfig = JSON.parse(JSON.stringify(currentConfig));
-            if (isNew) newConfig = {};
+            let newConfig = isNew ? {} : JSON.parse(JSON.stringify(currentConfig));
+            
+            let baseParticles = newConfig.particles || {};
+            let baseInteractivity = newConfig.interactivity || {};
+            let baseEmitters = newConfig.emitters || [];
 
             if (shuffleOptions.all || isNew) {
+                const appearance = generateAppearance();
+                const movement = generateMovement();
                 const fx = generateSpecialFX();
-                newConfig.particles = { ...generateAppearance(), ...fx };
-                newConfig.particles.move = generateMovement();
-                newConfig.interactivity = generateInteraction(fx.emitters.length > 0);
-                if (fx.clickModeOverride) newConfig.interactivity.events.onClick.mode = fx.clickModeOverride;
-                newConfig.emitters = fx.emitters;
+                const interaction = generateInteraction(fx.emitters.length > 0);
+                
+                baseParticles = { ...appearance, move: movement, ...fx };
+                baseInteractivity = interaction;
+                if (fx.clickModeOverride) baseInteractivity.events.onClick.mode = fx.clickModeOverride;
+                baseEmitters = fx.emitters;
             } else {
-                if (!newConfig.particles) newConfig.particles = {};
-                if (shuffleOptions.appearance) Object.assign(newConfig.particles, generateAppearance());
-                if (shuffleOptions.movement) newConfig.particles.move = generateMovement();
+                if (shuffleOptions.appearance) Object.assign(baseParticles, generateAppearance());
+                if (shuffleOptions.movement) baseParticles.move = { ...baseParticles.move, ...generateMovement() };
                 if (shuffleOptions.interaction) {
-                    const deathIsEnabled = newConfig.emitters && newConfig.emitters.length > 0;
-                    newConfig.interactivity = generateInteraction(deathIsEnabled);
+                    const deathIsEnabled = baseEmitters.length > 0;
+                    baseInteractivity = generateInteraction(deathIsEnabled);
                 }
                 if (shuffleOptions.fx) {
-                    const fx = generateSpecialFX();
+                    const fx = generateSpecialFX(baseParticles);
                     const deathIsEnabled = fx.emitters.length > 0;
-                    Object.assign(newConfig.particles, fx);
-                    newConfig.interactivity = generateInteraction(deathIsEnabled);
-                    if (fx.clickModeOverride) newConfig.interactivity.events.onClick.mode = fx.clickModeOverride;
-                    newConfig.emitters = fx.emitters;
+                    Object.assign(baseParticles, fx);
+                    baseInteractivity = generateInteraction(deathIsEnabled);
+                    if (fx.clickModeOverride) baseInteractivity.events.onClick.mode = fx.clickModeOverride;
+                    baseEmitters = fx.emitters;
                 }
             }
             
-            delete newConfig.particles.clickModeOverride;
-            delete newConfig.particles.emitters;
+            delete baseParticles.clickModeOverride;
+            delete baseParticles.emitters;
 
+            newConfig.particles = baseParticles;
+            newConfig.interactivity = baseInteractivity;
+            newConfig.emitters = baseEmitters;
+            
             newConfig.background = { color: { value: isDarkMode ? "#111" : "#f0f0f0" } };
             newConfig.fpsLimit = 120;
             newConfig.detectRetina = true;
@@ -572,9 +606,7 @@
             newConfig.particles.move.gravity.enable = isGravityOn;
             newConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
 
-            if (shuffleOptions.all || shuffleOptions.appearance || shuffleOptions.movement || isNew) {
-              newConfig.particles.number = { value: getRandomInRange(40, 80 + (randomisationLevel / 5) * 120) };
-            }
+            newConfig.particles.number = { value: 20 + chaosLevel * 20 };
             
             return newConfig;
         };
@@ -638,22 +670,22 @@
         const populateInfoModal = () => {
             const infoList = infoModal.querySelector('.info-list');
             infoList.innerHTML = '';
-            const buttons = document.querySelectorAll('.sub-menu .menu-button, .sub-menu .counter-bubble');
+            const controls = document.querySelectorAll('.sub-menu .menu-button, .sub-menu .slider-container');
             
-            buttons.forEach(button => {
-                const title = button.getAttribute('data-title') || button.title;
+            controls.forEach(control => {
+                const title = control.getAttribute('data-title') || control.title;
                 if (!title) return;
 
                 const [name, description] = title.split(': ');
-                const icon = button.querySelector('svg')?.cloneNode(true);
+                const icon = control.querySelector('svg')?.cloneNode(true);
                 
                 const li = document.createElement('li');
                 const iconWrapper = document.createElement('div');
                 iconWrapper.className = 'icon-wrapper';
                 if (icon) {
                     iconWrapper.appendChild(icon);
-                } else if (button.classList.contains('counter-bubble')) {
-                    iconWrapper.innerHTML = `<div id="randomisation-display">${button.querySelector('#randomisation-display').textContent}</div>`;
+                } else if (control.classList.contains('slider-container')) {
+                    iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
                 }
                 
                 const textWrapper = document.createElement('div');
@@ -664,6 +696,31 @@
                 li.appendChild(textWrapper);
                 infoList.appendChild(li);
             });
+        };
+
+        const toggleParticleDeath = async () => {
+            particleDeathAllowed = !particleDeathAllowed;
+            btnKillSwitch.classList.toggle("active", particleDeathAllowed);
+
+            if (!currentConfig.particles) return;
+
+            if (particleDeathAllowed) {
+                currentConfig.particles.life = {
+                    enable: true,
+                    duration: { sync: false, value: getRandomInRange(2, 6) },
+                    count: 1
+                };
+                currentConfig.emitters = [{
+                    direction: "top",
+                    life: { duration: 0, count: 0 },
+                    position: { x: 50, y: 110 },
+                    rate: { quantity: chaosLevel / 2, delay: 0.2 }
+                }];
+            } else {
+                currentConfig.particles.life.enable = false;
+                currentConfig.emitters = [];
+            }
+            await loadParticles(currentConfig);
         };
 
         // --- Event Listeners ---
@@ -693,11 +750,7 @@
             loadParticles(currentConfig);
         });
 
-        btnKillSwitch.addEventListener("click", () => {
-            particleDeathAllowed = !particleDeathAllowed;
-            btnKillSwitch.classList.toggle("active", particleDeathAllowed);
-            createShuffleHandler({fx: true, interaction: true})();
-        });
+        btnKillSwitch.addEventListener("click", toggleParticleDeath);
         
         btnBack.addEventListener("click", async () => {
             if (configHistory.length > 0) {
@@ -710,7 +763,7 @@
         btnShare.addEventListener('click', async () => {
             const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
             sharableConfig.uiState = {
-                randomisationLevel, isDarkMode, isCursorParticle, particleDeathAllowed, isGravityOn
+                chaosLevel, isDarkMode, isCursorParticle, particleDeathAllowed, isGravityOn
             };
             
             try {
@@ -738,16 +791,10 @@
         });
         closeInfoModalBtn.addEventListener('click', () => infoModal.classList.remove('visible'));
 
-        const changeRandomisation = (amount) => {
-            const newLevel = randomisationLevel + amount;
-            if (newLevel >= 1 && newLevel <= 10) {
-                randomisationLevel = newLevel;
-                updateRandomisationDisplay();
-            }
-        };
-
-        btnPlus.addEventListener("click", () => changeRandomisation(1));
-        btnMinus.addEventListener("click", () => changeRandomisation(-1));
+        chaosSlider.addEventListener('input', (e) => {
+            chaosLevel = parseInt(e.target.value, 10);
+            updateChaosDisplay();
+        });
 
         closeModalBtn.addEventListener("click", () => welcomeModal.classList.remove("visible"));
         fullscreenBtn.addEventListener("click", toggleFullScreen);
@@ -775,7 +822,7 @@
         }
 
         subMenu.addEventListener('mouseover', (e) => {
-            const target = e.target.closest('.menu-button, .counter-bubble');
+            const target = e.target.closest('.menu-button, .slider-container');
             if (!target || !target.title) return;
 
             target.setAttribute('data-title', target.title);
@@ -789,7 +836,7 @@
         });
 
         subMenu.addEventListener('mouseout', (e) => {
-            const target = e.target.closest('.menu-button, .counter-bubble');
+            const target = e.target.closest('.menu-button, .slider-container');
             if (!target || !target.getAttribute('data-title')) return;
             
             tooltip.classList.remove('visible');
@@ -813,7 +860,7 @@
                 if (decodedString) {
                     const parsedConfig = JSON.parse(decodedString);
                     if (parsedConfig.uiState) {
-                        randomisationLevel = parsedConfig.uiState.randomisationLevel || 5;
+                        chaosLevel = parsedConfig.uiState.chaosLevel || 5;
                         isDarkMode = parsedConfig.uiState.isDarkMode !== false;
                         isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
                         particleDeathAllowed = parsedConfig.uiState.particleDeathAllowed === true;
@@ -833,13 +880,13 @@
 
         if (initialConfigFromUrl) {
             await loadParticles(initialConfigFromUrl);
-            updateRandomisationDisplay();
+            updateChaosDisplay();
             updateTheme();
             btnCursor.classList.toggle("active", isCursorParticle);
             btnKillSwitch.classList.toggle("active", particleDeathAllowed);
             btnGravity.classList.toggle("active", isGravityOn);
         } else {
-            updateRandomisationDisplay();
+            updateChaosDisplay();
             const newConfig = buildConfig({all: true});
             await loadParticles(newConfig);
             setTimeout(() => {
