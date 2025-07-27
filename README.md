@@ -1,10 +1,21 @@
 # tsDice | tsParticles Scene Randomiser
 
+[![Project Status: Maintained](https://img.shields.io/badge/project%20status-maintained-brightgreen.svg)](https://gist.github.com/zophiezlan/9733473a25de35dd924294d1354353c9)
+
 Welcome to **tsDice**, an interactive playground for creating and discovering beautiful, dynamic particle animations. Built on the powerful [tsParticles](https://github.com/tsparticles/tsparticles) library, this tool allows you to generate, tweak, and explore an endless variety of particle "scenes" right in your browser.
 
-Whether you're looking for inspiration for a web project or just want a mesmerising visual experience, the Scene Randomiser has you covered.
+⭐ **Live Demo:** [**https://tsdice.pages.dev/**](https://tsdice.pages.dev/) ⭐
 
 ⭐ **Desktop wallpaper version and instructions found in the [desktop branch](https://github.com/zophiezlan/tsdice/tree/desktop)** ⭐
+
+---
+
+## Project Status
+
+This project is now considered **feature-complete** and is in **maintenance mode**. This means:
+* The core functionality is stable and no new major features are planned.
+* I will continue to address critical bugs and review pull requests for fixes.
+* Community contributions for bug fixes or small enhancements are welcome (see `CONTRIBUTING.md`).
 
 ---
 
@@ -56,14 +67,16 @@ To run this project on your local machine, simply follow these steps:
     ```bash
     git clone [https://github.com/zophiezlan/tsdice.git](https://github.com/zophiezlan/tsdice.git)
     ```
-   
 2.  **Navigate to the directory:**
     ```bash
     cd tsdice
     ```
-   
 3.  **Open the `index.html` file:**
     You can open this file directly in your web browser. No server is required as it's a self-contained HTML file with vanilla JavaScript.
+
+## Contributing
+
+Contributions are welcome, especially for bug fixes. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines.
 
 ## Technologies Used
 
@@ -75,3 +88,4 @@ To run this project on your local machine, simply follow these steps:
 ## License
 
 This project is open-source and available under the [MIT License](LICENSE).
+
