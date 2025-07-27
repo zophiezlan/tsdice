@@ -1,59 +1,50 @@
-# tsDice | tsParticles Scene Randomiser
+# tsDice | Desktop Wallpaper Edition
 
-Welcome to **tsDice**, an interactive playground for creating and discovering beautiful, dynamic particle animations. Built on the powerful tsParticles library, this tool allows you to generate, tweak, and explore an endless variety of particle "scenes" right in your browser.
+Welcome to the **Desktop Wallpaper Edition of tsDice**, a special version optimised for a rich, persistent, and interactive background experience on your computer.
 
-Whether you're looking for inspiration for a web project or just want a mesmerising visual experience, the Scene Randomiser has you covered.
+This isn't just a randomiser; it's a powerful engine for creating your perfect, evolving desktop scene. It leverages the robust physics of the [tsParticles](https://github.com/tsparticles/tsparticles) library to turn your background into a dynamic work of art.
 
 ---
 
-## Features
+## ✨ Desktop Edition Features
 
-* **Instant Randomisation:** Generate a complete, unique particle animation with a single click.
-* **Granular Control:** Shuffle specific aspects of the animation, including:
-    * **Appearance:** Particle shape, size, colour, and stroke.
-    * **Movement:** Speed, direction, gravity, and trails.
-    * **Interaction:** How particles react to your mouse on hover and click.
-    * **Special FX:** Effects like links, rotation, wobble, and collisions.
-* **Intensity Scale:** A 1-10 slider to control the overall chaos and intensity of the random effects.
-* **Interactive Toggles:** Fine-tune the scene with toggles for common settings like theme, cursor focus, and particle death.
-* **History:** Made a change you don't like? The "Back" button lets you step back through your last 20 shuffles.
-* **Responsive Design:** A clean, glassmorphism-style UI that works beautifully on both desktop and mobile.
+This version includes exclusive features designed specifically for a desktop environment:
 
-## How to Use
+* **Persistent Scenes with "Save":** The star of the show! Find a look you love, hit the **Save** button, and it will automatically become your default scene every time your computer starts. No more losing that perfect vibe.
+* **Advanced Physics Engine:** The randomisers are supercharged with complex physics to create endlessly fascinating scenes. Watch particles `infect` each other, get pulled in by `attraction`, `spin` in place, or `absorb` each other on collision.
+* **Automatic Day/Night Theme:** On its very first run, the wallpaper will automatically select a light or dark theme based on your local time of day. You can always override it manually.
+* **Resource Management:** A dedicated **Pause/Play** button allows you to freeze the animation at any time, instantly reducing CPU/GPU usage when you need to focus on a demanding task.
+* **Deep Customisation:**
+    * **Granular Shufflers:** Randomise Appearance, Movement, Interaction, and Special FX independently.
+    * **Chaos Level:** Use the slider to control the scene's complexity, from a calm, minimalist flow to a chaotic swarm.
+    * **Toggles:** Instantly enable or disable gravity, cursor trails, and particle lifespans.
 
-The interface is designed to be intuitive and fun to explore.
+---
 
-1.  **Open the Menu:** Click the main settings icon in the bottom-left corner to expand the control panel.
-2.  **Shuffle:**
-    * Click **Shuffle All** for a completely new vibe.
-    * Click the category-specific shuffle buttons (Appearance, Movement, etc.) to only randomise those parameters.
-3.  **Adjust Intensity:** Use the **+** and **-** buttons to increase or decrease the randomness level, affecting the intensity of generated effects.
-4.  **Toggle Effects:** Use the toggle buttons to turn specific features on or off.
-5.  **Go Back:** If you preferred the previous vibe, just hit the **Back** button.
-6.  **Get Info:** Click the **Info** button to see a detailed description of what each control does.
+## 🚀 How to Use as Your Wallpaper
 
-## Getting Started (Local Development)
+The best way to use this is with **Lively Wallpaper** (for Windows), a free app available from the [Microsoft Store](https://www.microsoft.com/store/productId/9NTM2QC6QWS7).
 
-To run this project on your local machine, simply follow these steps:
+1.  **Download:** Get the `tsDice-Desktop` folder or ZIP file.
+2.  **Install Lively:** If you don't have it, install Lively Wallpaper.
+3.  **Add Wallpaper:**
+    * Open Lively and click the **"Add Wallpaper"** (+) button.
+    * Click **"Browse..."** and navigate to your `tsDice-Desktop` folder.
+    * Select the `index.html` file and click **Open**.
+4.  **Set It!** Your interactive wallpaper will appear in your library. Click it to set it as your background.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/zophiezlan/tsdice.git](https://github.com/zophiezlan/tsdice.git)
-    ```
-2.  **Navigate to the directory:**
-    ```bash
-    cd tsdice
-    ```
-3.  **Open the `index.html` file:**
-    You can open this file directly in your web browser. No server is required as it's a self-contained HTML file with vanilla JavaScript.
+Your desktop is now alive! Use the on-screen menu to customise it, and don't forget to hit **Save** when you create something you love.
+
+---
 
 ## Technologies Used
 
-* **[tsParticles](https://github.com/tsparticles/tsparticles)**: The core engine powering the particle animations.*
+* **[tsParticles](https://github.com/tsparticles/tsparticles)**: The core engine powering the particle animations.
 * **HTML5**
 * **CSS3**
 * **JavaScript (ES6 Modules)**
 
+---
 
 ## License
 
