@@ -11,7 +11,7 @@ This isn't just a randomiser; it's a powerful engine for creating your perfect, 
 This version includes exclusive features designed specifically for a desktop environment:
 
 * **Persistent Scenes with "Save":** The star of the show! Find a look you love, hit the **Save** button, and it will automatically become your default scene every time your computer starts. No more losing that perfect vibe.
-* **Advanced Physics Engine:** The randomisers are supercharged with complex physics to create endlessly fascinating scenes. Watch particles `infect` each other, get pulled in by `attraction`, `spin` in place, or `absorb` each other on collision.
+* **Advanced Physics Engine:** The randomisers are supercharged with complex physics to create endlessly fascinating scenes. Watch particles `infect` each other with new colours, get pulled in by `attraction`, `spin` in place, or `absorb` each other on collision.
 * **Automatic Day/Night Theme:** On its very first run, the wallpaper will automatically select a light or dark theme based on your local time of day. You can always override it manually.
 * **Resource Management:** A dedicated **Pause/Play** button allows you to freeze the animation at any time, instantly reducing CPU/GPU usage when you need to focus on a demanding task.
 * **Deep Customisation:**
@@ -23,10 +23,10 @@ This version includes exclusive features designed specifically for a desktop env
 
 ## 🚀 How to Use as Your Wallpaper
 
-The best way to use this is with **Lively Wallpaper** (for Windows), a free app available from the [Microsoft Store](https://www.microsoft.com/store/productId/9NTM2QC6QWS7).
+The best way to use this is with **[Lively Wallpaper](https://github.com/rocksdanister/lively)** (for Windows), a free and open-source app.
 
-1.  **Download:** Get the `tsDice-Desktop` folder or ZIP file.
-2.  **Install Lively:** If you don't have it, install Lively Wallpaper.
+1.  **Download:** Get the `tsDice-Desktop` folder containing the `index.html` file.
+2.  **Install Lively:** If you don't have it, install Lively Wallpaper from its GitHub or the [Microsoft Store](https://www.microsoft.com/store/productId/9NTM2QC6QWS7).
 3.  **Add Wallpaper:**
     * Open Lively and click the **"Add Wallpaper"** (+) button.
     * Click **"Browse..."** and navigate to your `tsDice-Desktop` folder.
@@ -48,4 +48,4 @@ Your desktop is now alive! Use the on-screen menu to customise it, and don't for
 
 ## License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is open-source and available under the MIT License.
