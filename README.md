@@ -4,6 +4,8 @@ Welcome to **tsDice**, an interactive playground for creating and discovering be
 
 Whether you're looking for inspiration for a web project or just want a mesmerising visual experience, the Scene Randomiser has you covered.
 
+⭐ **Desktop wallpaper version and instructions found in the [desktop branch](https://github.com/zophiezlan/tsdice/tree/desktop)** ⭐
+
 ---
 
 ## Project Concept & Unique Approach
