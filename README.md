@@ -1,5 +1,7 @@
 # tsDice | Desktop Wallpaper Edition
 
+[Link to hosted copy](https://desktop.tsdice.pages.dev/)
+
 Welcome to the **Desktop Wallpaper Edition of tsDice**, a special version optimised for a rich, persistent, and interactive background experience on your computer.
 
 This isn't just a randomiser; it's a powerful engine for creating your perfect, evolving desktop scene. It leverages the robust physics of the [tsParticles](https://github.com/tsparticles/tsparticles) library to turn your background into a dynamic work of art.
