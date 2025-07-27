@@ -2,9 +2,8 @@
 <html lang="en-AU">
 <head>
     <meta charset="UTF-8" />
-    <title>⭐🐎⭐🐎⭐🐎</title>
+    <title>ket.horse Desktop Wallpaper</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Library for link compression -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <style>
       html, body {
@@ -31,7 +30,7 @@
 
       /* --- Glassmorphism Button Base Style --- */
       .glass-button {
-        width: 48px; /* Slightly smaller for mobile */
+        width: 48px;
         height: 48px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.1);
@@ -45,7 +44,7 @@
         transition: all 0.3s ease;
         color: white;
         user-select: none;
-        flex-shrink: 0; /* Prevent buttons from shrinking */
+        flex-shrink: 0;
       }
       .glass-button:hover {
         background: rgba(255, 255, 255, 0.2);
@@ -56,6 +55,9 @@
         cursor: not-allowed;
         transform: scale(1) !important;
         background: rgba(255, 255, 255, 0.1) !important;
+      }
+       .glass-button.saved {
+        animation: save-glow 0.8s ease-out;
       }
       body.light-mode .glass-button {
         background: rgba(0, 0, 0, 0.1);
@@ -68,42 +70,25 @@
       body.light-mode .glass-button.disabled {
         background: rgba(0, 0, 0, 0.1) !important;
       }
-
-      /* --- Corner Buttons --- */
-      #fullscreen-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 100;
-      }
-      #tsparticles-link {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 100;
-        text-decoration: none;
-        padding: 8px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        height: auto;
-        width: auto;
+      
+      @keyframes save-glow {
+        0% { box-shadow: 0 0 0px 0px rgba(50, 255, 50, 0.7); }
+        50% { box-shadow: 0 0 15px 5px rgba(50, 255, 50, 0.7); }
+        100% { box-shadow: 0 0 0px 0px rgba(50, 255, 50, 0); }
       }
 
-      /* --- Menu Styles --- */
+      /* --- Menu Styles (Top-Left & Wider) --- */
       .menu-container {
         position: fixed;
-        bottom: 20px;
+        top: 20px;
         left: 20px;
         z-index: 100;
         display: flex;
-        align-items: flex-end;
+        align-items: flex-start;
         gap: 8px;
-        max-width: calc(100vw - 40px); /* Ensure menu doesn't overflow */
+        max-width: calc(100vw - 40px);
       }
 
-      .menu-button {
-        /* Inherit from glass-button */
-      }
       .menu-button.active {
         background: rgba(142, 45, 226, 0.8);
         color: #fff;
@@ -115,22 +100,21 @@
 
       .sub-menu {
         display: flex;
-        flex-wrap: wrap; /* Allow items to wrap */
+        flex-wrap: wrap;
         gap: 8px;
         transform-origin: left center;
         transform: scaleX(0);
         opacity: 0;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
-        max-width: 340px; /* Max width on larger screens */
-      }
-       @media (max-width: 480px) {
-        .sub-menu {
-            max-width: calc(100vw - 140px); /* Adjust for smaller screens */
-        }
+        max-width: 620px; /* Increased width */
       }
       .menu-container.active .sub-menu {
         transform: scaleX(1);
         opacity: 1;
+      }
+      .sub-menu .break { /* New class for forcing a line break */
+        flex-basis: 100%;
+        height: 8px;
       }
       
       /* --- Intensity Slider --- */
@@ -138,7 +122,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 180px; /* Adjusted width */
+        width: 180px;
         height: 48px;
         border-radius: 24px;
         background: rgba(255, 255, 255, 0.1);
@@ -185,18 +169,9 @@
         border: 2px solid #8e2de2;
         transition: transform 0.2s ease;
       }
-      #chaos-slider:hover::-webkit-slider-thumb {
-        transform: scale(1.2);
-      }
-      #chaos-slider:hover::-moz-range-thumb {
-        transform: scale(1.2);
-      }
-      body.light-mode #chaos-slider::-webkit-slider-thumb {
-        border-color: #4361ee;
-      }
-       body.light-mode #chaos-slider::-moz-range-thumb {
-        border-color: #4361ee;
-      }
+      body.light-mode #chaos-slider::-webkit-slider-thumb { border-color: #4361ee; }
+      body.light-mode #chaos-slider::-moz-range-thumb { border-color: #4361ee; }
+      
       #chaos-display {
         font-size: 18px;
         font-weight: bold;
@@ -218,128 +193,50 @@
         padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
         width: 90%; max-width: 550px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        max-height: 85vh; overflow-y: auto;
-        text-align: center;
+        max-height: 85vh; overflow-y: auto; text-align: center;
       }
       .modal-overlay.visible .modal-content { transform: scale(1); }
       body.light-mode .modal-content { background: rgba(255, 255, 255, 0.8); color: #333; border-color: rgba(0, 0, 0, 0.2); }
       .modal-content h2 { margin-top: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 10px; }
       body.light-mode .modal-content h2 { border-bottom-color: rgba(0, 0, 0, 0.2); }
-      .modal-content p { line-height: 1.6; }
-      .modal-content strong { color: #fff; }
-      body.light-mode .modal-content strong { color: #000; }
-
       .modal-close-btn {
         display: block; margin: 20px auto 0; padding: 12px 25px; border: none;
         border-radius: 25px; background: rgba(142, 45, 226, 0.8); color: white;
         font-size: 16px; cursor: pointer; transition: all 0.3s ease;
-        text-decoration: none;
-        width: fit-content;
       }
       .modal-close-btn:hover { background: rgba(142, 45, 226, 1); }
       body.light-mode .modal-close-btn { background: rgba(67, 97, 238, 0.8); }
       body.light-mode .modal-close-btn:hover { background: rgba(67, 97, 238, 1); }
-      
       .info-list { list-style: none; padding: 0; }
       .info-list li { display: flex; align-items: center; margin-bottom: 15px; }
       .info-list .icon-wrapper { width: 30px; height: 30px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; }
-       .info-list .icon-wrapper svg { width: 20px; height: 20px; }
+      .info-list .icon-wrapper svg { width: 20px; height: 20px; }
       .info-text { text-align: left; }
       .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
       .info-text span { font-size: 0.9em; opacity: 0.8; }
-      #info-button-welcome { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; font-size: 14px; margin-top: 10px; }
-      #info-button-welcome svg { width: 18px; height: 18px; margin-right: 8px; }
-
-      /* --- Toast Notification --- */
-      #toast-notification {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(30, 30, 30, 0.85);
-        color: white;
-        padding: 12px 25px;
-        border-radius: 25px;
-        z-index: 300;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.4s ease, visibility 0.4s ease, bottom 0.4s ease;
-        font-size: 14px;
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      #toast-notification.show {
-        bottom: 100px;
-        opacity: 1;
-        visibility: visible;
-      }
-      body.light-mode #toast-notification {
-          background: rgba(245, 245, 245, 0.85);
-          color: #333;
-          border: 1px solid rgba(0,0,0,0.1);
-      }
       
       /* --- Custom Tooltip --- */
       #custom-tooltip {
-        position: fixed;
-        z-index: 999;
-        padding: 10px 15px;
-        border-radius: 12px;
-        font-size: 14px;
-        line-height: 1.5;
-        max-width: 280px;
-        text-align: left;
-        pointer-events: none;
-        opacity: 0;
-        visibility: hidden;
+        position: fixed; z-index: 999; padding: 10px 15px; border-radius: 12px;
+        font-size: 14px; line-height: 1.5; max-width: 280px; text-align: left;
+        pointer-events: none; opacity: 0; visibility: hidden;
         transform: scale(0.9);
         transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-        
-        background: rgba(230, 230, 230, 0.25);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        color: #f0f0f0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        background: rgba(230, 230, 230, 0.25); border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        color: #f0f0f0; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       }
-      #custom-tooltip.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: scale(1);
-      }
-      #custom-tooltip strong {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: #ffffff;
-      }
-      #custom-tooltip span {
-        opacity: 0.9;
-      }
+      #custom-tooltip.visible { opacity: 1; visibility: visible; transform: scale(1); }
+      #custom-tooltip strong { display: block; margin-bottom: 5px; font-weight: 600; color: #ffffff; }
+      #custom-tooltip span { opacity: 0.9; }
       body.light-mode #custom-tooltip {
-        background: rgba(30, 30, 30, 0.25);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: #222;
+        background: rgba(30, 30, 30, 0.25); border: 1px solid rgba(0, 0, 0, 0.2); color: #222;
       }
-      body.light-mode #custom-tooltip strong {
-         color: #000000;
-      }
+      body.light-mode #custom-tooltip strong { color: #000000; }
     </style>
 </head>
 <body>
     <div id="tsparticles"></div>
-    <div id="toast-notification">Link copied to clipboard!</div>
-
-    <div class="modal-overlay" id="welcome-modal">
-        <div class="modal-content">
-            <h2>ket.horse particle randomiser</h2>
-            <p><strong>Now even kettier!</strong></p>
-            <p>This is an interactive playground built on the powerful <strong>tsParticles</strong> library. It's a fun way to discover unique and fun particle animations with just a click.</p>
-            <p>While this tool is great for getting exciting, random results, if you want to fine-tune every detail, head over to the official website to build your own from scratch!</p>
-            <a href="https://particles.js.org/" target="_blank" class="modal-close-btn" style="background-color: transparent; border: 1px solid; margin-bottom: 10px;">Powered by tsParticles</a>
-            <button class="modal-close-btn" id="close-welcome-modal">Start Creating!</button>
-        </div>
-    </div>
 
     <div class="modal-overlay" id="info-modal">
         <div class="modal-content">
@@ -349,34 +246,32 @@
         </div>
     </div>
 
-    <div class="glass-button" id="fullscreen-btn" title="Toggle Fullscreen: Expands the view to fill your entire screen for an immersive experience, or returns to the normal windowed view.">
-      <svg id="icon-fullscreen-enter" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      <svg id="icon-fullscreen-exit" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
-    </div>
-
     <div class="menu-container" id="menu-container">
         <div class="glass-button menu-button" id="main-menu-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
         <div class="sub-menu" id="sub-menu">
-            <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All: Generates a completely new particle scene from scratch. This randomises colours, shapes, movement physics, interactive effects, and special FX for a unique vibe every time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance: Randomises the look of the particles. This changes their colour, shape (e.g., circle, star, polygon), size, opacity, and outline strokes."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement: Changes how particles travel around the screen. This alters their speed, overall direction, and can add motion trails."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction: Modifies how particles respond to your cursor. This changes the effect of mouse hovers (e.g., repel, grab, bubble) and clicks (e.g., push, remove, create trail)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX: Toggles and randomises advanced visual effects. This can add or remove particle links, rotation, wobble, twinkle effects, and particle collision physics. Note: This may also change interaction settings."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All: Generates a completely new random scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance: Randomises the look of particles (colour, shape, size)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement: Changes how particles travel (speed, direction, trails, attraction)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction: Modifies how particles respond to your cursor."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
+            <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX: Toggles advanced physics (links, wobble, spin, collisions, absorption, infection)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
             
-            <div class="slider-container" title="Chaos Level: Controls the overall intensity of generated effects. Higher values lead to more particles, faster speeds, and more complex physics. Lower values create calmer, more subtle scenes.">
+            <div class="slider-container" title="Chaos Level: Controls the intensity of generated effects.">
                 <input type="range" min="1" max="10" value="5" id="chaos-slider">
                 <div id="chaos-display">5</div>
             </div>
 
-            <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
-            <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle: Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
-            <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Death: Enables or disables particle lifespan. When active, particles will disappear after a certain time and be replaced by new ones."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16"/><path d="M10 13v4"/><path d="M14 13v4"/><path d="M10 4V2a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/><line x1="4" y1="9" x2="20" y2="9"/></svg></div>
-            <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous particle configuration. You can go back up to 20 steps."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
-            <div class="glass-button menu-button" id="btn-info" title="Info: Shows a detailed guide explaining what each control button in the menu does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
-            <div class="glass-button menu-button" id="btn-share" title="Share Scene: Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
-            <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+            <div class="break"></div>
+
+            <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between dark and light themes."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+            <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle: Makes your mouse leave a trail of particles."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+            <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Lifespan: Makes particles disappear over time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16"/><path d="M10 13v4"/><path d="M14 13v4"/><path d="M10 4V2a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/><line x1="4" y1="9" x2="20" y2="9"/></svg></div>
+            <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
+            <div class="glass-button menu-button" id="btn-info" title="Info: Shows what each control button does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+            <div class="glass-button menu-button" id="btn-pause" title="Pause Animation: Freezes/unfreezes the particle animation."><svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg><svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+            <div class="glass-button menu-button" id="btn-save" title="Save Scene: Saves the current scene as the default for next time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></div>
         </div>
     </div>
 
@@ -390,30 +285,29 @@
         // --- Element Selectors ---
         const mainMenuBtn = document.getElementById('main-menu-btn');
         const subMenu = document.getElementById('sub-menu');
-        const btnShuffleAll = document.getElementById('btn-shuffle-all');
-        const btnShuffleAppearance = document.getElementById('btn-shuffle-appearance');
-        const btnShuffleMovement = document.getElementById('btn-shuffle-movement');
-        const btnShuffleInteraction = document.getElementById('btn-shuffle-interaction');
-        const btnShuffleFx = document.getElementById('btn-shuffle-fx');
+        const allShuffleButtons = {
+            all: document.getElementById('btn-shuffle-all'),
+            appearance: document.getElementById('btn-shuffle-appearance'),
+            movement: document.getElementById('btn-shuffle-movement'),
+            interaction: document.getElementById('btn-shuffle-interaction'),
+            fx: document.getElementById('btn-shuffle-fx')
+        };
         const btnTheme = document.getElementById('btn-theme');
         const btnCursor = document.getElementById('btn-cursor');
         const btnKillSwitch = document.getElementById('btn-kill-switch');
         const btnBack = document.getElementById('btn-back');
         const btnInfo = document.getElementById('btn-info');
-        const btnShare = document.getElementById('btn-share');
         const btnGravity = document.getElementById('btn-gravity');
+        const btnSave = document.getElementById('btn-save');
+        const btnPause = document.getElementById('btn-pause');
         const chaosSlider = document.getElementById('chaos-slider');
         const chaosDisplay = document.getElementById('chaos-display');
-        const welcomeModal = document.getElementById('welcome-modal');
-        const closeModalBtn = document.getElementById('close-welcome-modal');
         const infoModal = document.getElementById('info-modal');
         const closeInfoModalBtn = document.getElementById('close-info-modal');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const iconEnter = document.getElementById('icon-fullscreen-enter');
-        const iconExit = document.getElementById('icon-fullscreen-exit');
-        const toastNotification = document.getElementById('toast-notification');
         
         // --- State Variables ---
+        let particlesContainer = null;
+        let isPaused = false;
         let chaosLevel = 5;
         let isDarkMode = true;
         let isCursorParticle = false;
@@ -422,8 +316,7 @@
         let currentConfig = {};
         let originalInteractionModes = {};
         let configHistory = [];
-        let initialConfigFromUrl = null;
-
+        
         // --- Data Arrays ---
         const darkColorPalette = ["#ff007b", "#33ff57", "#3357ff", "#ffc300", "#ffffff", "#ad55ff", "#00f5d4", "#f15bb5"];
         const lightColorPalette = ["#f72585", "#7209b7", "#3a0ca3", "#4361ee", "#4cc9f0", "#f94144", "#f3722c", "#f9c74f"];
@@ -431,8 +324,8 @@
         const directionOptions = ["none", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left"];
         const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect"];
         const safeClickModes = ["push", "bubble", "remove", "trail"];
-        
-        // --- Tooltip Setup ---
+        const collisionModes = ["bounce", "destroy", "absorb"];
+
         const tooltip = document.createElement('div');
         tooltip.id = 'custom-tooltip';
         document.body.appendChild(tooltip);
@@ -455,106 +348,67 @@
         const saveHistory = () => {
             if (Object.keys(currentConfig).length > 0) {
                 configHistory.push(JSON.parse(JSON.stringify(currentConfig)));
-                if (configHistory.length > 20) {
-                    configHistory.shift();
-                }
+                if (configHistory.length > 20) configHistory.shift();
                 updateBackButtonState();
-            }
-        };
-        
-        const showToast = (message) => {
-            toastNotification.textContent = message;
-            toastNotification.classList.add('show');
-            setTimeout(() => {
-                toastNotification.classList.remove('show');
-            }, 3000);
-        };
-
-        const copyToClipboard = async (text) => {
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast('Short link copied to clipboard!');
-            } catch (err) {
-                console.error('Modern clipboard API failed, falling back to legacy execCommand.', err);
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                textArea.style.top = "0";
-                textArea.style.left = "-9999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showToast('Short link copied to clipboard!');
-                } catch (execErr) {
-                    console.error('Fallback copy method (execCommand) failed.', execErr);
-                    showToast('Failed to copy link.');
-                }
-                document.body.removeChild(textArea);
             }
         };
 
         // --- Config Generation Functions ---
-        const generateAppearance = () => {
-            const useRandomColor = getRandomBool(0.2);
-            return {
-                color: { value: useRandomColor ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
-                shape: { type: getRandomItem(shapeOptions) },
-                opacity: { value: { min: 0.3, max: 1 } },
-                size: { value: { min: 1, max: 1 + chaosLevel * 1.5 } },
-                stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: useRandomColor ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) } },
-            };
-        };
+        const generateAppearance = () => ({
+            color: { value: getRandomBool(0.2) ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
+            shape: { type: getRandomItem(shapeOptions) },
+            opacity: { value: { min: 0.3, max: 1 } },
+            size: { value: { min: 1, max: 1 + chaosLevel * 1.5 }, animation: { enable: getRandomBool(0.1), speed: 5, minimumValue: 0.1, sync: false } },
+            stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
+        });
 
-        const generateMovement = () => {
-            return {
-                enable: true,
-                speed: getRandomInRange(chaosLevel * 0.5, chaosLevel * 2),
-                direction: getRandomItem(directionOptions),
-                random: true,
-                straight: false,
-                outModes: { default: "out" },
-                trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
-            };
-        };
+        const generateMovement = () => ({
+            enable: true,
+            speed: getRandomInRange(chaosLevel * 0.5, chaosLevel * 2),
+            direction: getRandomItem(directionOptions),
+            random: true,
+            straight: false,
+            outModes: { default: "out" },
+            trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } },
+            attract: { enable: getRandomBool(getChaosProbability(0.3)), rotate: { x: 600, y: 1200 } }
+        });
         
         const generateInteraction = (isDeathActive) => {
             let clickMode = getRandomItem(safeClickModes);
-            let hoverMode = getRandomItem(hoverModeOptions);
-            
-            if (isDeathActive && clickMode === "remove") {
-                clickMode = "push";
-            }
-            if (getRandomBool(getChaosProbability(0.4))) hoverMode = "parallax";
-            
+            if (isDeathActive && clickMode === "remove") clickMode = "push";
             const interaction = {
-                events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
-                modes: { repulse: { distance: 50 + chaosLevel * 10 }, push: { quantity: chaosLevel }, bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 }, parallax: { enable: true, force: 5 * chaosLevel, smooth: 10 } }
+                events: { onHover: { enable: true, mode: getRandomItem(hoverModeOptions) }, onClick: { enable: true, mode: clickMode } },
+                modes: { repulse: { distance: 50 + chaosLevel * 10 }, push: { quantity: chaosLevel }, bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 }, parallax: { enable: getRandomBool(getChaosProbability(0.4)), force: 5 * chaosLevel, smooth: 10 } }
             };
-            
-            originalInteractionModes = {
-                click: interaction.events.onClick.mode,
-                hover: interaction.events.onHover.mode
-            };
-
+            originalInteractionModes = { click: interaction.events.onClick.mode, hover: interaction.events.onHover.mode };
             return interaction;
         };
 
         const generateSpecialFX = (currentFx = {}) => {
             const fx = {
                 life: currentFx.life || { enable: false, count: 0 },
-                collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
+                collisions: { 
+                    enable: getRandomBool(getChaosProbability(0.6)), 
+                    mode: getRandomItem(collisionModes),
+                    absorb: { speed: getRandomInRange(1, 5) }
+                },
                 wobble: { enable: getRandomBool(getChaosProbability(0.5)), distance: 2 + chaosLevel, speed: 5 + chaosLevel },
                 rotate: { animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false } },
+                spin: { enable: getRandomBool(getChaosProbability(0.3)), acceleration: getRandomInRange(-5, 5) },
                 links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
-                destroy: currentFx.destroy || { mode: "none" },
-                emitters: currentFx.emitters || [],
-                clickModeOverride: null,
-                twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
+                twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } },
+                infection: {
+                    enable: getRandomBool(getChaosProbability(0.2)),
+                    stages: [
+                        { color: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette), radius: 0, infectedStage: 1 },
+                        { color: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette), radius: chaosLevel * 4, infectedStage: 2, rate: 1 },
+                        { color: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette), radius: chaosLevel * 8, rate: 1 }
+                    ]
+                }
             };
             return fx;
         };
+
 
         const buildConfig = (shuffleOptions) => {
             const isNew = !currentConfig || Object.keys(currentConfig).length === 0;
@@ -562,50 +416,29 @@
             
             let baseParticles = newConfig.particles || {};
             let baseInteractivity = newConfig.interactivity || {};
-            let baseEmitters = newConfig.emitters || [];
 
             if (shuffleOptions.all || isNew) {
-                const appearance = generateAppearance();
-                const movement = generateMovement();
-                const fx = generateSpecialFX();
-                const interaction = generateInteraction(fx.emitters.length > 0);
-                
-                baseParticles = { ...appearance, move: movement, ...fx };
-                baseInteractivity = interaction;
-                if (fx.clickModeOverride) baseInteractivity.events.onClick.mode = fx.clickModeOverride;
-                baseEmitters = fx.emitters;
+                Object.assign(baseParticles, generateAppearance(), { move: generateMovement() }, generateSpecialFX());
+                baseInteractivity = generateInteraction(baseParticles.life?.enable);
             } else {
                 if (shuffleOptions.appearance) Object.assign(baseParticles, generateAppearance());
-                if (shuffleOptions.movement) baseParticles.move = { ...baseParticles.move, ...generateMovement() };
-                if (shuffleOptions.interaction) {
-                    const deathIsEnabled = baseEmitters.length > 0;
-                    baseInteractivity = generateInteraction(deathIsEnabled);
-                }
-                if (shuffleOptions.fx) {
-                    const fx = generateSpecialFX(baseParticles);
-                    const deathIsEnabled = fx.emitters.length > 0;
-                    Object.assign(baseParticles, fx);
-                    baseInteractivity = generateInteraction(deathIsEnabled);
-                    if (fx.clickModeOverride) baseInteractivity.events.onClick.mode = fx.clickModeOverride;
-                    baseEmitters = fx.emitters;
-                }
+                if (shuffleOptions.movement) Object.assign(baseParticles.move, generateMovement());
+                if (shuffleOptions.fx) Object.assign(baseParticles, generateSpecialFX(baseParticles));
+                if (shuffleOptions.interaction || shuffleOptions.fx) baseInteractivity = generateInteraction(baseParticles.life?.enable);
             }
             
-            delete baseParticles.clickModeOverride;
-            delete baseParticles.emitters;
-
-            newConfig.particles = baseParticles;
-            newConfig.interactivity = baseInteractivity;
-            newConfig.emitters = baseEmitters;
+            newConfig = {
+                ...newConfig,
+                particles: baseParticles,
+                interactivity: baseInteractivity,
+                background: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } },
+                fpsLimit: 120,
+                detectRetina: true
+            };
             
-            newConfig.background = { color: { value: isDarkMode ? "#111" : "#f0f0f0" } };
-            newConfig.fpsLimit = 120;
-            newConfig.detectRetina = true;
-
             if (!newConfig.particles.move.gravity) newConfig.particles.move.gravity = {};
             newConfig.particles.move.gravity.enable = isGravityOn;
             newConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
-
             newConfig.particles.number = { value: 20 + chaosLevel * 20 };
             
             return newConfig;
@@ -613,7 +446,8 @@
         
         const loadParticles = async (config) => {
           currentConfig = config;
-          await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
+          particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
+          if(isPaused) particlesContainer.pause();
         };
         
         const applyCursorMode = () => {
@@ -627,6 +461,12 @@
                 delete currentConfig.interactivity.modes.trail;
             }
         };
+        
+        const applyTimeBasedTheme = () => {
+            const hour = new Date().getHours();
+            isDarkMode = (hour <= 7 || hour >= 19);
+            updateTheme();
+        };
 
         const updateTheme = () => {
           document.body.classList.toggle("light-mode", !isDarkMode);
@@ -635,266 +475,137 @@
           
           if (!currentConfig || Object.keys(currentConfig).length === 0) return;
 
-          const newPalette = isDarkMode ? darkColorPalette : lightColorPalette;
           currentConfig.background.color.value = isDarkMode ? "#111" : "#f0f0f0";
-          if (currentConfig.particles.color.value !== "random") {
-             currentConfig.particles.color.value = getRandomItem(newPalette);
+          if (currentConfig.particles?.color?.value !== "random") {
+             currentConfig.particles.color.value = getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette);
           }
-          if(currentConfig.particles.stroke.width > 0 && currentConfig.particles.stroke.color.value !== "random") {
-            currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
-          }
-          if(currentConfig.particles.links.enable) currentConfig.particles.links.color.value = isDarkMode ? "#ffffff" : "#333333";
-          if(currentConfig.particles.move.trail.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? "#111" : "#f0f0f0";
+          if(currentConfig.particles?.links?.enable) currentConfig.particles.links.color.value = isDarkMode ? "#ffffff" : "#333333";
+          if(currentConfig.particles?.move?.trail?.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? "#111" : "#f0f0f0";
           
           loadParticles(currentConfig);
-        };
-
-        const toggleFullScreen = () => {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-          } else if (document.exitFullscreen) {
-            document.exitFullscreen();
-          }
-        };
-
-        const updateFullscreenIcons = () => {
-          if (!document.fullscreenElement) {
-            iconEnter.style.display = "block";
-            iconExit.style.display = "none";
-          } else {
-            iconEnter.style.display = "none";
-            iconExit.style.display = "block";
-          }
         };
 
         const populateInfoModal = () => {
             const infoList = infoModal.querySelector('.info-list');
             infoList.innerHTML = '';
             const controls = document.querySelectorAll('.sub-menu .menu-button, .sub-menu .slider-container');
-            
             controls.forEach(control => {
                 const title = control.getAttribute('data-title') || control.title;
                 if (!title) return;
-
                 const [name, description] = title.split(': ');
-                const icon = control.querySelector('svg')?.cloneNode(true);
+                const iconHTML = control.classList.contains('slider-container') 
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`
+                    : control.querySelector('svg')?.outerHTML || '';
                 
-                const li = document.createElement('li');
-                const iconWrapper = document.createElement('div');
-                iconWrapper.className = 'icon-wrapper';
-                if (icon) {
-                    iconWrapper.appendChild(icon);
-                } else if (control.classList.contains('slider-container')) {
-                    iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
-                }
-                
-                const textWrapper = document.createElement('div');
-                textWrapper.className = 'info-text';
-                textWrapper.innerHTML = `<strong>${name}</strong><span>${description || ''}</span>`;
-                
-                li.appendChild(iconWrapper);
-                li.appendChild(textWrapper);
-                infoList.appendChild(li);
+                infoList.innerHTML += `<li><div class="icon-wrapper">${iconHTML}</div><div class="info-text"><strong>${name}</strong><span>${description || ''}</span></div></li>`;
             });
         };
 
-        const toggleParticleDeath = async () => {
+        const toggleParticleDeath = () => {
             particleDeathAllowed = !particleDeathAllowed;
             btnKillSwitch.classList.toggle("active", particleDeathAllowed);
-
             if (!currentConfig.particles) return;
-
-            if (particleDeathAllowed) {
-                currentConfig.particles.life = {
-                    enable: true,
-                    duration: { sync: false, value: getRandomInRange(2, 6) },
-                    count: 1
-                };
-                currentConfig.emitters = [{
-                    direction: "top",
-                    life: { duration: 0, count: 0 },
-                    position: { x: 50, y: 110 },
-                    rate: { quantity: chaosLevel / 2, delay: 0.2 }
-                }];
-            } else {
-                currentConfig.particles.life.enable = false;
-                currentConfig.emitters = [];
-            }
-            await loadParticles(currentConfig);
+            currentConfig.particles.life.enable = particleDeathAllowed;
+            currentConfig.emitters = particleDeathAllowed ? [{
+                direction: "top", life: { duration: 0, count: 0 },
+                position: { x: 50, y: 110 }, rate: { quantity: chaosLevel / 2, delay: 0.2 }
+            }] : [];
+            loadParticles(currentConfig);
         };
 
         // --- Event Listeners ---
         mainMenuBtn.addEventListener("click", () => document.getElementById("menu-container").classList.toggle("active"));
         
-        const createShuffleHandler = (options) => async () => {
-            saveHistory();
-            const newConfig = buildConfig(options);
-            await loadParticles(newConfig);
-        };
-
-        btnShuffleAll.addEventListener("click", createShuffleHandler({all: true}));
-        btnShuffleAppearance.addEventListener("click", createShuffleHandler({appearance: true}));
-        btnShuffleMovement.addEventListener("click", createShuffleHandler({movement: true}));
-        btnShuffleInteraction.addEventListener("click", createShuffleHandler({interaction: true}));
-        btnShuffleFx.addEventListener("click", createShuffleHandler({fx: true}));
-
-        btnTheme.addEventListener("click", () => {
-          isDarkMode = !isDarkMode;
-          updateTheme();
+        Object.entries(allShuffleButtons).forEach(([key, btn]) => {
+            btn.addEventListener("click", () => {
+                saveHistory();
+                const newConfig = buildConfig({[key]: true});
+                loadParticles(newConfig);
+            });
         });
 
+        btnTheme.addEventListener("click", () => { isDarkMode = !isDarkMode; updateTheme(); });
         btnCursor.addEventListener("click", () => {
             isCursorParticle = !isCursorParticle;
             btnCursor.classList.toggle("active", isCursorParticle);
             applyCursorMode();
             loadParticles(currentConfig);
         });
-
         btnKillSwitch.addEventListener("click", toggleParticleDeath);
-        
-        btnBack.addEventListener("click", async () => {
+        btnBack.addEventListener("click", () => {
             if (configHistory.length > 0) {
                 const lastConfig = configHistory.pop();
-                await loadParticles(lastConfig);
+                loadParticles(lastConfig);
                 updateBackButtonState();
             }
         });
-        
-        btnShare.addEventListener('click', async () => {
-            const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
-            sharableConfig.uiState = {
-                chaosLevel, isDarkMode, isCursorParticle, particleDeathAllowed, isGravityOn
-            };
-            
-            try {
-                const configString = JSON.stringify(sharableConfig);
-                const compressedConfig = LZString.compressToEncodedURIComponent(configString);
-                const url = window.location.href.split('#')[0] + '#config=' + compressedConfig;
-                await copyToClipboard(url);
-            } catch (e) {
-                console.error("Error creating share link:", e);
-                showToast("Could not create share link.");
-            }
-        });
-
-        btnGravity.addEventListener('click', async () => {
+        btnGravity.addEventListener('click', () => {
             isGravityOn = !isGravityOn;
             btnGravity.classList.toggle('active', isGravityOn);
             currentConfig.particles.move.gravity.enable = isGravityOn;
             currentConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
-            await loadParticles(currentConfig);
+            loadParticles(currentConfig);
         });
-
-        btnInfo.addEventListener('click', () => {
-            populateInfoModal();
-            infoModal.classList.add('visible');
-        });
+        btnInfo.addEventListener('click', () => { populateInfoModal(); infoModal.classList.add('visible'); });
         closeInfoModalBtn.addEventListener('click', () => infoModal.classList.remove('visible'));
+        chaosSlider.addEventListener('input', (e) => { chaosLevel = parseInt(e.target.value, 10); updateChaosDisplay(); });
 
-        chaosSlider.addEventListener('input', (e) => {
-            chaosLevel = parseInt(e.target.value, 10);
-            updateChaosDisplay();
+        btnSave.addEventListener('click', () => {
+            localStorage.setItem('tsDiceDesktopConfig', JSON.stringify(currentConfig));
+            btnSave.classList.add('saved');
+            setTimeout(() => btnSave.classList.remove('saved'), 800);
+        });
+        
+        btnPause.addEventListener('click', () => {
+            isPaused = !isPaused;
+            if(isPaused) particlesContainer?.pause(); else particlesContainer?.play();
+            document.getElementById('icon-pause').style.display = isPaused ? 'none' : 'block';
+            document.getElementById('icon-play').style.display = isPaused ? 'block' : 'none';
+            btnPause.classList.toggle('active', isPaused);
         });
 
-        closeModalBtn.addEventListener("click", () => welcomeModal.classList.remove("visible"));
-        fullscreenBtn.addEventListener("click", toggleFullScreen);
-        document.addEventListener("fullscreenchange", updateFullscreenIcons);
-        
         // --- Tooltip Logic ---
-        function updateTooltipPosition(mouseX, mouseY) {
-            const tooltipRect = tooltip.getBoundingClientRect();
-            const padding = 15;
-            let top = mouseY - tooltipRect.height - padding;
-            let left = mouseX - tooltipRect.width / 2;
-
-            if (top < padding) {
-                top = mouseY + padding;
-            }
-            if (left < padding) {
-                left = padding;
-            }
-            if (left + tooltipRect.width > window.innerWidth - padding) {
-                left = window.innerWidth - tooltipRect.width - padding;
-            }
-            
-            tooltip.style.left = `${left}px`;
-            tooltip.style.top = `${top}px`;
-        }
-
         subMenu.addEventListener('mouseover', (e) => {
             const target = e.target.closest('.menu-button, .slider-container');
             if (!target || !target.title) return;
-
-            target.setAttribute('data-title', target.title);
-            target.removeAttribute('title');
-
-            const [name, description] = target.getAttribute('data-title').split(': ');
+            const [name, description] = target.title.split(': ');
             tooltip.innerHTML = `<strong>${name}</strong><span>${description || ''}</span>`;
-            
             tooltip.classList.add('visible');
-            updateTooltipPosition(e.clientX, e.clientY);
         });
-
-        subMenu.addEventListener('mouseout', (e) => {
-            const target = e.target.closest('.menu-button, .slider-container');
-            if (!target || !target.getAttribute('data-title')) return;
-            
-            tooltip.classList.remove('visible');
-            target.setAttribute('title', target.getAttribute('data-title'));
-            target.removeAttribute('data-title');
-        });
-
+        subMenu.addEventListener('mouseout', () => tooltip.classList.remove('visible'));
         subMenu.addEventListener('mousemove', (e) => {
-            if (tooltip.classList.contains('visible')) {
-                updateTooltipPosition(e.clientX, e.clientY);
-            }
+             if (tooltip.classList.contains('visible')) {
+                const tooltipRect = tooltip.getBoundingClientRect();
+                tooltip.style.left = `${e.clientX - tooltipRect.width / 2}px`;
+                tooltip.style.top = `${e.clientY + 20}px`;
+             }
         });
-
 
         // --- Initialisation ---
-        if (window.location.hash && window.location.hash.startsWith('#config=')) {
-            try {
-                const encodedConfig = window.location.hash.substring(8);
-                const decodedString = LZString.decompressFromEncodedURIComponent(encodedConfig);
-                
-                if (decodedString) {
-                    const parsedConfig = JSON.parse(decodedString);
-                    if (parsedConfig.uiState) {
-                        chaosLevel = parsedConfig.uiState.chaosLevel || 5;
-                        isDarkMode = parsedConfig.uiState.isDarkMode !== false;
-                        isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
-                        particleDeathAllowed = parsedConfig.uiState.particleDeathAllowed === true;
-                        isGravityOn = parsedConfig.uiState.isGravityOn === true;
-                        delete parsedConfig.uiState;
-                    }
-                    initialConfigFromUrl = parsedConfig;
-                    console.log("Loaded configuration from URL.");
-                } else {
-                     throw new Error("Decompression failed");
-                }
-            } catch (e) {
-                console.error("Failed to parse config from URL hash.", e);
-                window.location.hash = '';
-            }
-        }
-
-        if (initialConfigFromUrl) {
-            await loadParticles(initialConfigFromUrl);
+        const savedConfig = localStorage.getItem('tsDiceDesktopConfig');
+        if (savedConfig) {
+            const parsedConfig = JSON.parse(savedConfig);
+            isDarkMode = parsedConfig.background.color.value === '#111';
+            chaosLevel = (parsedConfig.particles.number.value - 20) / 20;
+            isGravityOn = parsedConfig.particles.move.gravity.enable;
+            isCursorParticle = parsedConfig.interactivity.events.onHover.mode === 'trail';
+            particleDeathAllowed = parsedConfig.particles.life.enable;
+            
+            document.body.classList.toggle("light-mode", !isDarkMode);
             updateChaosDisplay();
-            updateTheme();
-            btnCursor.classList.toggle("active", isCursorParticle);
-            btnKillSwitch.classList.toggle("active", particleDeathAllowed);
-            btnGravity.classList.toggle("active", isGravityOn);
+            btnGravity.classList.toggle('active', isGravityOn);
+            btnCursor.classList.toggle('active', isCursorParticle);
+            btnKillSwitch.classList.toggle('active', particleDeathAllowed);
+            
+            await loadParticles(parsedConfig);
         } else {
+            applyTimeBasedTheme();
             updateChaosDisplay();
             const newConfig = buildConfig({all: true});
             await loadParticles(newConfig);
-            setTimeout(() => {
-                welcomeModal.classList.add("visible");
-            }, 500);
         }
-        
         updateBackButtonState();
+
       })();
     </script>
 </body>
