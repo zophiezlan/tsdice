@@ -415,6 +415,8 @@
         const iconEnter = document.getElementById('icon-fullscreen-enter');
         const iconExit = document.getElementById('icon-fullscreen-exit');
         const toastNotification = document.getElementById('toast-notification');
+        const iconSun = document.getElementById('theme-icon-sun');
+        const iconMoon = document.getElementById('theme-icon-moon');
         
         // --- 2. STATE VARIABLES ---
         // These variables hold the application's state and are modified by user interactions.
@@ -434,10 +436,12 @@
         // Constant arrays of options used during the random generation process.
         const darkColorPalette = ["#ff007b", "#33ff57", "#3357ff", "#ffc300", "#ffffff", "#ad55ff", "#00f5d4", "#f15bb5"];
         const lightColorPalette = ["#f72585", "#7209b7", "#3a0ca3", "#4361ee", "#4cc9f0", "#f94144", "#f3722c", "#f9c74f"];
-        const shapeOptions = ["circle", "square", "triangle", "star", "polygon", "line"];
+        // CHANGE: Added 'heart' and 'rounded-rectangle' to the shape options.
+        const shapeOptions = ["circle", "square", "triangle", "star", "polygon", "line", "heart", "rounded-rectangle"];
         const directionOptions = ["none", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left"];
-        const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect"];
-        const safeClickModes = ["push", "bubble", "remove", "trail"];
+        // CHANGE: Added 'attract' to the hover mode options.
+        const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect", "parallax", "attract"];
+        const safeClickModes = ["push", "bubble", "remove", "trail", "absorb"];
         
         // --- 4. TOOLTIP SETUP ---
         // Dynamically create and manage a custom tooltip for the menu buttons.
@@ -534,21 +538,30 @@
             trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
         });
         
-        // Generates random interactivity settings (hover and click effects).
+        // CHANGE: Added configuration for 'attract' mode.
         const generateInteraction = (isDeathActive) => {
             let clickMode = getRandomItem(safeClickModes);
             let hoverMode = getRandomItem(hoverModeOptions);
             
-            // Avoids 'remove' click mode when particle death is active, as it can be confusing.
             if (isDeathActive && clickMode === "remove") clickMode = "push";
-            if (getRandomBool(getChaosProbability(0.4))) hoverMode = "parallax";
             
             const interaction = {
                 events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
-                modes: { repulse: { distance: 50 + chaosLevel * 10 }, push: { quantity: chaosLevel }, bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 }, parallax: { enable: true, force: 5 * chaosLevel, smooth: 10 } }
+                modes: {
+                    repulse: { distance: 50 + chaosLevel * 10 },
+                    push: { quantity: chaosLevel },
+                    bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 },
+                    parallax: { enable: true, force: 5 * chaosLevel, smooth: 10 },
+                    grab: { distance: 150 + chaosLevel * 10 },
+                    slow: { factor: 3, radius: 200 },
+                    connect: { radius: 150 },
+                    remove: { quantity: chaosLevel },
+                    trail: { delay: 0.05, quantity: 1 },
+                    absorb: { speed: 2 + chaosLevel },
+                    attract: { distance: 200, speed: chaosLevel / 2 }
+                }
             };
             
-            // Store the generated modes so they can be restored later.
             originalInteractionModes = {
                 click: interaction.events.onClick.mode,
                 hover: interaction.events.onHover.mode
@@ -557,12 +570,19 @@
             return interaction;
         };
 
-        // Generates random special effects (links, collisions, wobble, etc.).
+        // CHANGE: Removed 'orbit' and 'spin'. Toned down 'wobble'.
         const generateSpecialFX = (currentFx = {}) => ({
             life: currentFx.life || { enable: false, count: 0 },
             collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
-            wobble: { enable: getRandomBool(getChaosProbability(0.5)), distance: 2 + chaosLevel, speed: 5 + chaosLevel },
-            rotate: { animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false } },
+            wobble: { 
+                enable: getRandomBool(getChaosProbability(0.5)), 
+                distance: 1 + chaosLevel / 2, 
+                speed: 3 + chaosLevel / 2 
+            },
+            rotate: { 
+                animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false },
+                direction: getRandomItem(["clockwise", "counter-clockwise"])
+            },
             links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
             destroy: currentFx.destroy || { mode: "none" },
             emitters: currentFx.emitters || [],
@@ -633,7 +653,6 @@
           currentConfig = config;
           particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
           
-          // Reset pause state whenever a new configuration is loaded.
           isPaused = false;
           btnPause.classList.remove("active");
           iconPause.style.display = "block";
@@ -649,7 +668,6 @@
             } else {
                 currentConfig.interactivity.events.onHover.mode = originalInteractionModes.hover || "repulse";
                 currentConfig.interactivity.events.onClick.enable = true;
-                delete currentConfig.interactivity.modes.trail;
             }
         };
 
