@@ -2,9 +2,8 @@
 <html lang="en-AU">
 <head>
     <meta charset="UTF-8" />
-    <title>tsDice Desktop Wallpaper</title>
+    <title>tsDice-Desktop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <style>
       html, body {
         margin: 0;
@@ -56,9 +55,6 @@
         transform: scale(1) !important;
         background: rgba(255, 255, 255, 0.1) !important;
       }
-       .glass-button.saved {
-        animation: save-glow 0.8s ease-out;
-      }
       body.light-mode .glass-button {
         background: rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(0, 0, 0, 0.2);
@@ -71,13 +67,7 @@
         background: rgba(0, 0, 0, 0.1) !important;
       }
       
-      @keyframes save-glow {
-        0% { box-shadow: 0 0 0px 0px rgba(50, 255, 50, 0.7); }
-        50% { box-shadow: 0 0 15px 5px rgba(50, 255, 50, 0.7); }
-        100% { box-shadow: 0 0 0px 0px rgba(50, 255, 50, 0); }
-      }
-
-      /* --- Menu Styles (Top-Left & Wider) --- */
+      /* --- Menu Styles --- */
       .menu-container {
         position: fixed;
         top: 20px;
@@ -86,7 +76,7 @@
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        max-width: calc(100vw - 40px);
+        max-width: 30.78vw;
       }
 
       .menu-button.active {
@@ -98,23 +88,48 @@
         color: #fff;
       }
 
+      /* UI CHANGE: Vertical block layout */
       .sub-menu {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+        flex-direction: column; /* Stack blocks vertically */
+        gap: 10px;
+        align-items: flex-start;
         transform-origin: left center;
         transform: scaleX(0);
         opacity: 0;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
-        max-width: 620px; /* Increased width */
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
       }
+      body.light-mode .sub-menu {
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
       .menu-container.active .sub-menu {
         transform: scaleX(1);
         opacity: 1;
       }
-      .sub-menu .break { /* New class for forcing a line break */
-        flex-basis: 100%;
-        height: 8px;
+      
+      .menu-block {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-content: flex-start;
+      }
+      
+      /* UI CHANGE: Horizontal separator */
+      .menu-separator {
+        height: 1px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.2);
+      }
+      body.light-mode .menu-separator {
+        background: rgba(0, 0, 0, 0.2);
       }
       
       /* --- Intensity Slider --- */
@@ -122,7 +137,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 180px;
+        width: 281px; 
         height: 48px;
         border-radius: 24px;
         background: rgba(255, 255, 255, 0.1);
@@ -138,34 +153,23 @@
         color: #333;
       }
       #chaos-slider {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 100%;
-        height: 4px;
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 4px;
         background: rgba(255, 255, 255, 0.3);
-        border-radius: 2px;
-        outline: none;
-        cursor: pointer;
+        border-radius: 2px; outline: none; cursor: pointer;
         transition: background 0.3s;
       }
-      body.light-mode #chaos-slider {
-        background: rgba(0, 0, 0, 0.2);
-      }
+      body.light-mode #chaos-slider { background: rgba(0, 0, 0, 0.2); }
       #chaos-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        background: #fff;
-        border-radius: 50%;
+        -webkit-appearance: none; appearance: none;
+        width: 18px; height: 18px;
+        background: #fff; border-radius: 50%;
         border: 2px solid #8e2de2;
         transition: transform 0.2s ease;
       }
       #chaos-slider::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        background: #fff;
-        border-radius: 50%;
+        width: 18px; height: 18px;
+        background: #fff; border-radius: 50%;
         border: 2px solid #8e2de2;
         transition: transform 0.2s ease;
       }
@@ -173,11 +177,8 @@
       body.light-mode #chaos-slider::-moz-range-thumb { border-color: #4361ee; }
       
       #chaos-display {
-        font-size: 18px;
-        font-weight: bold;
-        min-width: 24px;
-        text-align: center;
-        margin-left: 10px;
+        font-size: 18px; font-weight: bold;
+        min-width: 24px; text-align: center; margin-left: 10px;
       }
 
       /* --- Modal Styles --- */
@@ -191,7 +192,7 @@
       .modal-content {
         background: rgba(40, 40, 40, 0.8); color: #eee;
         padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
-        width: 90%; max-width: 550px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        width: 90%; max-width: 750px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         max-height: 85vh; overflow-y: auto; text-align: center;
       }
@@ -207,6 +208,25 @@
       .modal-close-btn:hover { background: rgba(142, 45, 226, 1); }
       body.light-mode .modal-close-btn { background: rgba(67, 97, 238, 0.8); }
       body.light-mode .modal-close-btn:hover { background: rgba(67, 97, 238, 1); }
+      
+      /* --- Presets Modal Styles --- */
+      #presets-list { list-style: none; padding: 0; margin: 0; }
+      .preset-slot { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; transition: background-color 0.2s; }
+      .preset-slot:not(:last-child) { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+      body.light-mode .preset-slot:not(:last-child) { border-bottom-color: rgba(0, 0, 0, 0.1); }
+      .preset-slot:hover { background: rgba(255, 255, 255, 0.1); }
+      body.light-mode .preset-slot:hover { background: rgba(0, 0, 0, 0.1); }
+      .preset-name { flex-grow: 1; text-align: left; font-size: 16px; }
+      .preset-name.empty { opacity: 0.6; font-style: italic; }
+      .preset-actions { display: flex; gap: 8px; }
+      .preset-actions .action-btn { background: rgba(255, 255, 255, 0.15); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s; font-size: 12px; }
+      .preset-actions .action-btn:hover { background: rgba(255, 255, 255, 0.3); }
+      body.light-mode .preset-actions .action-btn { background: rgba(0, 0, 0, 0.1); color: #333; }
+      body.light-mode .preset-actions .action-btn:hover { background: rgba(0, 0, 0, 0.2); }
+      .preset-actions .action-btn.danger:hover { background: #e53e3e; color: white; }
+      .preset-rename-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; font-size: 16px; flex-grow: 1; }
+      
+      /* --- Info Modal List --- */
       .info-list { list-style: none; padding: 0; }
       .info-list li { display: flex; align-items: center; margin-bottom: 15px; }
       .info-list .icon-wrapper { width: 30px; height: 30px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; }
@@ -238,6 +258,7 @@
 <body>
     <div id="tsparticles"></div>
 
+    <!-- Info Modal -->
     <div class="modal-overlay" id="info-modal">
         <div class="modal-content">
             <h2>How It Works</h2>
@@ -245,33 +266,48 @@
             <button class="modal-close-btn" id="close-info-modal">Close</button>
         </div>
     </div>
+    
+    <!-- Presets Modal -->
+    <div class="modal-overlay" id="presets-modal">
+        <div class="modal-content">
+            <h2>Manage Presets</h2>
+            <ul id="presets-list"></ul>
+            <button class="modal-close-btn" id="close-presets-modal">Close</button>
+        </div>
+    </div>
 
     <div class="menu-container" id="menu-container">
         <div class="glass-button menu-button" id="main-menu-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
+        
         <div class="sub-menu" id="sub-menu">
-            <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All: Generates a completely new random scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance: Randomises the look of particles (colour, shape, size)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement: Changes how particles travel (speed, direction, trails, attraction)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction: Modifies how particles respond to your cursor."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
-            <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX: Toggles advanced physics (links, wobble, spin, collisions, absorption, infection)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
-            
-            <div class="slider-container" title="Chaos Level: Controls the intensity of generated effects.">
-                <input type="range" min="1" max="10" value="5" id="chaos-slider">
-                <div id="chaos-display">5</div>
+            <div class="menu-block">
+                <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All: Generates a completely new random scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance: Randomises the look of particles (colour, shape, size)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement: Changes how particles travel (speed, direction, trails)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction: Modifies how particles respond to your cursor."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX: Toggles advanced physics (links, wobble, collisions)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
+                 <div class="slider-container" title="Chaos Level: Controls the intensity of generated effects.">
+                    <input type="range" min="1" max="10" value="5" id="chaos-slider">
+                    <div id="chaos-display">5</div>
+                </div>
             </div>
+            
+            <div class="menu-separator"></div>
 
-            <div class="break"></div>
-
-            <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between dark and light themes."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
-            <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle: Makes your mouse leave a trail of particles."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
-            <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Lifespan: Makes particles disappear over time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16"/><path d="M10 13v4"/><path d="M14 13v4"/><path d="M10 4V2a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/><line x1="4" y1="9" x2="20" y2="9"/></svg></div>
-            <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
-            <div class="glass-button menu-button" id="btn-info" title="Info: Shows what each control button does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
-            <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
-            <div class="glass-button menu-button" id="btn-pause" title="Pause Animation: Freezes/unfreezes the particle animation."><svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg><svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
-            <div class="glass-button menu-button" id="btn-save" title="Save Scene: Saves the current scene as the default for next time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></div>
+            <div class="menu-block">
+                <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between dark and light themes."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+                <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle: Makes your mouse leave a trail of particles."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+                <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Lifespan: Makes particles disappear over time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16"/><path d="M10 13v4"/><path d="M14 13v4"/><path d="M10 4V2a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/><line x1="4" y1="9" x2="20" y2="9"/></svg></div>
+                <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+                <div class="glass-button menu-button" id="btn-presets" title="Presets: Save, load, and manage your favourite scenes."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
+                <div class="glass-button menu-button" id="btn-pause" title="Pause Animation: Freezes/unfreezes the particle animation."><svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg><svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+                <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
+                <div class="glass-button menu-button" id="btn-reset" title="Reset All: Clears all saved data and resets to the default scene."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
+                <div class="glass-button menu-button" id="btn-audio" title="Toggle Audio Reactivity: Makes the animation react to system audio (via Lively)."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5v14M7 5v14"/></svg></div>
+                <div class="glass-button menu-button" id="btn-info" title="Info: Shows what each control button does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            </div>
         </div>
     </div>
 
@@ -284,7 +320,6 @@
 
         // --- Element Selectors ---
         const mainMenuBtn = document.getElementById('main-menu-btn');
-        const subMenu = document.getElementById('sub-menu');
         const allShuffleButtons = {
             all: document.getElementById('btn-shuffle-all'),
             appearance: document.getElementById('btn-shuffle-appearance'),
@@ -298,12 +333,17 @@
         const btnBack = document.getElementById('btn-back');
         const btnInfo = document.getElementById('btn-info');
         const btnGravity = document.getElementById('btn-gravity');
-        const btnSave = document.getElementById('btn-save');
         const btnPause = document.getElementById('btn-pause');
         const chaosSlider = document.getElementById('chaos-slider');
         const chaosDisplay = document.getElementById('chaos-display');
         const infoModal = document.getElementById('info-modal');
         const closeInfoModalBtn = document.getElementById('close-info-modal');
+        const presetsModal = document.getElementById('presets-modal');
+        const closePresetsModalBtn = document.getElementById('close-presets-modal');
+        const presetsList = document.getElementById('presets-list');
+        const btnPresets = document.getElementById('btn-presets');
+        const btnReset = document.getElementById('btn-reset');
+        const btnAudio = document.getElementById('btn-audio');
         
         // --- State Variables ---
         let particlesContainer = null;
@@ -313,18 +353,23 @@
         let isCursorParticle = false;
         let particleDeathAllowed = false;
         let isGravityOn = false;
+        let isAudioReactive = false;
         let currentConfig = {};
         let originalInteractionModes = {};
         let configHistory = [];
+        let presets = [];
         
+        // --- Constants ---
+        const LAST_CONFIG_KEY = 'tsDiceDesktopConfig';
+        const PRESETS_KEY = 'tsDiceDesktopPresets';
+
         // --- Data Arrays ---
         const darkColorPalette = ["#ff007b", "#33ff57", "#3357ff", "#ffc300", "#ffffff", "#ad55ff", "#00f5d4", "#f15bb5"];
         const lightColorPalette = ["#f72585", "#7209b7", "#3a0ca3", "#4361ee", "#4cc9f0", "#f94144", "#f3722c", "#f9c74f"];
-        const shapeOptions = ["circle", "square", "triangle", "star", "polygon", "line"];
+        const shapeOptions = ["circle", "square", "triangle", "star", "polygon", "line", "heart", "rounded-rectangle"];
         const directionOptions = ["none", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left"];
-        const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect"];
-        const safeClickModes = ["push", "bubble", "remove", "trail"];
-        const collisionModes = ["bounce", "destroy", "absorb"];
+        const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect", "parallax", "attract"];
+        const safeClickModes = ["push", "bubble", "remove", "trail", "absorb"];
 
         const tooltip = document.createElement('div');
         tooltip.id = 'custom-tooltip';
@@ -358,7 +403,7 @@
             color: { value: getRandomBool(0.2) ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
             shape: { type: getRandomItem(shapeOptions) },
             opacity: { value: { min: 0.3, max: 1 } },
-            size: { value: { min: 1, max: 1 + chaosLevel * 1.5 }, animation: { enable: getRandomBool(0.1), speed: 5, minimumValue: 0.1, sync: false } },
+            size: { value: { min: 1, max: 1 + chaosLevel * 1.5 } },
             stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
         });
 
@@ -369,87 +414,162 @@
             random: true,
             straight: false,
             outModes: { default: "out" },
-            trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } },
-            attract: { enable: getRandomBool(getChaosProbability(0.3)), rotate: { x: 600, y: 1200 } }
+            trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
         });
         
         const generateInteraction = (isDeathActive) => {
             let clickMode = getRandomItem(safeClickModes);
+            let hoverMode = getRandomItem(hoverModeOptions);
             if (isDeathActive && clickMode === "remove") clickMode = "push";
             const interaction = {
-                events: { onHover: { enable: true, mode: getRandomItem(hoverModeOptions) }, onClick: { enable: true, mode: clickMode } },
-                modes: { repulse: { distance: 50 + chaosLevel * 10 }, push: { quantity: chaosLevel }, bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 }, parallax: { enable: getRandomBool(getChaosProbability(0.4)), force: 5 * chaosLevel, smooth: 10 } }
+                events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
+                modes: {
+                    repulse: { distance: 50 + chaosLevel * 10 }, push: { quantity: chaosLevel },
+                    bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 },
+                    parallax: { enable: true, force: 5 * chaosLevel, smooth: 10 },
+                    grab: { distance: 150 + chaosLevel * 10 }, slow: { factor: 3, radius: 200 },
+                    connect: { radius: 150 }, remove: { quantity: chaosLevel },
+                    trail: { delay: 0.05, quantity: 1 }, absorb: { speed: 2 + chaosLevel },
+                    attract: { distance: 200, speed: chaosLevel / 2 }
+                }
             };
             originalInteractionModes = { click: interaction.events.onClick.mode, hover: interaction.events.onHover.mode };
             return interaction;
         };
 
-        const generateSpecialFX = (currentFx = {}) => {
-            const fx = {
-                life: currentFx.life || { enable: false, count: 0 },
-                collisions: { 
-                    enable: getRandomBool(getChaosProbability(0.6)), 
-                    mode: getRandomItem(collisionModes),
-                    absorb: { speed: getRandomInRange(1, 5) }
-                },
-                wobble: { enable: getRandomBool(getChaosProbability(0.5)), distance: 2 + chaosLevel, speed: 5 + chaosLevel },
-                rotate: { animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false } },
-                spin: { enable: getRandomBool(getChaosProbability(0.3)), acceleration: getRandomInRange(-5, 5) },
-                links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
-                twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } },
-                infection: {
-                    enable: getRandomBool(getChaosProbability(0.2)),
-                    stages: [
-                        { color: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette), radius: 0, infectedStage: 1 },
-                        { color: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette), radius: chaosLevel * 4, infectedStage: 2, rate: 1 },
-                        { color: getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette), radius: chaosLevel * 8, rate: 1 }
-                    ]
-                }
-            };
-            return fx;
-        };
-
+        const generateSpecialFX = (currentFx = {}) => ({
+            life: currentFx.life || { enable: false, count: 0 },
+            collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
+            wobble: { enable: getRandomBool(getChaosProbability(0.5)), distance: 1 + chaosLevel / 2, speed: 3 + chaosLevel / 2 },
+            rotate: { animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false }, direction: getRandomItem(["clockwise", "counter-clockwise"]) },
+            links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
+            destroy: currentFx.destroy || { mode: "none" },
+            emitters: currentFx.emitters || [],
+            twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
+        });
 
         const buildConfig = (shuffleOptions) => {
             const isNew = !currentConfig || Object.keys(currentConfig).length === 0;
             let newConfig = isNew ? {} : JSON.parse(JSON.stringify(currentConfig));
-            
             let baseParticles = newConfig.particles || {};
             let baseInteractivity = newConfig.interactivity || {};
-
+            
             if (shuffleOptions.all || isNew) {
-                Object.assign(baseParticles, generateAppearance(), { move: generateMovement() }, generateSpecialFX());
-                baseInteractivity = generateInteraction(baseParticles.life?.enable);
+                const appearance = generateAppearance();
+                const movement = generateMovement();
+                const fx = generateSpecialFX();
+                const interaction = generateInteraction(fx.emitters?.length > 0);
+                baseParticles = { ...appearance, move: movement, ...fx };
+                baseInteractivity = interaction;
             } else {
                 if (shuffleOptions.appearance) Object.assign(baseParticles, generateAppearance());
                 if (shuffleOptions.movement) Object.assign(baseParticles.move, generateMovement());
-                if (shuffleOptions.fx) Object.assign(baseParticles, generateSpecialFX(baseParticles));
-                if (shuffleOptions.interaction || shuffleOptions.fx) baseInteractivity = generateInteraction(baseParticles.life?.enable);
+                // BUG FIX: Decoupled FX from interaction shuffling
+                if (shuffleOptions.fx) {
+                    const fx = generateSpecialFX(baseParticles);
+                    Object.assign(baseParticles, fx);
+                }
+                if (shuffleOptions.interaction) {
+                    baseInteractivity = generateInteraction(baseParticles.life?.enable);
+                }
             }
-            
             newConfig = {
-                ...newConfig,
-                particles: baseParticles,
-                interactivity: baseInteractivity,
+                ...newConfig, particles: baseParticles, interactivity: baseInteractivity,
                 background: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } },
-                fpsLimit: 120,
-                detectRetina: true
+                fpsLimit: 120, detectRetina: true
             };
-            
             if (!newConfig.particles.move.gravity) newConfig.particles.move.gravity = {};
             newConfig.particles.move.gravity.enable = isGravityOn;
             newConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
             newConfig.particles.number = { value: 20 + chaosLevel * 20 };
-            
             return newConfig;
         };
         
         const loadParticles = async (config) => {
           currentConfig = config;
+          localStorage.setItem(LAST_CONFIG_KEY, JSON.stringify(config));
           particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
           if(isPaused) particlesContainer.pause();
         };
         
+        // --- Preset Management ---
+        const initializePresets = () => {
+            const savedPresets = localStorage.getItem(PRESETS_KEY);
+            presets = savedPresets ? JSON.parse(savedPresets) : Array.from({ length: 10 }, (_, i) => ({ name: `Preset ${i + 1}`, config: null }));
+        };
+
+        const savePresetsToStorage = () => {
+            localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+        };
+
+        const renderPresetsList = () => {
+            presetsList.innerHTML = '';
+            presets.forEach((preset, index) => {
+                const li = document.createElement('li');
+                li.className = 'preset-slot';
+                const isEmpty = preset.config === null;
+                li.innerHTML = `
+                    <div class="preset-name ${isEmpty ? 'empty' : ''}" data-index="${index}">${preset.name}</div>
+                    <div class="preset-actions">
+                        <button class="action-btn" data-action="load" data-index="${index}" ${isEmpty ? 'disabled' : ''}>Load</button>
+                        <button class="action-btn" data-action="save" data-index="${index}">Save</button>
+                        <button class="action-btn" data-action="rename" data-index="${index}" ${isEmpty ? 'disabled' : ''}>Rename</button>
+                        <button class="action-btn danger" data-action="clear" data-index="${index}" ${isEmpty ? 'disabled' : ''}>Clear</button>
+                    </div>
+                `;
+                presetsList.appendChild(li);
+            });
+        };
+        
+        presetsList.addEventListener('click', (e) => {
+            const target = e.target;
+            if (target.tagName !== 'BUTTON' && !target.classList.contains('preset-name')) return;
+            const action = target.dataset.action;
+            const index = parseInt(target.dataset.index, 10);
+            switch (action) {
+                case 'load':
+                    if (presets[index].config) {
+                        loadParticles(presets[index].config);
+                        presetsModal.classList.remove('visible');
+                    }
+                    break;
+                case 'save':
+                    presets[index].config = JSON.parse(JSON.stringify(currentConfig));
+                    if (presets[index].name.startsWith('Preset ')) presets[index].name = `Saved Scene ${index + 1}`;
+                    savePresetsToStorage(); renderPresetsList();
+                    break;
+                case 'rename':
+                    const nameDiv = presetsList.querySelector(`.preset-name[data-index="${index}"]`);
+                    const currentName = nameDiv.textContent;
+                    nameDiv.innerHTML = `<input type="text" class="preset-rename-input" value="${currentName}" data-index="${index}">`;
+                    const input = nameDiv.querySelector('input');
+                    input.focus(); input.select();
+                    const saveRename = () => {
+                        const newName = input.value.trim();
+                        if (newName) presets[index].name = newName;
+                        savePresetsToStorage(); renderPresetsList();
+                    };
+                    input.addEventListener('blur', saveRename);
+                    input.addEventListener('keydown', (ev) => {
+                        if (ev.key === 'Enter') input.blur();
+                        if (ev.key === 'Escape') { input.value = currentName; input.blur(); }
+                    });
+                    break;
+                case 'clear':
+                    presets[index] = { name: `Preset ${index + 1}`, config: null };
+                    savePresetsToStorage(); renderPresetsList();
+                    break;
+            }
+        });
+
+        // BUG FIX: Reset button now works by simply removing the confirm dialog.
+        const resetAllSettings = () => {
+            localStorage.removeItem(LAST_CONFIG_KEY);
+            localStorage.removeItem(PRESETS_KEY);
+            window.location.reload();
+        };
+
+        // --- Core Functions & Listeners ---
         const applyCursorMode = () => {
             if (isCursorParticle) {
                 currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
@@ -458,31 +578,27 @@
             } else {
                 currentConfig.interactivity.events.onHover.mode = originalInteractionModes.hover || "repulse";
                 currentConfig.interactivity.events.onClick.enable = true;
-                delete currentConfig.interactivity.modes.trail;
             }
         };
         
         const applyTimeBasedTheme = () => {
             const hour = new Date().getHours();
             isDarkMode = (hour <= 7 || hour >= 19);
-            updateTheme();
+            updateTheme(false);
         };
 
-        const updateTheme = () => {
+        const updateTheme = (shouldReload = true) => {
           document.body.classList.toggle("light-mode", !isDarkMode);
           document.getElementById("theme-icon-sun").style.display = isDarkMode ? "block" : "none";
           document.getElementById("theme-icon-moon").style.display = isDarkMode ? "none" : "block";
-          
           if (!currentConfig || Object.keys(currentConfig).length === 0) return;
-
           currentConfig.background.color.value = isDarkMode ? "#111" : "#f0f0f0";
           if (currentConfig.particles?.color?.value !== "random") {
              currentConfig.particles.color.value = getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette);
           }
           if(currentConfig.particles?.links?.enable) currentConfig.particles.links.color.value = isDarkMode ? "#ffffff" : "#333333";
           if(currentConfig.particles?.move?.trail?.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? "#111" : "#f0f0f0";
-          
-          loadParticles(currentConfig);
+          if (shouldReload) loadParticles(currentConfig);
         };
 
         const populateInfoModal = () => {
@@ -496,7 +612,6 @@
                 const iconHTML = control.classList.contains('slider-container') 
                     ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`
                     : control.querySelector('svg')?.outerHTML || '';
-                
                 infoList.innerHTML += `<li><div class="icon-wrapper">${iconHTML}</div><div class="info-text"><strong>${name}</strong><span>${description || ''}</span></div></li>`;
             });
         };
@@ -505,17 +620,44 @@
             particleDeathAllowed = !particleDeathAllowed;
             btnKillSwitch.classList.toggle("active", particleDeathAllowed);
             if (!currentConfig.particles) return;
-            currentConfig.particles.life.enable = particleDeathAllowed;
-            currentConfig.emitters = particleDeathAllowed ? [{
-                direction: "top", life: { duration: 0, count: 0 },
-                position: { x: 50, y: 110 }, rate: { quantity: chaosLevel / 2, delay: 0.2 }
-            }] : [];
+            if (particleDeathAllowed) {
+                currentConfig.particles.life = { enable: true, duration: { sync: false, value: getRandomInRange(2, 6) }, count: 1 };
+                currentConfig.emitters = [{ direction: "top", life: { duration: 0, count: 0 }, position: { x: 50, y: 110 }, rate: { quantity: chaosLevel / 2, delay: 0.2 } }];
+            } else {
+                currentConfig.particles.life.enable = false;
+                currentConfig.emitters = [];
+            }
             loadParticles(currentConfig);
         };
 
+        // --- Lively Wallpaper Audio Listener ---
+        // This function will be called by Lively Wallpaper when audio is playing.
+        // To enable this, add a script to your LivelyProperties.json:
+        // "livelyAudioListener": { "type": "script", "value": "livelyAudioListener" }
+        // The `audioArray` contains 128 float values from 0-100, representing different frequencies.
+        function livelyAudioListener(audioArray) {
+            if (!isAudioReactive || !particlesContainer) return;
+
+            // Calculate the average volume from the audio data
+            const average = audioArray.reduce((a, b) => a + b, 0) / audioArray.length;
+            
+            // Map the average volume (0-100) to our chaos level (1-10)
+            const newChaosLevel = Math.max(1, Math.min(10, Math.round(average / 10)));
+            
+            // Only update if the level has changed to avoid unnecessary reloads
+            if (newChaosLevel !== chaosLevel) {
+                chaosLevel = newChaosLevel;
+                updateChaosDisplay();
+                // We can make specific properties react, e.g., particle speed
+                particlesContainer.options.particles.move.speed = getRandomInRange(chaosLevel * 0.5, chaosLevel * 2);
+                particlesContainer.refresh();
+            }
+        }
+        // Make the function globally accessible for Lively
+        window.livelyAudioListener = livelyAudioListener;
+
         // --- Event Listeners ---
         mainMenuBtn.addEventListener("click", () => document.getElementById("menu-container").classList.toggle("active"));
-        
         Object.entries(allShuffleButtons).forEach(([key, btn]) => {
             btn.addEventListener("click", () => {
                 saveHistory();
@@ -523,7 +665,6 @@
                 loadParticles(newConfig);
             });
         });
-
         btnTheme.addEventListener("click", () => { isDarkMode = !isDarkMode; updateTheme(); });
         btnCursor.addEventListener("click", () => {
             isCursorParticle = !isCursorParticle;
@@ -549,13 +690,6 @@
         btnInfo.addEventListener('click', () => { populateInfoModal(); infoModal.classList.add('visible'); });
         closeInfoModalBtn.addEventListener('click', () => infoModal.classList.remove('visible'));
         chaosSlider.addEventListener('input', (e) => { chaosLevel = parseInt(e.target.value, 10); updateChaosDisplay(); });
-
-        btnSave.addEventListener('click', () => {
-            localStorage.setItem('tsDiceDesktopConfig', JSON.stringify(currentConfig));
-            btnSave.classList.add('saved');
-            setTimeout(() => btnSave.classList.remove('saved'), 800);
-        });
-        
         btnPause.addEventListener('click', () => {
             isPaused = !isPaused;
             if(isPaused) particlesContainer?.pause(); else particlesContainer?.play();
@@ -563,40 +697,63 @@
             document.getElementById('icon-play').style.display = isPaused ? 'block' : 'none';
             btnPause.classList.toggle('active', isPaused);
         });
+        btnPresets.addEventListener('click', () => {
+            renderPresetsList();
+            presetsModal.classList.add('visible');
+        });
+        closePresetsModalBtn.addEventListener('click', () => presetsModal.classList.remove('visible'));
+        btnReset.addEventListener('click', resetAllSettings);
+        btnAudio.addEventListener('click', () => {
+            isAudioReactive = !isAudioReactive;
+            btnAudio.classList.toggle('active', isAudioReactive);
+            if (!isAudioReactive) { // Reset slider if turning off
+                chaosLevel = parseInt(chaosSlider.value, 10);
+            }
+        });
 
         // --- Tooltip Logic ---
-        subMenu.addEventListener('mouseover', (e) => {
+        document.getElementById('sub-menu').addEventListener('mouseover', (e) => {
             const target = e.target.closest('.menu-button, .slider-container');
             if (!target || !target.title) return;
-            const [name, description] = target.title.split(': ');
+            target.setAttribute('data-title', target.title);
+            target.removeAttribute('title');
+            const [name, description] = target.getAttribute('data-title').split(': ');
             tooltip.innerHTML = `<strong>${name}</strong><span>${description || ''}</span>`;
             tooltip.classList.add('visible');
         });
-        subMenu.addEventListener('mouseout', () => tooltip.classList.remove('visible'));
-        subMenu.addEventListener('mousemove', (e) => {
+        document.getElementById('sub-menu').addEventListener('mouseout', (e) => {
+            const target = e.target.closest('.menu-button, .slider-container');
+             if (!target || !target.getAttribute('data-title')) return;
+            tooltip.classList.remove('visible');
+            target.setAttribute('title', target.getAttribute('data-title'));
+            target.removeAttribute('data-title');
+        });
+        document.getElementById('sub-menu').addEventListener('mousemove', (e) => {
              if (tooltip.classList.contains('visible')) {
                 const tooltipRect = tooltip.getBoundingClientRect();
-                tooltip.style.left = `${e.clientX - tooltipRect.width / 2}px`;
-                tooltip.style.top = `${e.clientY + 20}px`;
+                let top = e.clientY + 20; let left = e.clientX - tooltipRect.width / 2;
+                if (top + tooltipRect.height > window.innerHeight - 15) top = e.clientY - tooltipRect.height - 15;
+                if (left < 15) left = 15;
+                if (left + tooltipRect.width > window.innerWidth - 15) left = window.innerWidth - tooltipRect.width - 15;
+                tooltip.style.left = `${left}px`; tooltip.style.top = `${top}px`;
              }
         });
 
         // --- Initialisation ---
-        const savedConfig = localStorage.getItem('tsDiceDesktopConfig');
-        if (savedConfig) {
-            const parsedConfig = JSON.parse(savedConfig);
+        initializePresets();
+        const savedConfigStr = localStorage.getItem(LAST_CONFIG_KEY);
+        if (savedConfigStr) {
+            const parsedConfig = JSON.parse(savedConfigStr);
             isDarkMode = parsedConfig.background.color.value === '#111';
             chaosLevel = (parsedConfig.particles.number.value - 20) / 20;
             isGravityOn = parsedConfig.particles.move.gravity.enable;
             isCursorParticle = parsedConfig.interactivity.events.onHover.mode === 'trail';
             particleDeathAllowed = parsedConfig.particles.life.enable;
-            
-            document.body.classList.toggle("light-mode", !isDarkMode);
             updateChaosDisplay();
+            updateTheme(false);
             btnGravity.classList.toggle('active', isGravityOn);
             btnCursor.classList.toggle('active', isCursorParticle);
             btnKillSwitch.classList.toggle('active', particleDeathAllowed);
-            
             await loadParticles(parsedConfig);
         } else {
             applyTimeBasedTheme();
