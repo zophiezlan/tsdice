@@ -854,11 +854,31 @@
                 });
                 
                 if (response.ok) {
-                    const shortUrl = await response.text();
-                    return shortUrl.trim();
+                    const htmlResponse = await response.text();
+                    
+                    // Parse the HTML to extract the short URL
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlResponse, 'text/html');
+                    
+                    // Look for the short URL in the HTML
+                    const shortUrlElement = doc.getElementById('short-url');
+                    if (shortUrlElement) {
+                        return shortUrlElement.textContent.trim() || shortUrlElement.href;
+                    }
+                    
+                    // Alternative: look for links that match the spoo.me pattern
+                    const links = doc.querySelectorAll('a[href*="spoo.me"]');
+                    for (const link of links) {
+                        if (link.href.includes('spoo.me/') && !link.href.includes('spoo.me/api')) {
+                            return link.href;
+                        }
+                    }
+                    
+                    // If we can't find it in the HTML, fall back
+                    console.log('Could not extract short URL from HTML response');
+                    return await createShortUrlFallback(longUrl);
                 } else {
                     console.error('Spoo.me API error:', response.status);
-                    // If custom alias fails, try without custom code
                     return await createShortUrlFallback(longUrl);
                 }
                 
@@ -867,7 +887,7 @@
                 return await createShortUrlFallback(longUrl);
             }
         }
-
+        
         // Fallback function for when custom alias fails
         async function createShortUrlFallback(longUrl) {
             try {
@@ -880,8 +900,27 @@
                 });
                 
                 if (response.ok) {
-                    const shortUrl = await response.text();
-                    return shortUrl.trim();
+                    const htmlResponse = await response.text();
+                    
+                    // Parse the HTML to extract the short URL
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlResponse, 'text/html');
+                    
+                    // Look for the short URL in the HTML
+                    const shortUrlElement = doc.getElementById('short-url');
+                    if (shortUrlElement) {
+                        return shortUrlElement.textContent.trim() || shortUrlElement.href;
+                    }
+                    
+                    // Alternative: look for links that match the spoo.me pattern
+                    const links = doc.querySelectorAll('a[href*="spoo.me"]');
+                    for (const link of links) {
+                        if (link.href.includes('spoo.me/') && !link.href.includes('spoo.me/api')) {
+                            return link.href;
+                        }
+                    }
+                    
+                    return null;
                 } else {
                     return null;
                 }
