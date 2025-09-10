@@ -57,6 +57,7 @@
         cursor: not-allowed;
         transform: scale(1) !important;
         background: rgba(255, 255, 255, 0.1) !important;
+        pointer-events: none;
       }
       body.light-mode .glass-button {
         background: rgba(0, 0, 0, 0.1);
@@ -829,7 +830,68 @@
             }
         });
         
-        // Share button to generate and copy a shareable link.
+        // Function to generate custom alias with star + horse + ket + random string
+        function generateCustomAlias() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomString = '';
+            for (let i = 0; i < 8; i++) {
+                randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return `⭐🐎ket${randomString}`;
+        }
+
+        // Function to create short URL using spoo.me API with custom alias
+        async function createShortUrl(longUrl) {
+            try {
+                const customAlias = generateCustomAlias();
+                
+                const response = await fetch('https://spoo.me/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `url=${encodeURIComponent(longUrl)}&code=${encodeURIComponent(customAlias)}`
+                });
+                
+                if (response.ok) {
+                    const shortUrl = await response.text();
+                    return shortUrl.trim();
+                } else {
+                    console.error('Spoo.me API error:', response.status);
+                    // If custom alias fails, try without custom code
+                    return await createShortUrlFallback(longUrl);
+                }
+                
+            } catch (error) {
+                console.error('Error creating short URL:', error);
+                return await createShortUrlFallback(longUrl);
+            }
+        }
+
+        // Fallback function for when custom alias fails
+        async function createShortUrlFallback(longUrl) {
+            try {
+                const response = await fetch('https://spoo.me/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `url=${encodeURIComponent(longUrl)}`
+                });
+                
+                if (response.ok) {
+                    const shortUrl = await response.text();
+                    return shortUrl.trim();
+                } else {
+                    return null;
+                }
+                
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // Share button to generate and copy a shareable link with URL shortening.
         btnShare.addEventListener('click', async () => {
             const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
             // Also save the UI state in the shared link.
@@ -840,10 +902,29 @@
             try {
                 const configString = JSON.stringify(sharableConfig);
                 const compressedConfig = LZString.compressToEncodedURIComponent(configString);
-                const url = window.location.href.split('#')[0] + '#config=' + compressedConfig;
-                await copyToClipboard(url);
+                const fullUrl = window.location.href.split('#')[0] + '#config=' + compressedConfig;
+                
+                // Show loading state
+                btnShare.classList.add('disabled');
+                showToast('Creating short link...');
+                
+                // Try to create a short URL using spoo.me
+                const shortUrl = await createShortUrl(fullUrl);
+                
+                if (shortUrl) {
+                    await copyToClipboard(shortUrl);
+                } else {
+                    // Fallback to original full URL if shortening fails
+                    await copyToClipboard(fullUrl);
+                    showToast('Link copied (shortening unavailable)');
+                }
+                
             } catch (e) {
                 showToast("Could not create share link.");
+                console.error('Share error:', e);
+            } finally {
+                // Remove loading state
+                btnShare.classList.remove('disabled');
             }
         });
 
@@ -976,5 +1057,6 @@
         updateBackButtonState();
       })();
     </script>
-</body>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"9b351f95f9a14887bbe7ea274533fbf6","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97b5c2a58b2b1616',t:'MTc1NzI0MzQzMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
