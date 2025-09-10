@@ -443,6 +443,18 @@
         // CHANGE: Added 'attract' to the hover mode options.
         const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect", "parallax", "attract"];
         const safeClickModes = ["push", "bubble", "remove", "trail", "absorb"];
+        const emojiOptions = [
+            '⭐', '🌟', '✨', '💫', '🚀', '🛸', '🌌', '🌠', '🪐', '🔭',
+            '❤️', '🩷', '🧡', '💛', '💚', '💙', '🩵', '💜', '🤎', '🖤',
+            '😀', '😁', '😂', '😎', '🤩', '🥳', '🤯', '😭', '😱', '😡',
+            '🍎', '🍌', '🍇', '🍓', '🍑', '🍍', '🥝', '🥑', '🍆', '🍅',
+            '🍕', '🍔', '🍟', '🌭', '🍿', '🧂', '🥓', '🥚', '🧇', '🥞',
+            '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱',
+            '🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚',
+            '🖥️', '💻', '🖱️', '⌨️', '📱', '☎️', '📞', '📟', '📠', '🔋',
+            '🎨', '🎬', '🎤', '🎧', '🎼', '🎹', '🥁', '🎷', '🎺', '🎸',
+            '👽', '👾', '🤖', '🎃', '👻', '💀', '☠️', '🤡', '👹', '👺'
+        ];
         
         // --- 4. TOOLTIP SETUP ---
         // Dynamically create and manage a custom tooltip for the menu buttons.
@@ -514,6 +526,15 @@
                 }
                 document.body.removeChild(textArea);
             }
+        };
+
+        // Generates a random string of 10 emojis.
+        const generateRandomEmojiString = () => {
+            let emojiString = '';
+            for (let i = 0; i < 10; i++) {
+                emojiString += getRandomItem(emojiOptions);
+            }
+            return emojiString;
         };
 
         // --- 6. CONFIG GENERATION FUNCTIONS ---
@@ -833,8 +854,8 @@
         // Corrected function to create a short URL using the Spoo.me emoji API.
         async function createShortUrl(longUrl) {
             try {
-                // The desired emoji sequence for the short URL.
-                const emojiSequence = '⭐🐎⭐🐎⭐🐎';
+                // Generate a new random emoji sequence for each URL.
+                const randomEmojiSequence = generateRandomEmojiString();
 
                 const response = await fetch('https://spoo.me/emoji', { // Correct endpoint
                     method: 'POST',
@@ -842,8 +863,8 @@
                         'Accept': 'application/json', // Required header for JSON response
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    // Use the 'emojies' parameter with the URL-encoded emoji sequence.
-                    body: `url=${encodeURIComponent(longUrl)}&emojies=${encodeURIComponent(emojiSequence)}`
+                    // Use the 'emojies' parameter with the URL-encoded random emoji sequence.
+                    body: `url=${encodeURIComponent(longUrl)}&emojies=${encodeURIComponent(randomEmojiSequence)}`
                 });
 
                 if (response.ok) {
