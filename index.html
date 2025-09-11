@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>⭐🐎⭐🐎⭐🐎</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Library for link compression to create shareable URLs -->
+    <!-- Library for link decompression to read shared URLs -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <style>
       /* --- Base Styles --- */
@@ -233,35 +233,6 @@
       .info-text { text-align: left; }
       .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
       .info-text span { font-size: 0.9em; opacity: 0.8; }
-
-      /* --- Toast Notification --- */
-      #toast-notification {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(30, 30, 30, 0.85);
-        color: white;
-        padding: 12px 25px;
-        border-radius: 25px;
-        z-index: 300;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.4s ease, visibility 0.4s ease, bottom 0.4s ease;
-        font-size: 14px;
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      #toast-notification.show {
-        bottom: 100px;
-        opacity: 1;
-        visibility: visible;
-      }
-      body.light-mode #toast-notification {
-          background: rgba(245, 245, 245, 0.85);
-          color: #333;
-          border: 1px solid rgba(0,0,0,0.1);
-      }
       
       /* --- Custom Tooltip --- */
       #custom-tooltip {
@@ -313,9 +284,6 @@
 <body>
     <!-- The main container for the tsParticles animation -->
     <div id="tsparticles"></div>
-    
-    <!-- A toast notification for feedback, e.g., "Link copied" -->
-    <div id="toast-notification"></div>
 
     <!-- Information modal explaining what each control does -->
     <div class="modal-overlay" id="info-modal">
@@ -356,7 +324,6 @@
             <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Death: Enables or disables particle lifespan. When active, particles will disappear after a certain time and be replaced by new ones."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16"/><path d="M10 13v4"/><path d="M14 13v4"/><path d="M10 4V2a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/><line x1="4" y1="9" x2="20" y2="9"/></svg></div>
             <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous particle configuration. You can go back up to 20 steps."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
             <div class="glass-button menu-button" id="btn-info" title="Info: Shows a detailed guide explaining what each control button in the menu does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
-            <div class="glass-button menu-button" id="btn-share" title="Share Scene: Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
             <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
             <div class="glass-button menu-button" id="btn-pause" title="Pause/Play: Freezes or resumes the particle animation on screen.">
                 <svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
@@ -391,7 +358,6 @@
         const btnKillSwitch = document.getElementById('btn-kill-switch');
         const btnBack = document.getElementById('btn-back');
         const btnInfo = document.getElementById('btn-info');
-        const btnShare = document.getElementById('btn-share');
         const btnGravity = document.getElementById('btn-gravity');
         const btnPause = document.getElementById('btn-pause');
         const iconPause = document.getElementById('icon-pause');
@@ -403,7 +369,6 @@
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const iconEnter = document.getElementById('icon-fullscreen-enter');
         const iconExit = document.getElementById('icon-fullscreen-exit');
-        const toastNotification = document.getElementById('toast-notification');
         const iconSun = document.getElementById('theme-icon-sun');
         const iconMoon = document.getElementById('theme-icon-moon');
         
@@ -429,20 +394,6 @@
         const directionOptions = ["none", "top", "top-right", "right", "bottom-right", "bottom", "bottom-left", "left", "top-left"];
         const hoverModeOptions = ["repulse", "grab", "bubble", "slow", "connect", "parallax", "attract"];
         const safeClickModes = ["push", "bubble", "remove", "trail", "absorb"];
-        const emojiOptions = [
-            '🐎', '🐴', '🦄', '🦓', '🕳️', '🌀', '😵‍💫', '🥴', '🫠', '🤯',
-            '😴', '🛸', '👽', '👾', '🤖', '😶‍🌫️', '🌫️', '👨‍🚀', '👩‍🚀', '🛰️',
-            '⏳', '🕰️', '❓', '⁉️', '🧱', '📺', '🌬️', '🎶', '🎵', '🔊',
-            '🔉', '🔈', '🎧', '🎤', '🕺', '💃', '🥳', '🎉', '🎊', '✨',
-            '🌟', '💫', '🎆', '🎇', '🎪', '🏕️', '⛺', '🪩', '😎', '🤘',
-            '🙌', '🔥', '🎟️', '🎡', '🎢', '🍻', '🥂', '🌙', '🌕', '🌃',
-            '🌈', '🌌', '🪐', '☄️', '🍄', '🌵', '🦋', '🐛', '🐌', '🐸',
-            '💎', '🔮', '🧿', '🧬', '⚗️', '🧪', '👁️', '🎨', '🌺', '🌸',
-            '🌼', '🌷', '🌲', '🌳', '🐉', '🐲', '🐙', '🦑', '🕸️', '🌊',
-            '🧠', '👁️‍🗨️', '💭', '💤', '⚡', '💥', '💧', '〰️', '➰', '➿',
-            '🧩', '🗝️', '🚪', '♾️', '📉', '📈', '👻', '🤡', '🎭', '🤩',
-            '🤪', '🤤', '😇', '🤠', '🥱', '😵', '🗿', '😮', '😲'
-        ];
         
         // --- 4. TOOLTIP SETUP ---
         // Dynamically create and manage a custom tooltip for the menu buttons.
@@ -480,49 +431,6 @@
                 }
                 updateBackButtonState();
             }
-        };
-        
-        // Shows a short-lived toast notification message.
-        const showToast = (message) => {
-            toastNotification.textContent = message;
-            toastNotification.classList.add('show');
-            setTimeout(() => {
-                toastNotification.classList.remove('show');
-            }, 3000);
-        };
-
-        // Copies text to the clipboard, with a fallback for older browsers.
-        const copyToClipboard = async (text) => {
-            try {
-                // Modern, secure way to copy to clipboard.
-                await navigator.clipboard.writeText(text);
-                showToast('Short link copied to clipboard!');
-            } catch (err) {
-                // Fallback for environments where the Clipboard API is not available (e.g., insecure contexts).
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                textArea.style.top = "-9999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showToast('Short link copied to clipboard!');
-                } catch (execErr) {
-                    showToast('Failed to copy link.');
-                }
-                document.body.removeChild(textArea);
-            }
-        };
-
-        // Generates a random string of 10 emojis.
-        const generateRandomEmojiString = () => {
-            let emojiString = '';
-            for (let i = 0; i < 10; i++) {
-                emojiString += getRandomItem(emojiOptions);
-            }
-            return emojiString;
         };
 
         // --- 6. CONFIG GENERATION FUNCTIONS ---
@@ -834,87 +742,6 @@
                 const lastConfig = configHistory.pop();
                 await loadParticles(lastConfig);
                 updateBackButtonState();
-            }
-        });
-        
-        async function createShortUrl(longUrl) {
-            try {
-                const randomEmojiSequence = generateRandomEmojiString();
-                const response = await fetch('https://spoo.me/emoji', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `url=${encodeURIComponent(longUrl)}&emojies=${encodeURIComponent(randomEmojiSequence)}`
-                });
-
-                if (response.ok) {
-                    const jsonResponse = await response.json();
-                    return jsonResponse.short_url;
-                } else {
-                    console.error('Spoo.me Emoji API error:', response.status);
-                    return await createShortUrlFallback(longUrl);
-                }
-            } catch (error) {
-                console.error('Error creating emoji short URL:', error);
-                return await createShortUrlFallback(longUrl);
-            }
-        }
-        
-        async function createShortUrlFallback(longUrl) {
-            try {
-                const response = await fetch('https://spoo.me/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `url=${encodeURIComponent(longUrl)}`
-                });
-                
-                if (response.ok) {
-                    const htmlResponse = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlResponse, 'text/html');
-                    const shortUrlElement = doc.getElementById('short-url');
-                    if (shortUrlElement) {
-                        return shortUrlElement.textContent.trim() || shortUrlElement.href;
-                    }
-                    return null;
-                }
-                return null;
-            } catch (error) {
-                return null;
-            }
-        }
-
-        // Share button to generate and copy a shareable link with URL shortening.
-        btnShare.addEventListener('click', async () => {
-            const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
-            sharableConfig.uiState = {
-                chaosLevel, isDarkMode, isCursorParticle, particleDeathAllowed, isGravityOn
-            };
-            
-            try {
-                const configString = JSON.stringify(sharableConfig);
-                const compressedConfig = LZString.compressToEncodedURIComponent(configString);
-                const fullUrl = window.location.href.split('#')[0] + '#config=' + compressedConfig;
-                
-                btnShare.classList.add('disabled');
-                showToast('Creating short link...');
-                
-                const shortUrl = await createShortUrl(fullUrl);
-                
-                if (shortUrl) {
-                    await copyToClipboard(shortUrl);
-                } else {
-                    await copyToClipboard(fullUrl);
-                    showToast('Link copied (shortening unavailable)');
-                }
-                
-            } catch (e) {
-                showToast("Could not create share link.");
-                console.error('Share error:', e);
-            } finally {
-                btnShare.classList.remove('disabled');
             }
         });
 
