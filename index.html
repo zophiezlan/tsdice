@@ -322,6 +322,7 @@
             <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
             <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle: Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
             <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous particle configuration. You can go back up to 20 steps."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
+            <div class="glass-button menu-button" id="btn-redo" title="Go Forward: Re-applies a configuration that you have just undone. You can go forward as long as you haven't made a new change."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg></div>
             <div class="glass-button menu-button" id="btn-refresh" title="Refresh Scene: Resets the current particle simulation to its initial state. This is useful for restarting animations like particle death or gravity without changing the style."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></div>
             <div class="glass-button menu-button" id="btn-info" title="Info: Shows a detailed guide explaining what each control button in the menu does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
             <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
@@ -356,6 +357,7 @@
         const btnTheme = document.getElementById('btn-theme');
         const btnCursor = document.getElementById('btn-cursor');
         const btnBack = document.getElementById('btn-back');
+        const btnRedo = document.getElementById('btn-redo');
         const btnRefresh = document.getElementById('btn-refresh');
         const btnInfo = document.getElementById('btn-info');
         const btnGravity = document.getElementById('btn-gravity');
@@ -383,6 +385,7 @@
         let currentConfig = {}; // The active tsParticles configuration object.
         let originalInteractionModes = {}; // Stores the original interaction modes to restore them when cursor mode is turned off.
         let configHistory = []; // An array to store previous configurations for the "back" button.
+        let configRedoHistory = []; // An array to store undone configurations for the "redo" button.
         let initialConfigFromUrl = null; // Stores any configuration loaded from a URL hash.
 
         // --- 3. DATA ARRAYS ---
@@ -414,13 +417,20 @@
             chaosSlider.value = chaosLevel;
         };
 
-        // Enables or disables the "back" button based on history availability.
+        // Enables or disables the history buttons based on stack availability.
         const updateBackButtonState = () => {
             btnBack.classList.toggle('disabled', configHistory.length === 0);
         };
+        const updateRedoButtonState = () => {
+            btnRedo.classList.toggle('disabled', configRedoHistory.length === 0);
+        };
 
-        // Saves the current configuration to the history stack.
+        // Saves the current configuration to the history stack and clears the redo stack.
         const saveHistory = () => {
+            // A new action invalidates the redo history.
+            configRedoHistory = [];
+            updateRedoButtonState();
+
             if (Object.keys(currentConfig).length > 0) {
                 // Use deep cloning to prevent mutations of historical configs.
                 configHistory.push(JSON.parse(JSON.stringify(currentConfig)));
@@ -671,12 +681,14 @@
 
         // Theme toggle button.
         btnTheme.addEventListener("click", () => {
+          saveHistory();
           isDarkMode = !isDarkMode;
           updateTheme();
         });
 
         // Cursor particle toggle button.
         btnCursor.addEventListener("click", () => {
+            saveHistory();
             isCursorParticle = !isCursorParticle;
             btnCursor.classList.toggle("active", isCursorParticle);
             applyCursorMode();
@@ -699,12 +711,31 @@
             iconPlay.style.display = isPaused ? "block" : "none";
         });
         
-        // Back button to load the previous configuration.
+        // Back button (Undo)
         btnBack.addEventListener("click", async () => {
             if (configHistory.length > 0) {
+                // Save current state for redo
+                configRedoHistory.push(JSON.parse(JSON.stringify(currentConfig)));
+
                 const lastConfig = configHistory.pop();
                 await loadParticles(lastConfig);
+                
                 updateBackButtonState();
+                updateRedoButtonState();
+            }
+        });
+
+        // Redo button
+        btnRedo.addEventListener('click', async () => {
+            if (configRedoHistory.length > 0) {
+                // Save current state for undo
+                configHistory.push(JSON.parse(JSON.stringify(currentConfig)));
+                
+                const nextConfig = configRedoHistory.pop();
+                await loadParticles(nextConfig);
+
+                updateBackButtonState();
+                updateRedoButtonState();
             }
         });
 
@@ -717,6 +748,7 @@
 
         // Gravity toggle button.
         btnGravity.addEventListener('click', async () => {
+            saveHistory();
             isGravityOn = !isGravityOn;
             btnGravity.classList.toggle('active', isGravityOn);
             currentConfig.particles.move.gravity.enable = isGravityOn;
@@ -840,6 +872,7 @@
         }
         
         updateBackButtonState();
+        updateRedoButtonState();
       })();
     </script>
 </body>
