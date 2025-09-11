@@ -201,6 +201,7 @@
         transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         max-height: 85vh; overflow-y: auto;
         text-align: center;
+        position: relative; /* Added for positioning the new close button */
       }
       .modal-overlay.visible .modal-content { transform: scale(1); }
       body.light-mode .modal-content { background: rgba(255, 255, 255, 0.8); color: #333; border-color: rgba(0, 0, 0, 0.2); }
@@ -214,6 +215,31 @@
       body.light-mode .modal-content a { color: #4361ee; }
       body.light-mode .modal-content a:hover { color: #7209b7; }
 
+      /* New Top-Right Close Button Style */
+      .modal-top-close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: transparent;
+        border: none;
+        font-size: 28px;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        z-index: 210;
+      }
+      .modal-top-close-btn:hover {
+        opacity: 1;
+      }
+      body.light-mode .modal-top-close-btn {
+        color: #333;
+      }
 
       .modal-close-btn {
         display: block; margin: 20px auto 0; padding: 12px 25px; border: none;
@@ -288,6 +314,8 @@
     <!-- Information modal explaining what each control does -->
     <div class="modal-overlay" id="info-modal">
         <div class="modal-content">
+            <!-- UPDATED: Added top-right close button -->
+            <button class="modal-top-close-btn" id="modal-top-close-btn" aria-label="Close dialog">&times;</button>
             <h2>How It Works</h2>
             <ul class="info-list"></ul>
             <button class="modal-close-btn" id="close-info-modal">Close</button>
@@ -368,6 +396,7 @@
         const chaosDisplay = document.getElementById('chaos-display');
         const infoModal = document.getElementById('info-modal');
         const closeInfoModalBtn = document.getElementById('close-info-modal');
+        const modalTopCloseBtn = document.getElementById('modal-top-close-btn'); // UPDATED: New selector
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const iconEnter = document.getElementById('icon-fullscreen-enter');
         const iconExit = document.getElementById('icon-fullscreen-exit');
@@ -761,7 +790,17 @@
             populateInfoModal();
             infoModal.classList.add('visible');
         });
-        closeInfoModalBtn.addEventListener('click', () => infoModal.classList.remove('visible'));
+
+        // UPDATED: All modal close actions
+        const closeModal = () => infoModal.classList.remove('visible');
+        closeInfoModalBtn.addEventListener('click', closeModal);
+        modalTopCloseBtn.addEventListener('click', closeModal);
+        infoModal.addEventListener('click', (e) => {
+            // Close the modal if the overlay (the parent) is clicked, but not its children.
+            if (e.target === infoModal) {
+                closeModal();
+            }
+        });
 
         // Chaos slider input.
         chaosSlider.addEventListener('input', (e) => {
