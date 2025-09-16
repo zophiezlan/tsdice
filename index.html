@@ -143,7 +143,7 @@
         transform: scaleX(0);
         opacity: 0;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
-        width: 300px;
+        width: 580px;
       }
        @media (max-width: 660px) {
         .sub-menu {
@@ -426,6 +426,7 @@
                 <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             </div>
             <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity (Alt+G): Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float." tabindex="0" role="button" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+            <div class="glass-button menu-button" id="btn-walls" title="Toggle Walls (Alt+W): Forces particles to bounce off the screen edges instead of disappearing. This overrides any randomized 'out mode' setting." tabindex="0" role="button" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1" ry="1"></rect><polyline points="8 12 12 8 16 12"></polyline><path d="M12 16V8"></path></svg></div>
             <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme (Alt+T): Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)." tabindex="0" role="button" aria-pressed="false"><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
             <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle (Alt+C): Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions." tabindex="0" role="button" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
             <div class="glass-button menu-button" id="btn-share" title="Share Scene (Alt+S): Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
@@ -464,6 +465,7 @@
         const btnShare = document.getElementById('btn-share');
         const btnGravity = document.getElementById('btn-gravity');
         const btnPause = document.getElementById('btn-pause');
+        const btnWalls = document.getElementById('btn-walls'); // New button
         const iconPause = document.getElementById('icon-pause');
         const iconPlay = document.getElementById('icon-play');
         const chaosSlider = document.getElementById('chaos-slider');
@@ -487,9 +489,11 @@
         let isDarkMode = true; // Tracks the current theme (dark/light).
         let isCursorParticle = false; // Tracks if the cursor is emitting particles.
         let isGravityOn = false; // Tracks if gravity is enabled.
+        let areWallsOn = false; // Tracks if the wall bounce override is on.
         let isPaused = false; // Tracks if the animation is currently paused.
         let currentConfig = {}; // The active tsParticles configuration object.
         let originalInteractionModes = {}; // Stores the original interaction modes to restore them when cursor mode is turned off.
+        let originalOutModes = {}; // Stores the original outModes to restore them when wall mode is turned off.
         let configHistory = []; // An array to store previous configurations for the "back" button.
         let configForwardHistory = []; // An array to store configurations for the "forward" button.
         let initialConfigFromUrl = null; // Stores any configuration loaded from a URL hash.
@@ -930,6 +934,14 @@
             saveHistory();
             clearForwardHistory();
             const newConfig = buildConfig(options);
+            
+            // If walls are on, ensure the new config respects this override.
+            if (areWallsOn) {
+                // Save the newly generated outModes so we can restore them if walls are toggled off later.
+                originalOutModes = JSON.parse(JSON.stringify(newConfig.particles.move.outModes));
+                newConfig.particles.move.outModes = { default: "bounce" };
+            }
+
             await loadParticles(newConfig);
         };
 
@@ -976,6 +988,12 @@
             if (configHistory.length > 0) {
                 configForwardHistory.push(JSON.parse(JSON.stringify(currentConfig)));
                 const lastConfig = configHistory.pop();
+                
+                // Update wall state based on the historical config
+                areWallsOn = lastConfig.particles.move.outModes?.default === 'bounce';
+                btnWalls.classList.toggle('active', areWallsOn);
+                btnWalls.setAttribute('aria-pressed', areWallsOn);
+
                 await loadParticles(lastConfig);
                 updateBackButtonState();
                 updateForwardButtonState();
@@ -987,6 +1005,12 @@
             if (configForwardHistory.length > 0) {
                 saveHistory();
                 const nextConfig = configForwardHistory.pop();
+                
+                // Update wall state based on the historical config
+                areWallsOn = nextConfig.particles.move.outModes?.default === 'bounce';
+                btnWalls.classList.toggle('active', areWallsOn);
+                btnWalls.setAttribute('aria-pressed', areWallsOn);
+
                 await loadParticles(nextConfig);
                 updateForwardButtonState();
             }
@@ -1079,8 +1103,17 @@
             const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
             // Also save the UI state in the shared link.
             sharableConfig.uiState = {
-                chaosLevel, isDarkMode, isCursorParticle, isGravityOn
+                chaosLevel, 
+                isDarkMode, 
+                isCursorParticle, 
+                isGravityOn,
+                areWallsOn, // <-- Add wall state
             };
+
+            // If walls are on, we must also save what they were originally to restore it
+            if (areWallsOn) {
+                sharableConfig.uiState.originalOutModes = originalOutModes;
+            }
             
             try {
                 const configString = JSON.stringify(sharableConfig);
@@ -1118,6 +1151,25 @@
             btnGravity.setAttribute('aria-pressed', isGravityOn);
             currentConfig.particles.move.gravity.enable = isGravityOn;
             currentConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
+            await loadParticles(currentConfig);
+        });
+
+        // --- NEW: Wall toggle button ---
+        btnWalls.addEventListener('click', async () => {
+            if (!currentConfig.particles) return;
+
+            areWallsOn = !areWallsOn;
+            btnWalls.classList.toggle('active', areWallsOn);
+            btnWalls.setAttribute('aria-pressed', areWallsOn);
+            
+            if (areWallsOn) {
+                // Save the current outModes before overriding
+                originalOutModes = JSON.parse(JSON.stringify(currentConfig.particles.move.outModes));
+                currentConfig.particles.move.outModes = { default: "bounce" };
+            } else {
+                // Restore the original outModes
+                currentConfig.particles.move.outModes = originalOutModes;
+            }
             await loadParticles(currentConfig);
         });
 
@@ -1260,6 +1312,7 @@
                     case 'i': btnShuffleInteraction.click(); break;
                     case 'f': btnShuffleFx.click(); break;
                     case 'g': btnGravity.click(); break;
+                    case 'w': btnWalls.click(); break; // <-- New shortcut
                     case 't': btnTheme.click(); break;
                     case 'c': btnCursor.click(); break;
                     case 's': btnShare.click(); break;
@@ -1315,6 +1368,10 @@
                         isDarkMode = parsedConfig.uiState.isDarkMode !== false;
                         isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
                         isGravityOn = parsedConfig.uiState.isGravityOn === true;
+                        areWallsOn = parsedConfig.uiState.areWallsOn === true; // <-- Restore wall state
+                        if(areWallsOn) {
+                           originalOutModes = parsedConfig.uiState.originalOutModes; // <-- Restore original modes
+                        }
                         delete parsedConfig.uiState;
                     }
                     initialConfigFromUrl = parsedConfig;
@@ -1331,6 +1388,8 @@
         updateChaosDisplay();
         document.body.classList.toggle("light-mode", !isDarkMode);
         btnTheme.setAttribute('aria-pressed', !isDarkMode);
+        btnWalls.classList.toggle('active', areWallsOn); // <-- Set wall button UI
+        btnWalls.setAttribute('aria-pressed', areWallsOn);
         iconSun.style.display = isDarkMode ? "block" : "none";
         iconMoon.style.display = isDarkMode ? "none" : "block";
 
