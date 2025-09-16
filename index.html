@@ -116,6 +116,10 @@
         .sub-menu {
             width: 320px;
         }
+        .submenu-divider {
+            width: 280px;
+            margin: 4px auto;
+        }
       }
       .menu-container.active .sub-menu {
         transform: scaleX(1);
@@ -379,8 +383,9 @@
 
             <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme: Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)."><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
             <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle: Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
-            <div class="glass-button menu-button" id="btn-kill-switch" title="Toggle Particle Death: Enables or disables particle lifespan. When active, particles will disappear after a certain time and be replaced by new ones."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M4 9h16"/><path d="M10 13v4"/><path d="M14 13v4"/><path d="M10 4V2a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/><line x1="4" y1="9" x2="20" y2="9"/></svg></div>
             <div class="glass-button menu-button" id="btn-back" title="Go Back: Reverts to the previous particle configuration. You can go back up to 20 steps."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
+            <div class="glass-button menu-button" id="btn-forward" title="Go Forward: Moves to the next particle configuration in your history, after you have used 'Go Back'."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg></div>
+            <div class="glass-button menu-button" id="btn-refresh" title="Refresh Scene: Resets the current particle animation to its starting state without changing any of the settings. Useful for animations where particles disappear over time."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
             <div class="glass-button menu-button" id="btn-info" title="Info: Shows a detailed guide explaining what each control button in the menu does."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
             <div class="glass-button menu-button" id="btn-share" title="Share Scene: Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
             <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity: Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
@@ -414,8 +419,9 @@
         const btnShuffleFx = document.getElementById('btn-shuffle-fx');
         const btnTheme = document.getElementById('btn-theme');
         const btnCursor = document.getElementById('btn-cursor');
-        const btnKillSwitch = document.getElementById('btn-kill-switch');
         const btnBack = document.getElementById('btn-back');
+        const btnForward = document.getElementById('btn-forward');
+        const btnRefresh = document.getElementById('btn-refresh');
         const btnInfo = document.getElementById('btn-info');
         const btnShare = document.getElementById('btn-share');
         const btnGravity = document.getElementById('btn-gravity');
@@ -441,12 +447,12 @@
         let chaosLevel = 5; // Controls the intensity of randomisation.
         let isDarkMode = true; // Tracks the current theme (dark/light).
         let isCursorParticle = false; // Tracks if the cursor is emitting particles.
-        let particleDeathAllowed = false; // Tracks if particles have a limited lifespan.
         let isGravityOn = false; // Tracks if gravity is enabled.
         let isPaused = false; // Tracks if the animation is currently paused.
         let currentConfig = {}; // The active tsParticles configuration object.
         let originalInteractionModes = {}; // Stores the original interaction modes to restore them when cursor mode is turned off.
         let configHistory = []; // An array to store previous configurations for the "back" button.
+        let configForwardHistory = []; // An array to store configurations for the "forward" button.
         let initialConfigFromUrl = null; // Stores any configuration loaded from a URL hash.
 
         // --- 3. DATA ARRAYS ---
@@ -494,9 +500,12 @@
             chaosSlider.value = chaosLevel;
         };
 
-        // Enables or disables the "back" button based on history availability.
+        // Enables or disables the "back" and "forward" buttons based on history availability.
         const updateBackButtonState = () => {
             btnBack.classList.toggle('disabled', configHistory.length === 0);
+        };
+        const updateForwardButtonState = () => {
+            btnForward.classList.toggle('disabled', configForwardHistory.length === 0);
         };
 
         // Saves the current configuration to the history stack.
@@ -510,6 +519,12 @@
                 }
                 updateBackButtonState();
             }
+        };
+
+        // Clears the forward history, usually after a new shuffle action.
+        const clearForwardHistory = () => {
+            configForwardHistory = [];
+            updateForwardButtonState();
         };
         
         // Shows a short-lived toast notification message.
@@ -579,11 +594,9 @@
         });
         
         // CHANGE: Added configuration for 'attract' mode.
-        const generateInteraction = (isDeathActive) => {
-            let clickMode = getRandomItem(safeClickModes);
-            let hoverMode = getRandomItem(hoverModeOptions);
-            
-            if (isDeathActive && clickMode === "remove") clickMode = "push";
+        const generateInteraction = () => {
+            const clickMode = getRandomItem(safeClickModes);
+            const hoverMode = getRandomItem(hoverModeOptions);
             
             const interaction = {
                 events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
@@ -612,7 +625,7 @@
 
         // CHANGE: Removed 'orbit' and 'spin'. Toned down 'wobble'.
         const generateSpecialFX = (currentFx = {}) => ({
-            life: currentFx.life || { enable: false, count: 0 },
+            life: { enable: false }, // Particles live forever by default now.
             collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
             wobble: { 
                 enable: getRandomBool(getChaosProbability(0.5)), 
@@ -648,7 +661,7 @@
                 const appearance = generateAppearance();
                 const movement = generateMovement();
                 const fx = generateSpecialFX();
-                const interaction = generateInteraction(fx.emitters.length > 0);
+                const interaction = generateInteraction();
                 
                 baseParticles = { ...appearance, move: movement, ...fx };
                 baseInteractivity = interaction;
@@ -656,11 +669,11 @@
             } else {
                 if (shuffleOptions.appearance) Object.assign(baseParticles, generateAppearance());
                 if (shuffleOptions.movement) baseParticles.move = { ...baseParticles.move, ...generateMovement() };
-                if (shuffleOptions.interaction) baseInteractivity = generateInteraction(baseEmitters.length > 0);
+                if (shuffleOptions.interaction) baseInteractivity = generateInteraction();
                 if (shuffleOptions.fx) {
                     const fx = generateSpecialFX(baseParticles);
                     Object.assign(baseParticles, fx);
-                    baseInteractivity = generateInteraction(fx.emitters.length > 0);
+                    baseInteractivity = generateInteraction();
                     baseEmitters = fx.emitters;
                 }
             }
@@ -782,32 +795,6 @@
             });
         };
 
-        // Toggles particle lifespan and emitters.
-        const toggleParticleDeath = async () => {
-            particleDeathAllowed = !particleDeathAllowed;
-            btnKillSwitch.classList.toggle("active", particleDeathAllowed);
-
-            if (!currentConfig.particles) return;
-
-            if (particleDeathAllowed) {
-                currentConfig.particles.life = {
-                    enable: true,
-                    duration: { sync: false, value: getRandomInRange(2, 6) },
-                    count: 1
-                };
-                currentConfig.emitters = [{
-                    direction: "top",
-                    life: { duration: 0, count: 0 },
-                    position: { x: 50, y: 110 },
-                    rate: { quantity: chaosLevel / 2, delay: 0.2 }
-                }];
-            } else {
-                currentConfig.particles.life.enable = false;
-                currentConfig.emitters = [];
-            }
-            await loadParticles(currentConfig);
-        };
-
         // --- 8. EVENT LISTENERS ---
         // Attaching all event handling logic.
 
@@ -817,6 +804,7 @@
         // Factory function to create shuffle handlers for different buttons.
         const createShuffleHandler = (options) => async () => {
             saveHistory();
+            clearForwardHistory();
             const newConfig = buildConfig(options);
             await loadParticles(newConfig);
         };
@@ -856,16 +844,33 @@
             iconPause.style.display = isPaused ? "none" : "block";
             iconPlay.style.display = isPaused ? "block" : "none";
         });
-
-        // Particle death toggle button.
-        btnKillSwitch.addEventListener("click", toggleParticleDeath);
         
         // Back button to load the previous configuration.
         btnBack.addEventListener("click", async () => {
             if (configHistory.length > 0) {
+                configForwardHistory.push(JSON.parse(JSON.stringify(currentConfig)));
                 const lastConfig = configHistory.pop();
                 await loadParticles(lastConfig);
                 updateBackButtonState();
+                updateForwardButtonState();
+            }
+        });
+
+        // Forward button to load the next configuration.
+        btnForward.addEventListener("click", async () => {
+            if (configForwardHistory.length > 0) {
+                saveHistory();
+                const nextConfig = configForwardHistory.pop();
+                await loadParticles(nextConfig);
+                updateForwardButtonState();
+            }
+        });
+
+        // Refresh button to reload the current configuration.
+        btnRefresh.addEventListener("click", async () => {
+            if (currentConfig && Object.keys(currentConfig).length > 0) {
+                await loadParticles(currentConfig);
+                showToast('Scene refreshed!');
             }
         });
         
@@ -948,7 +953,7 @@
             const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
             // Also save the UI state in the shared link.
             sharableConfig.uiState = {
-                chaosLevel, isDarkMode, isCursorParticle, particleDeathAllowed, isGravityOn
+                chaosLevel, isDarkMode, isCursorParticle, isGravityOn
             };
             
             try {
@@ -1073,7 +1078,6 @@
                         chaosLevel = parsedConfig.uiState.chaosLevel || 5;
                         isDarkMode = parsedConfig.uiState.isDarkMode !== false;
                         isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
-                        particleDeathAllowed = parsedConfig.uiState.particleDeathAllowed === true;
                         isGravityOn = parsedConfig.uiState.isGravityOn === true;
                         delete parsedConfig.uiState;
                     }
@@ -1094,7 +1098,6 @@
             updateChaosDisplay();
             updateTheme();
             btnCursor.classList.toggle("active", isCursorParticle);
-            btnKillSwitch.classList.toggle("active", particleDeathAllowed);
             btnGravity.classList.toggle("active", isGravityOn);
         } else {
             // Otherwise, generate a fresh config and show the welcome modal.
@@ -1107,6 +1110,7 @@
         }
         
         updateBackButtonState();
+        updateForwardButtonState();
       })();
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"9b351f95f9a14887bbe7ea274533fbf6","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
