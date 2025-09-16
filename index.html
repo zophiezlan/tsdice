@@ -618,27 +618,32 @@
             const shapeType = getRandomItem(shapeOptions);
             const appearance = {
                 color: { value: getRandomBool(0.2) ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
-                shape: { type: shapeType },
+                shape: {
+                    type: shapeType,
+                    options: {}
+                },
                 opacity: { value: { min: 0.3, max: 1 } },
                 size: { value: { min: 1, max: 1 + chaosLevel * 1.5 } },
                 stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
             };
 
             if (shapeType === 'polygon') {
-                appearance.shape.options = {
-                    polygon: {
-                        sides: Math.floor(getRandomInRange(3, 12))
-                    }
+                appearance.shape.options.polygon = {
+                    sides: Math.floor(getRandomInRange(3, 13))
                 };
-            } else if (shapeType === 'character') {
-                appearance.shape.options = {
-                    character: {
-                        value: [getRandomItem(emojiOptions)],
-                        fill: true
-                    }
+            }
+
+            if (shapeType === 'character') {
+                appearance.shape.options.character = {
+                    value: getRandomItem(emojiOptions),
+                    fill: true,
                 };
             }
             
+            if (Object.keys(appearance.shape.options).length === 0) {
+                delete appearance.shape.options;
+            }
+
             return appearance;
         };
 
@@ -688,14 +693,6 @@
                 }
             };
             
-            if (getRandomBool(0.4)) {
-                interaction.parallax = {
-                    enable: true,
-                    force: getRandomInRange(10, 60),
-                    smooth: 10
-                };
-            }
-            
             originalInteractionModes = {
                 click: interaction.events.onClick.mode,
                 hover: interaction.events.onHover.mode
@@ -704,56 +701,23 @@
             return interaction;
         };
 
-        const generateSpecialFX = (currentFx = {}) => {
-            let emitters = []; // Start with fresh emitters for any FX shuffle
-            if (getRandomBool(getChaosProbability(0.3))) {
-                const numEmitters = Math.floor(getRandomInRange(1, 1 + chaosLevel / 3));
-                for (let i = 0; i < numEmitters; i++) {
-                    emitters.push({
-                        position: {
-                            x: getRandomInRange(10, 90),
-                            y: getRandomInRange(10, 90)
-                        },
-                        direction: getRandomItem(directionOptions),
-                        rate: {
-                            quantity: 1 + Math.floor(chaosLevel / 4),
-                            delay: getRandomInRange(0.1, 0.4)
-                        }
-                    });
-                }
-            }
-            
-            const fx = {
-                life: { enable: false },
-                collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
-                wobble: { enable: getRandomBool(getChaosProbability(0.5)), distance: 1 + chaosLevel / 2, speed: 3 + chaosLevel / 2 },
-                rotate: { animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false }, direction: getRandomItem(["clockwise", "counter-clockwise"]) },
-                links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
-                destroy: currentFx.destroy || { mode: "none" },
-                emitters: emitters, // Assign the newly generated emitters
-                twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
-            };
-
-            // Add Spiral or Orbit (mutually exclusive)
-            const choice = Math.random();
-            if (choice < 0.2) { // 20% chance for spiral
-                fx.spiral = {
-                    enable: true,
-                    acceleration: getRandomInRange(1, 5)
-                };
-            } else if (choice < 0.4) { // 20% chance for orbit
-                fx.orbit = {
-                    enable: true,
-                    animation: {
-                        enable: true,
-                        speed: getRandomInRange(1, 5) * chaosLevel
-                    },
-                    radius: getRandomInRange(5, 50)
-                };
-            }
-
-            return fx;
-        };
+        const generateSpecialFX = (currentFx = {}) => ({
+            life: { enable: false }, // Particles live forever by default now.
+            collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
+            wobble: { 
+                enable: getRandomBool(getChaosProbability(0.5)), 
+                distance: 1 + chaosLevel / 2, 
+                speed: 3 + chaosLevel / 2 
+            },
+            rotate: { 
+                animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false },
+                direction: getRandomItem(["clockwise", "counter-clockwise"])
+            },
+            links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
+            destroy: currentFx.destroy || { mode: "none" },
+            emitters: currentFx.emitters || [],
+            twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
+        });
 
         // --- 7. CORE LOGIC FUNCTIONS ---
         
