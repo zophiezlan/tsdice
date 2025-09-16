@@ -41,17 +41,23 @@
         -webkit-backdrop-filter: blur(10px);
         display: flex;
         justify-content: center;
-        align-items: center;
+        align: center;
         cursor: pointer;
         transition: all 0.3s ease;
         color: white;
         user-select: none;
         flex-shrink: 0;
+        /* A11Y IMPROVEMENT: Add text shadow for contrast */
+        text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
       }
       .glass-button:hover {
         background: rgba(255, 255, 255, 0.2);
         transform: scale(1.1);
       }
+      .glass-button svg {
+        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.7));
+      }
+
       .glass-button.disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -63,6 +69,11 @@
         background: rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(0, 0, 0, 0.2);
         color: #333;
+        /* A11Y IMPROVEMENT: Adjust text shadow for light mode */
+        text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+      }
+       body.light-mode .glass-button svg {
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
       }
       body.light-mode .glass-button:hover {
         background: rgba(0, 0, 0, 0.2);
@@ -212,6 +223,11 @@
         min-width: 24px;
         text-align: center;
         margin-left: 10px;
+        /* A11Y IMPROVEMENT: Add text shadow for contrast */
+        text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+      }
+      body.light-mode #chaos-display {
+        text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
       }
 
       /* --- Sub-menu Divider --- */
@@ -273,6 +289,19 @@
       .info-text { text-align: left; }
       .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
       .info-text span { font-size: 0.9em; opacity: 0.8; }
+      .shortcut-list { text-align: left; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); }
+      body.light-mode .shortcut-list { border-top-color: rgba(0,0,0,0.2); }
+      .shortcut-list h3 { margin-top: 0; }
+      .shortcut-list ul { list-style: none; padding: 0; }
+      .shortcut-list li { display: flex; justify-content: space-between; padding: 6px 0; }
+      .shortcut-list kbd {
+          background: rgba(0,0,0,0.3);
+          padding: 2px 8px;
+          border-radius: 5px;
+          font-family: monospace;
+          border: 1px solid rgba(255,255,255,0.2);
+      }
+       body.light-mode .shortcut-list kbd { background: rgba(255,255,255,0.5); border-color: rgba(0,0,0,0.1); }
 
       /* --- Toast Notification --- */
       #toast-notification {
@@ -348,14 +377,29 @@
       body.light-mode #custom-tooltip strong {
          color: #000000;
       }
+      /* A11Y: Style for visually hidden elements that are still accessible to screen readers */
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
     </style>
 </head>
 <body>
-    <!-- The main container for the tsParticles animation -->
-    <div id="tsparticles"></div>
+    <!-- A11Y: Hiding purely decorative canvas from screen readers -->
+    <div id="tsparticles" aria-hidden="true"></div>
     
-    <!-- A toast notification for feedback, e.g., "Link copied" -->
-    <div id="toast-notification"></div>
+    <!-- A11Y: Announcer for screen readers -->
+    <div class="visually-hidden" aria-live="polite" id="slider-announcer"></div>
+    
+    <!-- A11Y: Toast notification with alert role for immediate announcement -->
+    <div id="toast-notification" role="alert" aria-live="assertive"></div>
 
     <!-- Welcome modal displayed on first visit -->
     <div class="modal-overlay" id="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
@@ -372,6 +416,8 @@
         <div class="modal-content">
             <h2 id="info-modal-title">How It Works</h2>
             <ul class="info-list"></ul>
+            <!-- UX: This container will be populated by JS for shortcut discoverability -->
+            <div id="shortcut-container"></div>
             <button class="modal-close-btn" id="close-info-modal">Close</button>
         </div>
     </div>
@@ -453,6 +499,7 @@
         const iconPlay = document.getElementById('icon-play');
         const chaosSlider = document.getElementById('chaos-slider');
         const chaosDisplay = document.getElementById('chaos-display');
+        const sliderAnnouncer = document.getElementById('slider-announcer');
         const welcomeModal = document.getElementById('welcome-modal');
         const closeModalBtn = document.getElementById('close-welcome-modal');
         const infoModal = document.getElementById('info-modal');
@@ -463,6 +510,7 @@
         const toastNotification = document.getElementById('toast-notification');
         const iconSun = document.getElementById('theme-icon-sun');
         const iconMoon = document.getElementById('theme-icon-moon');
+        const shortcutContainer = document.getElementById('shortcut-container');
         
         // --- 2. STATE VARIABLES ---
         // These variables hold the application's state and are modified by user interactions.
@@ -726,6 +774,13 @@
          */
         const loadParticles = async (config) => {
           currentConfig = config;
+          // UX IMPROVEMENT: Persist the last used config
+          try {
+              localStorage.setItem('tsDice-lastConfig', JSON.stringify(config));
+          } catch(e) {
+              console.warn("Could not save last config to localStorage.", e);
+          }
+
           particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
           
           isPaused = false;
@@ -753,6 +808,9 @@
           btnTheme.setAttribute('aria-pressed', !isDarkMode);
           iconSun.style.display = isDarkMode ? "block" : "none";
           iconMoon.style.display = isDarkMode ? "none" : "block";
+          
+          // UX IMPROVEMENT: Persist theme choice
+          localStorage.setItem('tsDice-isDarkMode', isDarkMode);
           
           if (!currentConfig || Object.keys(currentConfig).length === 0) return;
 
@@ -812,12 +870,29 @@
                 
                 const textWrapper = document.createElement('div');
                 textWrapper.className = 'info-text';
-                textWrapper.innerHTML = `<strong>${name}</strong><span>${description || ''}</span>`;
+                textWrapper.innerHTML = `<strong>${name.split('(')[0].trim()}</strong><span>${description || ''}</span>`;
                 
                 li.appendChild(iconWrapper);
                 li.appendChild(textWrapper);
                 infoList.appendChild(li);
             });
+            
+            // UX IMPROVEMENT: Add discoverable shortcuts list
+            shortcutContainer.innerHTML = `
+                <div class="shortcut-list">
+                    <h3>Keyboard Shortcuts</h3>
+                    <ul>
+                        <li><span>Open/Close Menu</span><kbd>Alt</kbd> + <kbd>M</kbd></li>
+                        <li><span>Pause / Play Animation</span><kbd>Spacebar</kbd></li>
+                        <li><span>Shuffle All / Appearance / Movement</span><kbd>Alt</kbd> + <kbd>A</kbd>/<kbd>P</kbd>/<kbd>V</kbd></li>
+                        <li><span>Shuffle Interaction / Special FX</span><kbd>Alt</kbd> + <kbd>I</kbd>/<kbd>F</kbd></li>
+                        <li><span>Go Back / Forward</span><kbd>Alt</kbd> + <kbd>Z</kbd>/<kbd>Y</kbd></li>
+                        <li><span>Toggle Theme / Gravity / Cursor</span><kbd>Alt</kbd> + <kbd>T</kbd>/<kbd>G</kbd>/<kbd>C</kbd></li>
+                        <li><span>Refresh / Share / Info</span><kbd>Alt</kbd> + <kbd>R</kbd>/<kbd>S</kbd>/<kbd>?</kbd></li>
+                        <li><span>Close Modals</span><kbd>Esc</kbd></li>
+                    </ul>
+                </div>
+            `;
         };
 
         // --- 8. ACCESSIBILITY - MODAL MANAGEMENT ---
@@ -1064,17 +1139,31 @@
         });
         closeInfoModalBtn.addEventListener('click', () => closeModal(infoModal));
         infoModal.addEventListener('keydown', (e) => trapFocus(e, infoModal));
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) closeModal(infoModal);
+        });
 
 
         // Chaos slider input.
         chaosSlider.addEventListener('input', (e) => {
             chaosLevel = parseInt(e.target.value, 10);
             updateChaosDisplay();
+            // UX IMPROVEMENT: Persist chaos level
+            localStorage.setItem('tsDice-chaosLevel', chaosLevel);
+            // A11Y: Announce change to screen readers
+            sliderAnnouncer.textContent = `Chaos level set to ${chaosLevel}`;
         });
 
         // Welcome modal and fullscreen listeners.
-        closeModalBtn.addEventListener("click", () => closeModal(welcomeModal));
+        closeModalBtn.addEventListener("click", () => {
+            closeModal(welcomeModal);
+            // UX IMPROVEMENT: Don't show welcome modal again
+            localStorage.setItem('tsDice-welcomeSeen', 'true');
+        });
         welcomeModal.addEventListener('keydown', (e) => trapFocus(e, welcomeModal));
+        welcomeModal.addEventListener('click', (e) => {
+            if(e.target === welcomeModal) closeModal(welcomeModal);
+        });
 
         fullscreenBtn.addEventListener("click", toggleFullScreen);
         document.addEventListener("fullscreenchange", updateFullscreenIcons);
@@ -1203,8 +1292,38 @@
 
         // --- 11. INITIALISATION ---
         // This runs once when the page loads.
+        
+        // A11Y: Handle reduced motion preference
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const handleReducedMotion = () => {
+            if (motionQuery.matches && particlesContainer && !isPaused) {
+                particlesContainer.pause();
+                isPaused = true;
+                btnPause.classList.add("active");
+                btnPause.setAttribute('aria-pressed', 'true');
+                iconPause.style.display = "none";
+                iconPlay.style.display = "block";
+                showToast("Animation paused for reduced motion.");
+            }
+        };
+        motionQuery.addEventListener('change', handleReducedMotion);
 
-        // Check for a configuration in the URL hash.
+
+        // UX IMPROVEMENT: Load user preferences from localStorage
+        const savedDarkMode = localStorage.getItem('tsDice-isDarkMode');
+        if (savedDarkMode !== null) {
+            isDarkMode = JSON.parse(savedDarkMode);
+        }
+        const savedChaos = localStorage.getItem('tsDice-chaosLevel');
+        if (savedChaos !== null) {
+            chaosLevel = parseInt(savedChaos, 10);
+        }
+        updateChaosDisplay();
+        updateTheme(); // This applies the theme and sets the icons correctly
+
+        let startingConfig = null;
+
+        // Check for a configuration in the URL hash (highest priority)
         if (window.location.hash && window.location.hash.startsWith('#config=')) {
             try {
                 const encodedConfig = window.location.hash.substring(8);
@@ -1220,7 +1339,7 @@
                         isGravityOn = parsedConfig.uiState.isGravityOn === true;
                         delete parsedConfig.uiState;
                     }
-                    initialConfigFromUrl = parsedConfig;
+                    startingConfig = parsedConfig;
                 } else {
                      throw new Error("Decompression failed");
                 }
@@ -1230,10 +1349,21 @@
             }
         }
 
-        // Load from URL or generate a new config.
-        if (initialConfigFromUrl) {
-            // If a config was loaded from the URL, apply it.
-            await loadParticles(initialConfigFromUrl);
+        // If no URL config, check for a previously saved config in localStorage
+        if (!startingConfig) {
+            try {
+                const savedConfig = localStorage.getItem('tsDice-lastConfig');
+                if (savedConfig) {
+                    startingConfig = JSON.parse(savedConfig);
+                }
+            } catch (e) {
+                console.warn("Could not parse saved config from localStorage.", e);
+            }
+        }
+        
+        // Apply UI state from the loaded config
+        if (startingConfig) {
+            await loadParticles(startingConfig);
             updateChaosDisplay();
             updateTheme();
             btnCursor.classList.toggle("active", isCursorParticle);
@@ -1241,17 +1371,22 @@
             btnGravity.classList.toggle("active", isGravityOn);
             btnGravity.setAttribute('aria-pressed', isGravityOn);
         } else {
-            // Otherwise, generate a fresh config and show the welcome modal.
-            updateChaosDisplay();
+            // Otherwise, generate a fresh config
             const newConfig = buildConfig({all: true});
             await loadParticles(newConfig);
-            setTimeout(() => {
+        }
+        
+        // Show welcome modal only on first visit
+        const welcomeSeen = localStorage.getItem('tsDice-welcomeSeen');
+        if (!welcomeSeen) {
+             setTimeout(() => {
                 openModal(welcomeModal);
             }, 500);
         }
         
         updateBackButtonState();
         updateForwardButtonState();
+        handleReducedMotion(); // Initial check for reduced motion
       })();
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"9b351f95f9a14887bbe7ea274533fbf6","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
