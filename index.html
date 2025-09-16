@@ -108,11 +108,14 @@
         transform: scaleX(0);
         opacity: 0;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
-        max-width: 300px;
+        /* MODIFICATION: Set a specific width to create the 2-row layout */
+        width: 568px; /* (5 buttons * 48px) + (1 slider * 280px) + (5 gaps * 8px) = 568px */
       }
-       @media (max-width: 480px) {
+       /* MODIFICATION: Added a new media query for responsive stacking */
+       @media (max-width: 660px) {
         .sub-menu {
-            max-width: calc(100vw - 140px);
+            /* On smaller screens, set the width to match the slider for a neat stack */
+            width: 280px;
         }
       }
       .menu-container.active .sub-menu {
