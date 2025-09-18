@@ -562,20 +562,26 @@
         // --- 2. STATE MANAGEMENT ---
         // Centralized object to hold the application's state.
         const AppState = {
-            particlesContainer: null, // Holds the tsParticles instance.
-            chaosLevel: 5,            // Controls the intensity of randomisation.
-            isDarkMode: true,         // Tracks the current theme (dark/light).
-            isCursorParticle: false,  // Tracks if the cursor is emitting particles.
-            isGravityOn: false,       // Tracks if gravity is enabled.
-            areWallsOn: false,        // Tracks if the wall bounce override is on.
-            isPaused: false,          // Tracks if the animation is currently paused.
-            currentConfig: {},        // The active tsParticles configuration object.
-            originalInteractionModes: {}, // Stores original interaction modes.
-            originalOutModes: {},     // Stores original outModes for wall mode.
-            configHistory: [],        // History for the "back" button.
-            configForwardHistory: [], // History for the "forward" button.
-            initialConfigFromUrl: null, // Config loaded from a URL hash.
-            lastFocusedElement: null  // ACCESSIBILITY: Store focus before modal opens.
+            ui: {
+                isDarkMode: true,
+                isCursorParticle: false,
+                isGravityOn: false,
+                areWallsOn: false,
+                isPaused: false,
+                lastFocusedElement: null,
+                particlesContainer: null,
+            },
+            history: {
+                past: [],
+                future: [],
+            },
+            particleState: {
+                chaosLevel: 5,
+                currentConfig: {},
+                originalInteractionModes: {},
+                originalOutModes: {},
+                initialConfigFromUrl: null,
+            }
         };
 
 
@@ -608,70 +614,247 @@
         tooltip.id = 'custom-tooltip';
         document.body.appendChild(tooltip);
 
-        // --- 5. UTILITY FUNCTIONS ---
-        // Helper functions used throughout the script.
+        // --- 5. UTILITY FUNCTIONS & MANAGERS ---
         const getRandomInRange = (min, max) => Math.random() * (max - min) + min;
         const getRandomBool = (probability = 0.5) => Math.random() < probability;
         const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-        // A function to scale probability based on the chaos level.
-        const getChaosProbability = (baseProb) => Math.min(baseProb * (AppState.chaosLevel / 5), 1);
+        const getChaosProbability = (baseProb) => Math.min(baseProb * (AppState.particleState.chaosLevel / 5), 1);
         
-        // ACCESSIBILITY: Function to announce messages to screen readers
-        const announce = (message) => {
-            announcer.textContent = message;
-        };
+        const UIManager = {
+            announce: (message) => {
+                announcer.textContent = message;
+            },
 
-        // Updates the chaos level display next to the slider.
-        const updateChaosDisplay = () => {
-            chaosDisplay.textContent = AppState.chaosLevel;
-            chaosSlider.value = AppState.chaosLevel;
-            // ACCESSIBILITY: Update ARIA value for screen readers
-            chaosSlider.setAttribute('aria-valuenow', AppState.chaosLevel);
-        };
+            showToast: (message) => {
+                toastNotification.textContent = message;
+                toastNotification.classList.add('show');
+                setTimeout(() => {
+                    toastNotification.classList.remove('show');
+                }, 3000);
+            },
+            
+            updateFullscreenIcons: () => {
+              const isFullscreen = !!document.fullscreenElement;
+              fullscreenBtn.setAttribute('aria-pressed', isFullscreen);
+              iconEnter.style.display = isFullscreen ? "none" : "block";
+              iconExit.style.display = isFullscreen ? "block" : "none";
+            },
 
-        // Enables or disables the "back" and "forward" buttons based on history availability.
-        const updateBackButtonState = () => {
-            btnBack.classList.toggle('disabled', AppState.configHistory.length === 0);
-        };
-        const updateForwardButtonState = () => {
-            btnForward.classList.toggle('disabled', AppState.configForwardHistory.length === 0);
-        };
+            populateInfoModal: () => {
+                const infoList = infoModal.querySelector('.info-list');
+                infoList.innerHTML = '';
+                const controls = document.querySelectorAll('.sub-menu .menu-button, .sub-menu .slider-container');
+                
+                controls.forEach(control => {
+                    const title = control.getAttribute('data-title') || control.title;
+                    if (!title) return;
 
-        // Saves the current configuration to the history stack.
-        const saveHistory = () => {
-            if (Object.keys(AppState.currentConfig).length > 0) {
-                try {
-                    AppState.configHistory.push(structuredClone(AppState.currentConfig));
-                } catch (e) {
-                    AppState.configHistory.push(JSON.parse(JSON.stringify(AppState.currentConfig)));
-                }
-                if (AppState.configHistory.length > 20) {
-                    AppState.configHistory.shift();
-                }
-                updateBackButtonState();
+                    const icon = control.querySelector('svg')?.cloneNode(true);
+                    
+                    const shortcutMatch = title.match(/\(([^)]+)\)/);
+                    const cleanTitle = title.replace(/\s*\(([^)]+)\)/, '');
+                    const [name, description] = cleanTitle.split(': ');
+                    
+                    const li = document.createElement('li');
+                    const iconWrapper = document.createElement('div');
+                    iconWrapper.className = 'icon-wrapper';
+                    if (icon) {
+                        iconWrapper.appendChild(icon);
+                    } else if (control.classList.contains('slider-container')) {
+                        iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
+                    }
+                    
+                    const textWrapper = document.createElement('div');
+                    textWrapper.className = 'info-text';
+                    textWrapper.innerHTML = `<strong>${name} ${shortcutMatch ? `<code>${shortcutMatch[1]}</code>` : ''}</strong><span>${description || ''}</span>`;
+                    
+                    li.appendChild(iconWrapper);
+                    li.appendChild(textWrapper);
+                    infoList.appendChild(li);
+                });
+            },
+
+            openModal: (modal, opener) => {
+                AppState.ui.lastFocusedElement = opener || document.activeElement;
+                modal.classList.add('visible');
+                const firstFocusableElement = modal.querySelector('button, [href]');
+                if(firstFocusableElement) firstFocusableElement.focus();
+            },
+
+            closeModal: (modal) => {
+                modal.classList.remove('visible');
+                if(AppState.ui.lastFocusedElement) AppState.ui.lastFocusedElement.focus();
+            },
+            
+            syncUI: () => {
+                // Theme
+                document.body.classList.toggle("light-mode", !AppState.ui.isDarkMode);
+                btnTheme.setAttribute('aria-pressed', !AppState.ui.isDarkMode);
+                iconSun.style.display = AppState.ui.isDarkMode ? "block" : "none";
+                iconMoon.style.display = AppState.ui.isDarkMode ? "none" : "block";
+                
+                // Toggle Buttons
+                btnGravity.classList.toggle('active', AppState.ui.isGravityOn);
+                btnGravity.setAttribute('aria-pressed', AppState.ui.isGravityOn);
+                btnWalls.classList.toggle('active', AppState.ui.areWallsOn);
+                btnWalls.setAttribute('aria-pressed', AppState.ui.areWallsOn);
+                btnCursor.classList.toggle("active", AppState.ui.isCursorParticle);
+                btnCursor.setAttribute('aria-pressed', AppState.ui.isCursorParticle);
+                btnPause.classList.toggle("active", AppState.ui.isPaused);
+                btnPause.setAttribute('aria-pressed', AppState.ui.isPaused);
+                iconPause.style.display = AppState.ui.isPaused ? "none" : "block";
+                iconPlay.style.display = AppState.ui.isPaused ? "block" : "none";
+
+                // Slider
+                chaosSlider.value = AppState.particleState.chaosLevel;
+                chaosSlider.setAttribute('aria-valuenow', AppState.particleState.chaosLevel);
+                chaosDisplay.textContent = AppState.particleState.chaosLevel;
+
+                // History Buttons
+                HistoryManager.updateBackButtonState();
+                HistoryManager.updateForwardButtonState();
             }
         };
 
-        // Clears the forward history, usually after a new shuffle action.
-        const clearForwardHistory = () => {
-            AppState.configForwardHistory = [];
-            updateForwardButtonState();
+        const HistoryManager = {
+            saveHistory: () => {
+                if (Object.keys(AppState.particleState.currentConfig).length > 0) {
+                    try {
+                        AppState.history.past.push(structuredClone(AppState.particleState.currentConfig));
+                    } catch (e) {
+                        console.warn('structuredClone failed, falling back to JSON method. Data fidelity may be lost.', e);
+                        AppState.history.past.push(JSON.parse(JSON.stringify(AppState.particleState.currentConfig)));
+                    }
+                    if (AppState.history.past.length > 20) {
+                        AppState.history.past.shift();
+                    }
+                    HistoryManager.updateBackButtonState();
+                }
+            },
+            
+            clearForwardHistory: () => {
+                AppState.history.future = [];
+                HistoryManager.updateForwardButtonState();
+            },
+
+            updateBackButtonState: () => {
+                btnBack.classList.toggle('disabled', AppState.history.past.length === 0);
+            },
+            
+            updateForwardButtonState: () => {
+                btnForward.classList.toggle('disabled', AppState.history.future.length === 0);
+            },
         };
         
-        // Shows a short-lived toast notification message.
-        const showToast = (message) => {
-            toastNotification.textContent = message;
-            toastNotification.classList.add('show');
-            setTimeout(() => {
-                toastNotification.classList.remove('show');
-            }, 3000);
+        const ConfigGenerator = {
+            generateAppearance: () => {
+                const shapeType = getRandomItem(shapeOptions);
+                const appearance = {
+                    color: { value: getRandomBool(0.2) ? "random" : getRandomItem(AppState.ui.isDarkMode ? darkColorPalette : lightColorPalette) },
+                    shape: {
+                        type: shapeType,
+                        options: {}
+                    },
+                    opacity: { value: { min: 0.3, max: 1 } },
+                    size: { value: { min: 1, max: 1 + AppState.particleState.chaosLevel * 1.5 } },
+                    stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
+                };
+
+                if (shapeType === 'polygon') {
+                    appearance.shape.options.polygon = {
+                        sides: Math.floor(getRandomInRange(3, 13))
+                    };
+                }
+
+                if (shapeType === 'character') {
+                    appearance.shape.options.character = {
+                        value: getRandomItem(emojiOptions),
+                        fill: true,
+                    };
+                }
+                
+                if (Object.keys(appearance.shape.options).length === 0) {
+                    delete appearance.shape.options;
+                }
+
+                return appearance;
+            },
+
+            generateMovement: () => {
+                const movement = {
+                    enable: true,
+                    speed: getRandomInRange(AppState.particleState.chaosLevel * 0.5, AppState.particleState.chaosLevel * 2),
+                    direction: getRandomItem(directionOptions),
+                    random: true,
+                    straight: false,
+                    outModes: { default: "out" },
+                    trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: AppState.ui.isDarkMode ? "#111" : "#f0f0f0" } } }
+                };
+
+                if (getRandomBool(getChaosProbability(0.4))) {
+                    movement.attract = {
+                        enable: true,
+                        rotate: {
+                            x: getRandomInRange(600, 1500),
+                            y: getRandomInRange(600, 1500)
+                        }
+                    };
+                }
+                return movement;
+            },
+        
+            generateInteraction: () => {
+                const clickMode = getRandomItem(safeClickModes);
+                const hoverMode = getRandomItem(hoverModeOptions);
+                
+                const interaction = {
+                    events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
+                    modes: {
+                        repulse: { distance: 50 + AppState.particleState.chaosLevel * 10 },
+                        push: { quantity: AppState.particleState.chaosLevel },
+                        bubble: { distance: 100 + AppState.particleState.chaosLevel * 15, size: 10 + AppState.particleState.chaosLevel * 2, duration: 2 },
+                        parallax: { enable: true, force: 5 * AppState.particleState.chaosLevel, smooth: 10 },
+                        grab: { distance: 150 + AppState.particleState.chaosLevel * 10 },
+                        slow: { factor: 3, radius: 200 },
+                        connect: { radius: 150 },
+                        remove: { quantity: AppState.particleState.chaosLevel },
+                        trail: { delay: 0.05, quantity: 1 },
+                        absorb: { speed: 2 + AppState.particleState.chaosLevel },
+                        attract: { distance: 200, speed: AppState.particleState.chaosLevel / 2 }
+                    }
+                };
+                
+                AppState.particleState.originalInteractionModes = {
+                    click: interaction.events.onClick.mode,
+                    hover: interaction.events.onHover.mode
+                };
+
+                return interaction;
+            },
+
+            generateSpecialFX: (currentFx = {}) => ({
+                life: { enable: false },
+                collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
+                wobble: { 
+                    enable: getRandomBool(getChaosProbability(0.5)), 
+                    distance: 1 + AppState.particleState.chaosLevel / 2, 
+                    speed: 3 + AppState.particleState.chaosLevel / 2 
+                },
+                rotate: { 
+                    animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * AppState.particleState.chaosLevel, sync: false },
+                    direction: getRandomItem(["clockwise", "counter-clockwise"])
+                },
+                links: { enable: getRandomBool(0.6), distance: 150, color: { value: AppState.ui.isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
+                destroy: currentFx.destroy || { mode: "none" },
+                emitters: currentFx.emitters || [],
+                twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
+            }),
         };
 
-        // Copies text to the clipboard, with a fallback for older browsers.
+        // --- 6. CORE LOGIC FUNCTIONS ---
         const copyToClipboard = async (text) => {
             try {
                 await navigator.clipboard.writeText(text);
-                // The toast message is now handled in the share function for better context.
             } catch (err) {
                 const textArea = document.createElement("textarea");
                 textArea.value = text;
@@ -683,13 +866,12 @@
                 try {
                     document.execCommand('copy');
                 } catch (execErr) {
-                    showToast('Failed to copy link.');
+                    UIManager.showToast('Failed to copy link.');
                 }
                 document.body.removeChild(textArea);
             }
         };
 
-        // Generates a random string of 10 emojis.
         const generateRandomEmojiString = () => {
             let emojiString = '';
             for (let i = 0; i < 10; i++) {
@@ -698,163 +880,41 @@
             return emojiString;
         };
 
-        
-        // Creates a short URL using the spoo.me emoji API
         async function createEmojiShortUrl(longUrl) {
             const apiUrl = 'https://spoo.me/emoji';
-        
             const emojiSequence = generateRandomEmojiString().substring(0, 15);
-        
             try {
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        'url': longUrl,
-                        'emojies': emojiSequence
-                    })
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'url': longUrl, 'emojies': emojiSequence })
                 });
-        
-                if (!response.ok) {
-                    throw new Error(`API request failed with status ${response.status}`);
-                }
-        
+                if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
                 const data = await response.json();
-        
                 return data.short_url;
-        
             } catch (error) {
                 console.error('Failed to create emoji short URL:', error);
                 return null;
             }
         }
 
-        // --- 6. CONFIG GENERATION FUNCTIONS ---
-        const generateAppearance = () => {
-            const shapeType = getRandomItem(shapeOptions);
-            const appearance = {
-                color: { value: getRandomBool(0.2) ? "random" : getRandomItem(AppState.isDarkMode ? darkColorPalette : lightColorPalette) },
-                shape: {
-                    type: shapeType,
-                    options: {}
-                },
-                opacity: { value: { min: 0.3, max: 1 } },
-                size: { value: { min: 1, max: 1 + AppState.chaosLevel * 1.5 } },
-                stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
-            };
-
-            if (shapeType === 'polygon') {
-                appearance.shape.options.polygon = {
-                    sides: Math.floor(getRandomInRange(3, 13))
-                };
-            }
-
-            if (shapeType === 'character') {
-                appearance.shape.options.character = {
-                    value: getRandomItem(emojiOptions),
-                    fill: true,
-                };
-            }
-            
-            if (Object.keys(appearance.shape.options).length === 0) {
-                delete appearance.shape.options;
-            }
-
-            return appearance;
-        };
-
-        const generateMovement = () => {
-            const movement = {
-                enable: true,
-                speed: getRandomInRange(AppState.chaosLevel * 0.5, AppState.chaosLevel * 2),
-                direction: getRandomItem(directionOptions),
-                random: true,
-                straight: false,
-                outModes: { default: "out" },
-                trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: AppState.isDarkMode ? "#111" : "#f0f0f0" } } }
-            };
-
-            if (getRandomBool(getChaosProbability(0.4))) {
-                movement.attract = {
-                    enable: true,
-                    rotate: {
-                        x: getRandomInRange(600, 1500),
-                        y: getRandomInRange(600, 1500)
-                    }
-                };
-            }
-
-            return movement;
-        };
-        
-        const generateInteraction = () => {
-            const clickMode = getRandomItem(safeClickModes);
-            const hoverMode = getRandomItem(hoverModeOptions);
-            
-            const interaction = {
-                events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
-                modes: {
-                    repulse: { distance: 50 + AppState.chaosLevel * 10 },
-                    push: { quantity: AppState.chaosLevel },
-                    bubble: { distance: 100 + AppState.chaosLevel * 15, size: 10 + AppState.chaosLevel * 2, duration: 2 },
-                    parallax: { enable: true, force: 5 * AppState.chaosLevel, smooth: 10 },
-                    grab: { distance: 150 + AppState.chaosLevel * 10 },
-                    slow: { factor: 3, radius: 200 },
-                    connect: { radius: 150 },
-                    remove: { quantity: AppState.chaosLevel },
-                    trail: { delay: 0.05, quantity: 1 },
-                    absorb: { speed: 2 + AppState.chaosLevel },
-                    attract: { distance: 200, speed: AppState.chaosLevel / 2 }
-                }
-            };
-            
-            AppState.originalInteractionModes = {
-                click: interaction.events.onClick.mode,
-                hover: interaction.events.onHover.mode
-            };
-
-            return interaction;
-        };
-
-        const generateSpecialFX = (currentFx = {}) => ({
-            life: { enable: false },
-            collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
-            wobble: { 
-                enable: getRandomBool(getChaosProbability(0.5)), 
-                distance: 1 + AppState.chaosLevel / 2, 
-                speed: 3 + AppState.chaosLevel / 2 
-            },
-            rotate: { 
-                animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * AppState.chaosLevel, sync: false },
-                direction: getRandomItem(["clockwise", "counter-clockwise"])
-            },
-            links: { enable: getRandomBool(0.6), distance: 150, color: { value: AppState.isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
-            destroy: currentFx.destroy || { mode: "none" },
-            emitters: currentFx.emitters || [],
-            twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
-        });
-
-        // --- 7. CORE LOGIC FUNCTIONS ---
         const buildConfig = (shuffleOptions) => {
-            const isNew = !AppState.currentConfig || Object.keys(AppState.currentConfig).length === 0;
-            let newConfig = isNew ? {} : { ...AppState.currentConfig };
+            const isNew = !AppState.particleState.currentConfig || Object.keys(AppState.particleState.currentConfig).length === 0;
+            let newConfig = isNew ? {} : { ...AppState.particleState.currentConfig };
             
             if (shuffleOptions.all || isNew) {
-                newConfig.particles = { ...generateAppearance(), move: generateMovement(), ...generateSpecialFX() };
-                newConfig.interactivity = generateInteraction();
+                newConfig.particles = { ...ConfigGenerator.generateAppearance(), move: ConfigGenerator.generateMovement(), ...ConfigGenerator.generateSpecialFX() };
+                newConfig.interactivity = ConfigGenerator.generateInteraction();
                 newConfig.emitters = newConfig.particles.emitters || [];
             } else {
                 newConfig.particles = { ...newConfig.particles };
-                if (shuffleOptions.appearance) Object.assign(newConfig.particles, generateAppearance());
-                if (shuffleOptions.movement) newConfig.particles.move = { ...newConfig.particles.move, ...generateMovement() };
-                if (shuffleOptions.interaction) newConfig.interactivity = generateInteraction();
+                if (shuffleOptions.appearance) Object.assign(newConfig.particles, ConfigGenerator.generateAppearance());
+                if (shuffleOptions.movement) newConfig.particles.move = { ...newConfig.particles.move, ...ConfigGenerator.generateMovement() };
+                if (shuffleOptions.interaction) newConfig.interactivity = ConfigGenerator.generateInteraction();
                 if (shuffleOptions.fx) {
-                    const fx = generateSpecialFX(newConfig.particles);
+                    const fx = ConfigGenerator.generateSpecialFX(newConfig.particles);
                     Object.assign(newConfig.particles, fx);
-                    newConfig.interactivity = generateInteraction();
+                    newConfig.interactivity = ConfigGenerator.generateInteraction();
                     newConfig.emitters = fx.emitters;
                 }
             }
@@ -862,67 +922,69 @@
             delete newConfig.particles.emitters;
 
             Object.assign(newConfig, {
-                background: { color: { value: AppState.isDarkMode ? "#111" : "#f0f0f0" } },
+                background: { color: { value: AppState.ui.isDarkMode ? "#111" : "#f0f0f0" } },
                 fpsLimit: 120,
                 detectRetina: true,
             });
             if (!newConfig.particles.move.gravity) newConfig.particles.move.gravity = {};
-            newConfig.particles.move.gravity.enable = AppState.isGravityOn;
-            newConfig.particles.move.gravity.acceleration = AppState.isGravityOn ? 20 : 0;
-            newConfig.particles.number = { value: 20 + AppState.chaosLevel * 20 };
+            newConfig.particles.move.gravity.enable = AppState.ui.isGravityOn;
+            newConfig.particles.move.gravity.acceleration = AppState.ui.isGravityOn ? 20 : 0;
+            newConfig.particles.number = { value: 20 + AppState.particleState.chaosLevel * 20 };
             
             return newConfig;
         };
         
         const loadParticles = async (config) => {
-          AppState.currentConfig = config;
+          AppState.particleState.currentConfig = config;
           try {
             localStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
           } catch(e) {
             console.warn("Could not save config to localStorage, it might be too large.");
           }
 
-          AppState.particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
+          AppState.ui.particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
           
-          AppState.isPaused = false;
-          btnPause.classList.remove("active");
-          btnPause.setAttribute('aria-pressed', 'false');
-          iconPause.style.display = "block";
-          iconPlay.style.display = "none";
+          AppState.ui.isPaused = false;
+          UIManager.syncUI();
         };
         
         const applyCursorMode = () => {
-            if (AppState.isCursorParticle) {
-                AppState.currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
-                AppState.currentConfig.interactivity.events.onHover.mode = "trail";
-                AppState.currentConfig.interactivity.events.onClick.enable = false;
+            const config = AppState.particleState.currentConfig;
+            if (AppState.ui.isCursorParticle) {
+                config.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
+                config.interactivity.events.onHover.mode = "trail";
+                config.interactivity.events.onClick.enable = false;
             } else {
-                AppState.currentConfig.interactivity.events.onHover.mode = AppState.originalInteractionModes.hover || "repulse";
-                AppState.currentConfig.interactivity.events.onClick.enable = true;
+                config.interactivity.events.onHover.mode = AppState.particleState.originalInteractionModes.hover || "repulse";
+                config.interactivity.events.onClick.enable = true;
             }
         };
-
+        
         const updateTheme = () => {
-          document.body.classList.toggle("light-mode", !AppState.isDarkMode);
-          btnTheme.setAttribute('aria-pressed', !AppState.isDarkMode);
-          iconSun.style.display = AppState.isDarkMode ? "block" : "none";
-          iconMoon.style.display = AppState.isDarkMode ? "none" : "block";
-          localStorage.setItem('tsDiceTheme', AppState.isDarkMode ? 'dark' : 'light');
-          announce(AppState.isDarkMode ? "Dark theme enabled" : "Light theme enabled");
-          if (!AppState.currentConfig || Object.keys(AppState.currentConfig).length === 0) return;
-          const newPalette = AppState.isDarkMode ? darkColorPalette : lightColorPalette;
-          AppState.currentConfig.background.color.value = AppState.isDarkMode ? "#111" : "#f0f0f0";
-          if (AppState.currentConfig.particles.color.value !== "random") {
-             AppState.currentConfig.particles.color.value = getRandomItem(newPalette);
-          }
-          if(AppState.currentConfig.particles.stroke.width > 0 && AppState.currentConfig.particles.stroke.color.value !== "random") {
-            AppState.currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
-          }
-          if(AppState.currentConfig.particles.links.enable) AppState.currentConfig.particles.links.color.value = AppState.isDarkMode ? "#ffffff" : "#333333";
-          if(AppState.currentConfig.particles.move.trail.enable) AppState.currentConfig.particles.move.trail.fill.color.value = AppState.isDarkMode ? "#111" : "#f0f0f0";
+          AppState.ui.isDarkMode = !AppState.ui.isDarkMode;
+          localStorage.setItem('tsDiceTheme', AppState.ui.isDarkMode ? 'dark' : 'light');
+          UIManager.announce(AppState.ui.isDarkMode ? "Dark theme enabled" : "Light theme enabled");
           
-          loadParticles(AppState.currentConfig);
+          const config = AppState.particleState.currentConfig;
+          if (!config || Object.keys(config).length === 0) {
+            UIManager.syncUI();
+            return;
+          }
+
+          const newPalette = AppState.ui.isDarkMode ? darkColorPalette : lightColorPalette;
+          config.background.color.value = AppState.ui.isDarkMode ? "#111" : "#f0f0f0";
+          if (config.particles.color.value !== "random") {
+             config.particles.color.value = getRandomItem(newPalette);
+          }
+          if(config.particles.stroke.width > 0 && config.particles.stroke.color.value !== "random") {
+            config.particles.stroke.color.value = getRandomItem(newPalette);
+          }
+          if(config.particles.links.enable) config.particles.links.color.value = AppState.ui.isDarkMode ? "#ffffff" : "#333333";
+          if(config.particles.move.trail.enable) config.particles.move.trail.fill.color.value = AppState.ui.isDarkMode ? "#111" : "#f0f0f0";
+          
+          loadParticles(config);
         };
+
 
         const toggleFullScreen = () => {
           if (!document.fullscreenElement) {
@@ -930,60 +992,6 @@
           } else if (document.exitFullscreen) {
             document.exitFullscreen();
           }
-        };
-
-        const updateFullscreenIcons = () => {
-          const isFullscreen = !!document.fullscreenElement;
-          fullscreenBtn.setAttribute('aria-pressed', isFullscreen);
-          iconEnter.style.display = isFullscreen ? "none" : "block";
-          iconExit.style.display = isFullscreen ? "block" : "none";
-        };
-
-        const populateInfoModal = () => {
-            const infoList = infoModal.querySelector('.info-list');
-            infoList.innerHTML = '';
-            const controls = document.querySelectorAll('.sub-menu .menu-button, .sub-menu .slider-container');
-            
-            controls.forEach(control => {
-                const title = control.getAttribute('data-title') || control.title;
-                if (!title) return;
-
-                const icon = control.querySelector('svg')?.cloneNode(true);
-                
-                const shortcutMatch = title.match(/\(([^)]+)\)/);
-                const cleanTitle = title.replace(/\s*\(([^)]+)\)/, '');
-                const [name, description] = cleanTitle.split(': ');
-                
-                const li = document.createElement('li');
-                const iconWrapper = document.createElement('div');
-                iconWrapper.className = 'icon-wrapper';
-                if (icon) {
-                    iconWrapper.appendChild(icon);
-                } else if (control.classList.contains('slider-container')) {
-                    iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
-                }
-                
-                const textWrapper = document.createElement('div');
-                textWrapper.className = 'info-text';
-                textWrapper.innerHTML = `<strong>${name} ${shortcutMatch ? `<code>${shortcutMatch[1]}</code>` : ''}</strong><span>${description || ''}</span>`;
-                
-                li.appendChild(iconWrapper);
-                li.appendChild(textWrapper);
-                infoList.appendChild(li);
-            });
-        };
-
-        // --- 8. ACCESSIBILITY - MODAL MANAGEMENT ---
-        const openModal = (modal, opener) => {
-            AppState.lastFocusedElement = opener || document.activeElement;
-            modal.classList.add('visible');
-            const firstFocusableElement = modal.querySelector('button, [href]');
-            if(firstFocusableElement) firstFocusableElement.focus();
-        };
-
-        const closeModal = (modal) => {
-            modal.classList.remove('visible');
-            if(AppState.lastFocusedElement) AppState.lastFocusedElement.focus();
         };
 
         const trapFocus = (e, modal) => {
@@ -1005,7 +1013,7 @@
             }
         };
 
-        // --- 9. EVENT LISTENERS ---
+        // --- 7. EVENT LISTENERS ---
         mainMenuBtn.addEventListener("click", () => {
             const isActive = menuContainer.classList.toggle("active");
             mainMenuBtn.setAttribute('aria-pressed', isActive);
@@ -1016,12 +1024,12 @@
         });
         
         const createShuffleHandler = (options) => async () => {
-            saveHistory();
-            clearForwardHistory();
+            HistoryManager.saveHistory();
+            HistoryManager.clearForwardHistory();
             const newConfig = buildConfig(options);
             
-            if (AppState.areWallsOn) {
-                AppState.originalOutModes = structuredClone(newConfig.particles.move.outModes);
+            if (AppState.ui.areWallsOn) {
+                AppState.particleState.originalOutModes = structuredClone(newConfig.particles.move.outModes);
                 newConfig.particles.move.outModes = { default: "bounce" };
             }
 
@@ -1034,86 +1042,75 @@
         btnShuffleInteraction.addEventListener("click", createShuffleHandler({interaction: true}));
         btnShuffleFx.addEventListener("click", createShuffleHandler({fx: true}));
 
-        btnTheme.addEventListener("click", () => {
-          AppState.isDarkMode = !AppState.isDarkMode;
-          updateTheme();
-        });
+        btnTheme.addEventListener("click", updateTheme);
 
         btnCursor.addEventListener("click", () => {
-            AppState.isCursorParticle = !AppState.isCursorParticle;
-            btnCursor.classList.toggle("active", AppState.isCursorParticle);
-            btnCursor.setAttribute('aria-pressed', AppState.isCursorParticle);
+            AppState.ui.isCursorParticle = !AppState.ui.isCursorParticle;
             applyCursorMode();
-            loadParticles(AppState.currentConfig);
-            announce(AppState.isCursorParticle ? "Cursor particle enabled" : "Cursor particle disabled");
+            loadParticles(AppState.particleState.currentConfig);
+            UIManager.announce(AppState.ui.isCursorParticle ? "Cursor particle enabled" : "Cursor particle disabled");
         });
         
         btnPause.addEventListener("click", () => {
-            if (!AppState.particlesContainer) return;
-            AppState.isPaused = !AppState.isPaused;
-            if (AppState.isPaused) {
-                AppState.particlesContainer.pause();
+            const container = AppState.ui.particlesContainer;
+            if (!container) return;
+            AppState.ui.isPaused = !AppState.ui.isPaused;
+            if (AppState.ui.isPaused) {
+                container.pause();
             } else {
-                AppState.particlesContainer.play();
+                container.play();
             }
-            btnPause.classList.toggle("active", AppState.isPaused);
-            btnPause.setAttribute('aria-pressed', AppState.isPaused);
-            iconPause.style.display = AppState.isPaused ? "none" : "block";
-            iconPlay.style.display = AppState.isPaused ? "block" : "none";
-            announce(AppState.isPaused ? "Animation paused" : "Animation resumed");
+            UIManager.syncUI();
+            UIManager.announce(AppState.ui.isPaused ? "Animation paused" : "Animation resumed");
         });
         
         btnBack.addEventListener("click", async () => {
-            if (AppState.configHistory.length > 0) {
-                AppState.configForwardHistory.push(structuredClone(AppState.currentConfig));
-                const lastConfig = AppState.configHistory.pop();
+            if (AppState.history.past.length > 0) {
+                AppState.history.future.push(structuredClone(AppState.particleState.currentConfig));
+                const lastConfig = AppState.history.past.pop();
                 
-                AppState.areWallsOn = lastConfig.particles.move.outModes?.default === 'bounce';
-                btnWalls.classList.toggle('active', AppState.areWallsOn);
-                btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
+                AppState.ui.areWallsOn = lastConfig.particles.move.outModes?.default === 'bounce';
 
                 await loadParticles(lastConfig);
-                updateBackButtonState();
-                updateForwardButtonState();
+                UIManager.syncUI();
             }
         });
 
         btnForward.addEventListener("click", async () => {
-            if (AppState.configForwardHistory.length > 0) {
-                saveHistory();
-                const nextConfig = AppState.configForwardHistory.pop();
+            if (AppState.history.future.length > 0) {
+                HistoryManager.saveHistory();
+                const nextConfig = AppState.history.future.pop();
                 
-                AppState.areWallsOn = nextConfig.particles.move.outModes?.default === 'bounce';
-                btnWalls.classList.toggle('active', AppState.areWallsOn);
-                btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
+                AppState.ui.areWallsOn = nextConfig.particles.move.outModes?.default === 'bounce';
 
                 await loadParticles(nextConfig);
-                updateForwardButtonState();
+                UIManager.syncUI();
             }
         });
 
         btnRefresh.addEventListener("click", async () => {
-            if (AppState.currentConfig && Object.keys(AppState.currentConfig).length > 0) {
-                await loadParticles(AppState.currentConfig);
-                showToast('Scene refreshed!');
-                announce("Scene refreshed");
+            const config = AppState.particleState.currentConfig;
+            if (config && Object.keys(config).length > 0) {
+                await loadParticles(config);
+                UIManager.showToast('Scene refreshed!');
+                UIManager.announce("Scene refreshed");
             }
         });
 
         btnShare.addEventListener('click', async () => {
-            const sharableConfig = structuredClone(AppState.currentConfig);
+            const sharableConfig = structuredClone(AppState.particleState.currentConfig);
             sharableConfig.uiState = {
-                chaosLevel: AppState.chaosLevel,
-                isDarkMode: AppState.isDarkMode,
-                isCursorParticle: AppState.isCursorParticle,
-                isGravityOn: AppState.isGravityOn,
-                areWallsOn: AppState.areWallsOn,
-                originalOutModes: AppState.areWallsOn ? AppState.originalOutModes : undefined
+                chaosLevel: AppState.particleState.chaosLevel,
+                isDarkMode: AppState.ui.isDarkMode,
+                isCursorParticle: AppState.ui.isCursorParticle,
+                isGravityOn: AppState.ui.isGravityOn,
+                areWallsOn: AppState.ui.areWallsOn,
+                originalOutModes: AppState.ui.areWallsOn ? AppState.particleState.originalOutModes : undefined
             };
         
             try {
                 btnShare.classList.add('disabled');
-                showToast('Creating shareable link...');
+                UIManager.showToast('Creating shareable link...');
                 const configString = JSON.stringify(sharableConfig);
                 const compressedConfig = LZString.compressToEncodedURIComponent(configString);
                 const fullUrl = `${window.location.href.split('#')[0]}#config=${compressedConfig}`;
@@ -1121,13 +1118,13 @@
         
                 if (shortUrl) {
                     await copyToClipboard(shortUrl);
-                    showToast('Short emoji link copied!');
+                    UIManager.showToast('Short emoji link copied!');
                 } else {
                     await copyToClipboard(fullUrl);
-                    showToast('Shortening failed. Full link copied instead.');
+                    UIManager.showToast('Shortening failed. Full link copied instead.');
                 }
             } catch (e) {
-                showToast("Could not create share link.");
+                UIManager.showToast("Could not create share link.");
                 console.error('Share error:', e);
             } finally {
                 btnShare.classList.remove('disabled');
@@ -1135,62 +1132,60 @@
         });
 
         btnGravity.addEventListener('click', async () => {
-            AppState.isGravityOn = !AppState.isGravityOn;
-            btnGravity.classList.toggle('active', AppState.isGravityOn);
-            btnGravity.setAttribute('aria-pressed', AppState.isGravityOn);
-            AppState.currentConfig.particles.move.gravity.enable = AppState.isGravityOn;
-            AppState.currentConfig.particles.move.gravity.acceleration = AppState.isGravityOn ? 20 : 0;
-            await loadParticles(AppState.currentConfig);
-            announce(AppState.isGravityOn ? "Gravity enabled" : "Gravity disabled");
+            AppState.ui.isGravityOn = !AppState.ui.isGravityOn;
+            const config = AppState.particleState.currentConfig;
+            config.particles.move.gravity.enable = AppState.ui.isGravityOn;
+            config.particles.move.gravity.acceleration = AppState.ui.isGravityOn ? 20 : 0;
+            await loadParticles(config);
+            UIManager.announce(AppState.ui.isGravityOn ? "Gravity enabled" : "Gravity disabled");
         });
 
         btnWalls.addEventListener('click', async () => {
-            if (!AppState.currentConfig.particles) return;
-            AppState.areWallsOn = !AppState.areWallsOn;
-            btnWalls.classList.toggle('active', AppState.areWallsOn);
-            btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
+            const config = AppState.particleState.currentConfig;
+            if (!config.particles) return;
+            AppState.ui.areWallsOn = !AppState.ui.areWallsOn;
             
-            if (AppState.areWallsOn) {
-                AppState.originalOutModes = structuredClone(AppState.currentConfig.particles.move.outModes);
-                AppState.currentConfig.particles.move.outModes = { default: "bounce" };
+            if (AppState.ui.areWallsOn) {
+                AppState.particleState.originalOutModes = structuredClone(config.particles.move.outModes);
+                config.particles.move.outModes = { default: "bounce" };
             } else {
-                AppState.currentConfig.particles.move.outModes = AppState.originalOutModes;
+                config.particles.move.outModes = AppState.particleState.originalOutModes;
             }
-            await loadParticles(AppState.currentConfig);
-            announce(AppState.areWallsOn ? "Walls enabled" : "Walls disabled");
+            await loadParticles(config);
+            UIManager.announce(AppState.ui.areWallsOn ? "Walls enabled" : "Walls disabled");
         });
 
         btnInfo.addEventListener('click', (e) => {
-            populateInfoModal();
-            openModal(infoModal, e.currentTarget);
+            UIManager.populateInfoModal();
+            UIManager.openModal(infoModal, e.currentTarget);
         });
-        closeInfoModalBtn.addEventListener('click', () => closeModal(infoModal));
+        closeInfoModalBtn.addEventListener('click', () => UIManager.closeModal(infoModal));
         infoModal.addEventListener('keydown', (e) => trapFocus(e, infoModal));
         infoModal.addEventListener('click', (e) => {
-            if (e.target === infoModal) closeModal(infoModal);
+            if (e.target === infoModal) UIManager.closeModal(infoModal);
         });
 
         chaosSlider.addEventListener('input', (e) => {
-            AppState.chaosLevel = parseInt(e.target.value, 10);
-            updateChaosDisplay();
-            announce(`Chaos level ${AppState.chaosLevel}`);
-            localStorage.setItem('tsDiceChaos', AppState.chaosLevel);
+            AppState.particleState.chaosLevel = parseInt(e.target.value, 10);
+            UIManager.syncUI();
+            UIManager.announce(`Chaos level ${AppState.particleState.chaosLevel}`);
+            localStorage.setItem('tsDiceChaos', AppState.particleState.chaosLevel);
         });
 
         closeModalBtn.addEventListener("click", () => {
-            closeModal(welcomeModal)
+            UIManager.closeModal(welcomeModal)
             localStorage.setItem('tsDiceWelcomeSeen', 'true');
         });
         welcomeModal.addEventListener('keydown', (e) => trapFocus(e, welcomeModal));
         welcomeModal.addEventListener('click', (e) => {
             if (e.target === welcomeModal) {
-                 closeModal(welcomeModal);
+                 UIManager.closeModal(welcomeModal);
                  localStorage.setItem('tsDiceWelcomeSeen', 'true');
             }
         });
 
         fullscreenBtn.addEventListener("click", toggleFullScreen);
-        document.addEventListener("fullscreenchange", updateFullscreenIcons);
+        document.addEventListener("fullscreenchange", UIManager.updateFullscreenIcons);
         
         // --- Tooltip Logic ---
         function updateTooltipPosition(mouseX, mouseY) {
@@ -1242,7 +1237,7 @@
             }
         });
         
-        // --- 10. ACCESSIBILITY - KEYBOARD ACTIVATION & SHORTCUTS ---
+        // --- 8. ACCESSIBILITY - KEYBOARD ACTIVATION & SHORTCUTS ---
         document.querySelectorAll('[role="button"]').forEach(button => {
             button.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -1271,8 +1266,8 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (welcomeModal.classList.contains('visible')) closeModal(welcomeModal);
-                if (infoModal.classList.contains('visible')) closeModal(infoModal);
+                if (welcomeModal.classList.contains('visible')) UIManager.closeModal(welcomeModal);
+                if (infoModal.classList.contains('visible')) UIManager.closeModal(infoModal);
             }
             if (e.altKey && !e.ctrlKey && !e.metaKey) {
                 e.preventDefault();
@@ -1303,12 +1298,12 @@
         });
 
 
-        // --- 11. INITIALISATION ---
+        // --- 9. INITIALISATION ---
         const savedTheme = localStorage.getItem('tsDiceTheme');
-        AppState.isDarkMode = savedTheme ? savedTheme === 'dark' : true;
+        AppState.ui.isDarkMode = savedTheme ? savedTheme === 'dark' : true;
         
         const savedChaos = localStorage.getItem('tsDiceChaos');
-        AppState.chaosLevel = savedChaos ? parseInt(savedChaos, 10) : 5;
+        AppState.particleState.chaosLevel = savedChaos ? parseInt(savedChaos, 10) : 5;
 
         let initialConfigFromStorage = null;
         try {
@@ -1329,17 +1324,17 @@
                 if (decodedString) {
                     const parsedConfig = JSON.parse(decodedString);
                     if (parsedConfig.uiState) {
-                        AppState.chaosLevel = parsedConfig.uiState.chaosLevel || 5;
-                        AppState.isDarkMode = parsedConfig.uiState.isDarkMode !== false;
-                        AppState.isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
-                        AppState.isGravityOn = parsedConfig.uiState.isGravityOn === true;
-                        AppState.areWallsOn = parsedConfig.uiState.areWallsOn === true;
-                        if(AppState.areWallsOn) {
-                           AppState.originalOutModes = parsedConfig.uiState.originalOutModes;
+                        AppState.particleState.chaosLevel = parsedConfig.uiState.chaosLevel || 5;
+                        AppState.ui.isDarkMode = parsedConfig.uiState.isDarkMode !== false;
+                        AppState.ui.isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
+                        AppState.ui.isGravityOn = parsedConfig.uiState.isGravityOn === true;
+                        AppState.ui.areWallsOn = parsedConfig.uiState.areWallsOn === true;
+                        if(AppState.ui.areWallsOn) {
+                           AppState.particleState.originalOutModes = parsedConfig.uiState.originalOutModes;
                         }
                         delete parsedConfig.uiState;
                     }
-                    AppState.initialConfigFromUrl = parsedConfig;
+                    AppState.particleState.initialConfigFromUrl = parsedConfig;
                 } else {
                      throw new Error("Decompression failed");
                 }
@@ -1348,17 +1343,9 @@
             }
         }
 
-        updateChaosDisplay();
-        document.body.classList.toggle("light-mode", !AppState.isDarkMode);
-        btnTheme.setAttribute('aria-pressed', !AppState.isDarkMode);
-        btnWalls.classList.toggle('active', AppState.areWallsOn);
-        btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
-        iconSun.style.display = AppState.isDarkMode ? "block" : "none";
-        iconMoon.style.display = AppState.isDarkMode ? "none" : "block";
-
         let configToLoad;
-        if (AppState.initialConfigFromUrl) {
-            configToLoad = AppState.initialConfigFromUrl;
+        if (AppState.particleState.initialConfigFromUrl) {
+            configToLoad = AppState.particleState.initialConfigFromUrl;
         } else if (initialConfigFromStorage) {
             configToLoad = initialConfigFromStorage;
         } else {
@@ -1366,29 +1353,26 @@
         }
         await loadParticles(configToLoad);
         
+        UIManager.syncUI();
+        
         if (!localStorage.getItem('tsDiceWelcomeSeen')) {
              setTimeout(() => {
-                openModal(welcomeModal);
+                UIManager.openModal(welcomeModal);
             }, 500);
         }
         
-        updateBackButtonState();
-        updateForwardButtonState();
-
-        // --- 12. REDUCED MOTION HANDLING ---
+        // --- 10. REDUCED MOTION HANDLING ---
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         const handleReducedMotion = () => {
-            if (motionQuery.matches && AppState.particlesContainer && !AppState.isPaused) {
-                AppState.particlesContainer.pause();
+            const container = AppState.ui.particlesContainer;
+            if (motionQuery.matches && container && !AppState.ui.isPaused) {
+                container.pause();
                 
-                AppState.isPaused = true;
-                btnPause.classList.add("active");
-                btnPause.setAttribute('aria-pressed', 'true');
-                iconPause.style.display = "none";
-                iconPlay.style.display = "block";
+                AppState.ui.isPaused = true;
+                UIManager.syncUI();
                 
-                announce("Animation paused due to reduced motion preference.");
+                UIManager.announce("Animation paused due to reduced motion preference.");
             }
         };
 
