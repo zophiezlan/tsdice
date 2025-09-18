@@ -7,18 +7,84 @@
     <!-- Library for link compression to create shareable URLs -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <style>
+      /* --- CSS Theming with Custom Properties (Variables) --- */
+      :root {
+        /* Backgrounds */
+        --bg-primary: #111;
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-bg-hover: rgba(255, 255, 255, 0.2);
+        --modal-bg: rgba(40, 40, 40, 0.8);
+        --toast-bg: rgba(30, 30, 30, 0.85);
+        --tooltip-bg: rgba(230, 230, 230, 0.25);
+        --slider-track-bg: rgba(255, 255, 255, 0.3);
+
+        /* Text */
+        --text-primary: white;
+        --text-secondary: #eee;
+        --text-strong: #fff;
+        --tooltip-text: #f0f0f0;
+        --tooltip-strong-text: #ffffff;
+        
+        /* Borders & Dividers */
+        --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+        --divider-color: rgba(255, 255, 255, 0.2);
+        --modal-border: 1px solid rgba(255, 255, 255, 0.2);
+        --modal-header-border: 1px solid rgba(255, 255, 255, 0.3);
+        --toast-border: 1px solid rgba(255, 255, 255, 0.2);
+        --tooltip-border: 1px solid rgba(255, 255, 255, 0.3);
+        
+        /* Interactive & Accent Colors */
+        --link-color: #87CEEB;
+        --link-color-hover: #9370DB;
+        --button-active-bg: rgba(142, 45, 226, 0.8);
+        --button-active-bg-hover: rgba(142, 45, 226, 1);
+        --slider-thumb-border: #8e2de2;
+        --focus-outline-color: #87CEEB;
+      }
+
+      body.light-mode {
+        /* Backgrounds */
+        --bg-primary: #f0f0f0;
+        --glass-bg: rgba(0, 0, 0, 0.1);
+        --glass-bg-hover: rgba(0, 0, 0, 0.2);
+        --modal-bg: rgba(255, 255, 255, 0.8);
+        --toast-bg: rgba(245, 245, 245, 0.85);
+        --tooltip-bg: rgba(30, 30, 30, 0.25);
+        --slider-track-bg: rgba(0, 0, 0, 0.2);
+
+        /* Text */
+        --text-primary: #333;
+        --text-secondary: #333;
+        --text-strong: #000;
+        --tooltip-text: #222;
+        --tooltip-strong-text: #000000;
+        
+        /* Borders & Dividers */
+        --glass-border: 1px solid rgba(0, 0, 0, 0.2);
+        --divider-color: rgba(0, 0, 0, 0.2);
+        --modal-border: 1px solid rgba(0, 0, 0, 0.2);
+        --modal-header-border: 1px solid rgba(0, 0, 0, 0.2);
+        --toast-border: 1px solid rgba(0,0,0,0.1);
+        --tooltip-border: 1px solid rgba(0, 0, 0, 0.2);
+        
+        /* Interactive & Accent Colors */
+        --link-color: #4361ee;
+        --link-color-hover: #7209b7;
+        --button-active-bg: rgba(67, 97, 238, 0.8);
+        --button-active-bg-hover: rgba(67, 97, 238, 1);
+        --slider-thumb-border: #4361ee;
+        --focus-outline-color: #4361ee;
+      }
+      
       /* --- Base Styles --- */
       html, body {
         margin: 0;
         padding: 0;
         height: 100%;
-        background: #111;
+        background: var(--bg-primary);
         overflow: hidden;
         transition: background-color 0.5s ease;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      }
-      body.light-mode {
-        background: #f0f0f0;
       }
 
       #tsparticles {
@@ -35,8 +101,8 @@
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--glass-bg);
+        border: var(--glass-border);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         display: flex;
@@ -44,53 +110,32 @@
         align-items: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        color: white;
+        color: var(--text-primary);
         user-select: none;
         flex-shrink: 0;
       }
       .glass-button:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--glass-bg-hover);
         transform: scale(1.1);
       }
       .glass-button.disabled {
         opacity: 0.5;
         cursor: not-allowed;
         transform: scale(1) !important;
-        background: rgba(255, 255, 255, 0.1) !important;
+        background: var(--glass-bg) !important;
         pointer-events: none;
-      }
-      body.light-mode .glass-button {
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: #333;
-      }
-      body.light-mode .glass-button:hover {
-        background: rgba(0, 0, 0, 0.2);
-      }
-      body.light-mode .glass-button.disabled {
-        background: rgba(0, 0, 0, 0.1) !important;
       }
 
       /* --- ACCESSIBILITY: Visible Focus Indicator --- */
       .glass-button:focus-visible, .modal-close-btn:focus-visible {
-        outline: 3px solid #87CEEB;
+        outline: 3px solid var(--focus-outline-color);
         outline-offset: 3px;
-        box-shadow: 0 0 10px #87CEEB;
-      }
-
-      body.light-mode .glass-button:focus-visible,
-      body.light-mode .modal-close-btn:focus-visible {
-        outline-color: #4361ee;
-        box-shadow: 0 0 10px #4361ee;
+        box-shadow: 0 0 10px var(--focus-outline-color);
       }
 
       #chaos-slider:focus-visible::-webkit-slider-thumb {
-        outline: 3px solid #87CEEB;
+        outline: 3px solid var(--focus-outline-color);
         outline-offset: 3px;
-      }
-
-      body.light-mode #chaos-slider:focus-visible::-webkit-slider-thumb {
-        outline-color: #4361ee;
       }
       
       /* --- ACCESSIBILITY: Visually Hidden Class for Screen Readers --- */
@@ -127,11 +172,7 @@
       }
 
       .menu-button.active {
-        background: rgba(142, 45, 226, 0.8);
-        color: #fff;
-      }
-      body.light-mode .menu-button.active {
-        background: rgba(67, 97, 238, 0.8);
+        background: var(--button-active-bg);
         color: #fff;
       }
 
@@ -174,31 +215,23 @@
         width: 280px;
         height: 48px;
         border-radius: 24px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--glass-bg);
+        border: var(--glass-border);
         backdrop-filter: blur(10px);
-        color: white;
+        color: var(--text-primary);
         padding: 0 15px;
         box-sizing: border-box;
-      }
-      body.light-mode .slider-container {
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: #333;
       }
       #chaos-slider {
         -webkit-appearance: none;
         appearance: none;
         width: 100%;
         height: 4px;
-        background: rgba(255, 255, 255, 0.3);
+        background: var(--slider-track-bg);
         border-radius: 2px;
         outline: none;
         cursor: pointer;
         transition: background 0.3s;
-      }
-      body.light-mode #chaos-slider {
-        background: rgba(0, 0, 0, 0.2);
       }
       #chaos-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
@@ -207,7 +240,7 @@
         height: 18px;
         background: #fff;
         border-radius: 50%;
-        border: 2px solid #8e2de2;
+        border: 2px solid var(--slider-thumb-border);
         transition: transform 0.2s ease;
       }
       #chaos-slider::-moz-range-thumb {
@@ -215,14 +248,11 @@
         height: 18px;
         background: #fff;
         border-radius: 50%;
-        border: 2px solid #8e2de2;
+        border: 2px solid var(--slider-thumb-border);
         transition: transform 0.2s ease;
       }
       #chaos-slider:hover::-webkit-slider-thumb, #chaos-slider:hover::-moz-range-thumb {
         transform: scale(1.2);
-      }
-      body.light-mode #chaos-slider::-webkit-slider-thumb, body.light-mode #chaos-slider::-moz-range-thumb {
-        border-color: #4361ee;
       }
       #chaos-display {
         font-size: 18px;
@@ -236,12 +266,9 @@
       .submenu-divider {
         flex-basis: 100%;
         height: 1px;
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--divider-color);
         margin: 4px 0;
         border: none;
-      }
-      body.light-mode .submenu-divider {
-        background: rgba(0, 0, 0, 0.2);
       }
 
       /* --- Modal Styles --- */
@@ -253,36 +280,36 @@
       }
       .modal-overlay.visible { opacity: 1; visibility: visible; }
       .modal-content {
-        background: rgba(40, 40, 40, 0.8); color: #eee;
-        padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+        background: var(--modal-bg); 
+        color: var(--text-secondary);
+        padding: 30px; border-radius: 20px; 
+        border: var(--modal-border);
         width: 90%; max-width: 550px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         max-height: 85vh; overflow-y: auto;
         text-align: center;
       }
       .modal-overlay.visible .modal-content { transform: scale(1); }
-      body.light-mode .modal-content { background: rgba(255, 255, 255, 0.8); color: #333; border-color: rgba(0, 0, 0, 0.2); }
-      .modal-content h2 { margin-top: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 10px; }
-      body.light-mode .modal-content h2 { border-bottom-color: rgba(0, 0, 0, 0.2); }
+      .modal-content h2 { 
+        margin-top: 0; 
+        border-bottom: var(--modal-header-border); 
+        padding-bottom: 10px; 
+      }
       .modal-content p { line-height: 1.6; }
-      .modal-content strong { color: #fff; }
-      body.light-mode .modal-content strong { color: #000; }
-      .modal-content a { color: #87CEEB; text-decoration: none; transition: color 0.3s; }
-      .modal-content a:hover { color: #9370DB; }
-      body.light-mode .modal-content a { color: #4361ee; }
-      body.light-mode .modal-content a:hover { color: #7209b7; }
-
+      .modal-content strong { color: var(--text-strong); }
+      .modal-content a { color: var(--link-color); text-decoration: none; transition: color 0.3s; }
+      .modal-content a:hover { color: var(--link-color-hover); }
 
       .modal-close-btn {
         display: block; margin: 20px auto 0; padding: 12px 25px; border: none;
-        border-radius: 25px; background: rgba(142, 45, 226, 0.8); color: white;
+        border-radius: 25px; 
+        background: var(--button-active-bg); 
+        color: white;
         font-size: 16px; cursor: pointer; transition: all 0.3s ease;
         text-decoration: none;
         width: fit-content;
       }
-      .modal-close-btn:hover { background: rgba(142, 45, 226, 1); }
-      body.light-mode .modal-close-btn { background: rgba(67, 97, 238, 0.8); }
-      body.light-mode .modal-close-btn:hover { background: rgba(67, 97, 238, 1); }
+      .modal-close-btn:hover { background: var(--button-active-bg-hover); }
       
       .info-list { list-style: none; padding: 0; }
       .info-list li { display: flex; align-items: center; margin-bottom: 15px; }
@@ -298,8 +325,8 @@
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(30, 30, 30, 0.85);
-        color: white;
+        background: var(--toast-bg);
+        color: var(--text-primary);
         padding: 12px 25px;
         border-radius: 25px;
         z-index: 300;
@@ -308,17 +335,12 @@
         transition: opacity 0.4s ease, visibility 0.4s ease, bottom 0.4s ease;
         font-size: 14px;
         backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: var(--toast-border);
       }
       #toast-notification.show {
         bottom: 100px;
         opacity: 1;
         visibility: visible;
-      }
-      body.light-mode #toast-notification {
-          background: rgba(245, 245, 245, 0.85);
-          color: #333;
-          border: 1px solid rgba(0,0,0,0.1);
       }
       
       /* --- Custom Tooltip --- */
@@ -337,11 +359,11 @@
         transform: scale(0.9);
         transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
         
-        background: rgba(230, 230, 230, 0.25);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: var(--tooltip-bg);
+        border: var(--tooltip-border);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        color: #f0f0f0;
+        color: var(--tooltip-text);
         box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       }
       #custom-tooltip.visible {
@@ -353,18 +375,10 @@
         display: block;
         margin-bottom: 5px;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--tooltip-strong-text);
       }
       #custom-tooltip span {
         opacity: 0.9;
-      }
-      body.light-mode #custom-tooltip {
-        background: rgba(30, 30, 30, 0.25);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: #222;
-      }
-      body.light-mode #custom-tooltip strong {
-         color: #000000;
       }
     </style>
 </head>
