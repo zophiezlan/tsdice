@@ -170,6 +170,13 @@
         gap: 8px;
         max-width: calc(100vw - 20px);
       }
+      
+      #main-menu-btn svg {
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      .menu-container.active #main-menu-btn svg {
+        transform: rotate(90deg);
+      }
 
       .menu-button.active {
         background: var(--button-active-bg);
@@ -193,15 +200,7 @@
           margin: 0;
           display: contents; /* Allows flexbox layout to work on children */
       }
-       @media (max-width: 660px) {
-        .sub-menu {
-            width: 290px;
-        }
-        .submenu-divider {
-            width: 280px;
-            margin: 4px auto;
-        }
-      }
+
       .menu-container.active .sub-menu {
         transform: scaleX(1);
         opacity: 1;
@@ -318,6 +317,18 @@
       .info-text { text-align: left; }
       .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
       .info-text span { font-size: 0.9em; opacity: 0.8; }
+      .info-text code, #custom-tooltip code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        font-size: 0.9em;
+        padding: 2px 5px;
+        border-radius: 4px;
+        background-color: rgba(0,0,0,0.2);
+        margin-left: 5px;
+      }
+      body.light-mode .info-text code, body.light-mode #custom-tooltip code {
+        background-color: rgba(0,0,0,0.1);
+      }
+
 
       /* --- Toast Notification --- */
       #toast-notification {
@@ -380,6 +391,36 @@
       #custom-tooltip span {
         opacity: 0.9;
       }
+
+      /* --- PHASE 3: RESPONSIVENESS & REDUCED MOTION --- */
+      @media (max-width: 660px) {
+        .sub-menu {
+            /* Make width fluid to allow wrapping on smaller screens */
+            width: calc(100vw - 90px);
+            max-width: 380px;
+        }
+        .submenu-divider {
+            width: 95%;
+            margin: 4px auto;
+        }
+        .slider-container {
+            max-width: 280px;
+            width: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        /* Disable expensive blur effects and animations for users who prefer reduced motion */
+        .glass-button, .modal-content, #toast-notification, #custom-tooltip, .slider-container {
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+        }
+        * {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
     </style>
 </head>
 <body>
@@ -387,7 +428,7 @@
     <div id="tsparticles" aria-hidden="true"></div>
     
     <!-- A toast notification for feedback, e.g., "Link copied" -->
-    <div id="toast-notification" role="alert" aria-live="assertive"></div>
+    <div id="toast-notification" role="status" aria-live="polite"></div>
     
     <!-- ARIA Live Region for screen reader announcements -->
     <div class="visually-hidden" aria-live="polite" id="announcer"></div>
@@ -414,25 +455,25 @@
 
     <!-- Fullscreen toggle button -->
     <div class="glass-button" id="fullscreen-btn" title="Toggle Fullscreen: Expands the view to fill your entire screen for an immersive experience, or returns to the normal windowed view." tabindex="0" role="button" aria-pressed="false">
-      <svg id="icon-fullscreen-enter" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      <svg id="icon-fullscreen-exit" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+      <svg id="icon-fullscreen-enter" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      <svg id="icon-fullscreen-exit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
     </div>
 
     <!-- Main menu container -->
     <div class="menu-container" id="menu-container">
         <!-- Main menu toggle button (settings icon) -->
         <div class="glass-button menu-button" id="main-menu-btn" tabindex="0" role="button" aria-pressed="false" aria-label="Open Settings Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
         <!-- Sub-menu containing all the controls -->
         <div class="sub-menu" id="sub-menu">
             <fieldset>
                 <legend class="visually-hidden">Shuffle Controls</legend>
-                <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All (Alt+A): Generates a completely new particle scene from scratch. This randomises colours, shapes, movement physics, interactive effects, and special FX for a unique vibe every time." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>         
-                <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance (Alt+P): Randomises the look of the particles. This changes their colour, shape (e.g., circle, star, polygon), size, opacity, and outline strokes." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-                <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement (Alt+V): Changes how particles travel around the screen. This alters their speed, overall direction, and can add motion trails." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
-                <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction (Alt+I): Modifies how particles respond to your cursor. This changes the effect of mouse hovers (e.g., repel, grab, bubble) and clicks (e.g., push, remove, create trail)." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
-                <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX (Alt+F): Toggles and randomises advanced visual effects. This can add or remove particle links, rotation, wobble, twinkle effects, and particle collision physics. Note: This may also change interaction settings." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-all" title="Shuffle All (Alt+A): Generates a completely new particle scene from scratch. This randomises colours, shapes, movement physics, interactive effects, and special FX for a unique vibe every time." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg></div>         
+                <div class="glass-button menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance (Alt+P): Randomises the look of the particles. This changes their colour, shape (e.g., circle, star, polygon), size, opacity, and outline strokes." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-movement" title="Shuffle Movement (Alt+V): Changes how particles travel around the screen. This alters their speed, overall direction, and can add motion trails." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M22 12h-4"/><path d="M6 12H2"/><path d="m19.07 4.93-2.83 2.83"/><path d="m7.76 16.24-2.83 2.83"/><path d="m19.07 19.07-2.83-2.83"/><path d="m7.76 7.76-2.83-2.83"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction (Alt+I): Modifies how particles respond to your cursor. This changes the effect of mouse hovers (e.g., repel, grab, bubble) and clicks (e.g., push, remove, create trail)." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><circle cx="16" cy="6" r="1"/><circle cx="6" cy="16" r="1"/><circle cx="20" cy="14" r="1"/></svg></div>
+                <div class="glass-button menu-button" id="btn-shuffle-fx" title="Shuffle Special FX (Alt+F): Toggles and randomises advanced visual effects. This can add or remove particle links, rotation, wobble, twinkle effects, and particle collision physics. Note: This may also change interaction settings." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/><path d="M12 3v18"/><path d="M3 12h18"/></svg></div>
             </fieldset>
             
             <fieldset>
@@ -447,25 +488,25 @@
 
             <fieldset>
                 <legend class="visually-hidden">History and Playback Controls</legend>
-                <div class="glass-button menu-button" id="btn-back" title="Go Back (Alt+Z): Reverts to the previous particle configuration. You can go back up to 20 steps." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
-                <div class="glass-button menu-button" id="btn-forward" title="Go Forward (Alt+Y): Moves to the next particle configuration in your history, after you have used 'Go Back'." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg></div>
-                <div class="glass-button menu-button" id="btn-refresh" title="Refresh Scene (Alt+R): Resets the current particle animation to its starting state without changing any of the settings. Useful for animations where particles disappear over time." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
+                <div class="glass-button menu-button" id="btn-back" title="Go Back (Alt+Z): Reverts to the previous particle configuration. You can go back up to 20 steps." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
+                <div class="glass-button menu-button" id="btn-forward" title="Go Forward (Alt+Y): Moves to the next particle configuration in your history, after you have used 'Go Back'." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg></div>
+                <div class="glass-button menu-button" id="btn-refresh" title="Refresh Scene (Alt+R): Resets the current particle animation to its starting state without changing any of the settings. Useful for animations where particles disappear over time." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
                 <div class="glass-button menu-button" id="btn-pause" title="Pause/Play (Spacebar): Freezes or resumes the particle animation on screen." tabindex="0" role="button" aria-pressed="false">
-                    <svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-                    <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <svg id="icon-pause" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    <svg id="icon-play" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                 </div>
             </fieldset>
             <fieldset>
                 <legend class="visually-hidden">Effect Toggles</legend>
-                <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity (Alt+G): Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float." tabindex="0" role="button" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
-                <div class="glass-button menu-button" id="btn-walls" title="Toggle Walls (Alt+W): Forces particles to bounce off the screen edges instead of disappearing. This overrides any randomized 'out mode' setting." tabindex="0" role="button" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1" ry="1"></rect><polyline points="8 12 12 8 16 12"></polyline><path d="M12 16V8"></path></svg></div>
-                <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme (Alt+T): Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)." tabindex="0" role="button" aria-pressed="false"><svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
-                <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle (Alt+C): Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions." tabindex="0" role="button" aria-pressed="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
+                <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity (Alt+G): Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float." tabindex="0" role="button" aria-pressed="false"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
+                <div class="glass-button menu-button" id="btn-walls" title="Toggle Walls (Alt+W): Forces particles to bounce off the screen edges instead of disappearing. This overrides any randomized 'out mode' setting." tabindex="0" role="button" aria-pressed="false"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1" ry="1"></rect><polyline points="8 12 12 8 16 12"></polyline><path d="M12 16V8"></path></svg></div>
+                <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme (Alt+T): Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)." tabindex="0" role="button" aria-pressed="false"><svg id="theme-icon-sun" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
+                <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle (Alt+C): Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions." tabindex="0" role="button" aria-pressed="false"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
             </fieldset>
             <fieldset>
                  <legend class="visually-hidden">Utility Controls</legend>
-                <div class="glass-button menu-button" id="btn-share" title="Share Scene (Alt+S): Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
-                <div class="glass-button menu-button" id="btn-info" title="Info (Alt+?): Shows a detailed guide explaining what each control button in the menu does." tabindex="0" role="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+                <div class="glass-button menu-button" id="btn-share" title="Share Scene (Alt+S): Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
+                <div class="glass-button menu-button" id="btn-info" title="Info (Alt+?): Shows a detailed guide explaining what each control button in the menu does." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
             </fieldset>
         </div>
     </div>
@@ -501,7 +542,7 @@
         const btnShare = document.getElementById('btn-share');
         const btnGravity = document.getElementById('btn-gravity');
         const btnPause = document.getElementById('btn-pause');
-        const btnWalls = document.getElementById('btn-walls'); // New button
+        const btnWalls = document.getElementById('btn-walls');
         const iconPause = document.getElementById('icon-pause');
         const iconPlay = document.getElementById('icon-play');
         const chaosSlider = document.getElementById('chaos-slider');
@@ -518,22 +559,25 @@
         const iconSun = document.getElementById('theme-icon-sun');
         const iconMoon = document.getElementById('theme-icon-moon');
         
-        // --- 2. STATE VARIABLES ---
-        // These variables hold the application's state and are modified by user interactions.
-        let particlesContainer; // Holds the tsParticles instance for API calls (like pause/play).
-        let chaosLevel = 5; // Controls the intensity of randomisation.
-        let isDarkMode = true; // Tracks the current theme (dark/light).
-        let isCursorParticle = false; // Tracks if the cursor is emitting particles.
-        let isGravityOn = false; // Tracks if gravity is enabled.
-        let areWallsOn = false; // Tracks if the wall bounce override is on.
-        let isPaused = false; // Tracks if the animation is currently paused.
-        let currentConfig = {}; // The active tsParticles configuration object.
-        let originalInteractionModes = {}; // Stores the original interaction modes to restore them when cursor mode is turned off.
-        let originalOutModes = {}; // Stores the original outModes to restore them when wall mode is turned off.
-        let configHistory = []; // An array to store previous configurations for the "back" button.
-        let configForwardHistory = []; // An array to store configurations for the "forward" button.
-        let initialConfigFromUrl = null; // Stores any configuration loaded from a URL hash.
-        let lastFocusedElement = null; // ACCESSIBILITY: Store last focused element before modal opens
+        // --- 2. STATE MANAGEMENT ---
+        // Centralized object to hold the application's state.
+        const AppState = {
+            particlesContainer: null, // Holds the tsParticles instance.
+            chaosLevel: 5,            // Controls the intensity of randomisation.
+            isDarkMode: true,         // Tracks the current theme (dark/light).
+            isCursorParticle: false,  // Tracks if the cursor is emitting particles.
+            isGravityOn: false,       // Tracks if gravity is enabled.
+            areWallsOn: false,        // Tracks if the wall bounce override is on.
+            isPaused: false,          // Tracks if the animation is currently paused.
+            currentConfig: {},        // The active tsParticles configuration object.
+            originalInteractionModes: {}, // Stores original interaction modes.
+            originalOutModes: {},     // Stores original outModes for wall mode.
+            configHistory: [],        // History for the "back" button.
+            configForwardHistory: [], // History for the "forward" button.
+            initialConfigFromUrl: null, // Config loaded from a URL hash.
+            lastFocusedElement: null  // ACCESSIBILITY: Store focus before modal opens.
+        };
+
 
         // --- 3. DATA ARRAYS ---
         // Constant arrays of options used during the random generation process.
@@ -570,7 +614,7 @@
         const getRandomBool = (probability = 0.5) => Math.random() < probability;
         const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
         // A function to scale probability based on the chaos level.
-        const getChaosProbability = (baseProb) => Math.min(baseProb * (chaosLevel / 5), 1);
+        const getChaosProbability = (baseProb) => Math.min(baseProb * (AppState.chaosLevel / 5), 1);
         
         // ACCESSIBILITY: Function to announce messages to screen readers
         const announce = (message) => {
@@ -579,28 +623,30 @@
 
         // Updates the chaos level display next to the slider.
         const updateChaosDisplay = () => {
-            chaosDisplay.textContent = chaosLevel;
-            chaosSlider.value = chaosLevel;
+            chaosDisplay.textContent = AppState.chaosLevel;
+            chaosSlider.value = AppState.chaosLevel;
             // ACCESSIBILITY: Update ARIA value for screen readers
-            chaosSlider.setAttribute('aria-valuenow', chaosLevel);
+            chaosSlider.setAttribute('aria-valuenow', AppState.chaosLevel);
         };
 
         // Enables or disables the "back" and "forward" buttons based on history availability.
         const updateBackButtonState = () => {
-            btnBack.classList.toggle('disabled', configHistory.length === 0);
+            btnBack.classList.toggle('disabled', AppState.configHistory.length === 0);
         };
         const updateForwardButtonState = () => {
-            btnForward.classList.toggle('disabled', configForwardHistory.length === 0);
+            btnForward.classList.toggle('disabled', AppState.configForwardHistory.length === 0);
         };
 
         // Saves the current configuration to the history stack.
         const saveHistory = () => {
-            if (Object.keys(currentConfig).length > 0) {
-                // Use deep cloning to prevent mutations of historical configs.
-                configHistory.push(JSON.parse(JSON.stringify(currentConfig)));
-                // Limit history to 20 steps.
-                if (configHistory.length > 20) {
-                    configHistory.shift();
+            if (Object.keys(AppState.currentConfig).length > 0) {
+                try {
+                    AppState.configHistory.push(structuredClone(AppState.currentConfig));
+                } catch (e) {
+                    AppState.configHistory.push(JSON.parse(JSON.stringify(AppState.currentConfig)));
+                }
+                if (AppState.configHistory.length > 20) {
+                    AppState.configHistory.shift();
                 }
                 updateBackButtonState();
             }
@@ -608,7 +654,7 @@
 
         // Clears the forward history, usually after a new shuffle action.
         const clearForwardHistory = () => {
-            configForwardHistory = [];
+            AppState.configForwardHistory = [];
             updateForwardButtonState();
         };
         
@@ -624,11 +670,9 @@
         // Copies text to the clipboard, with a fallback for older browsers.
         const copyToClipboard = async (text) => {
             try {
-                // Modern, secure way to copy to clipboard.
                 await navigator.clipboard.writeText(text);
-                showToast('Short link copied to clipboard!');
+                // The toast message is now handled in the share function for better context.
             } catch (err) {
-                // Fallback for environments where the Clipboard API is not available (e.g., insecure contexts).
                 const textArea = document.createElement("textarea");
                 textArea.value = text;
                 textArea.style.position = "fixed";
@@ -638,7 +682,6 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    showToast('Short link copied to clipboard!');
                 } catch (execErr) {
                     showToast('Failed to copy link.');
                 }
@@ -690,19 +733,16 @@
         }
 
         // --- 6. CONFIG GENERATION FUNCTIONS ---
-        // These functions generate random configurations for different aspects of the particles.
-
-        // Generates random visual properties (color, shape, size, etc.).
         const generateAppearance = () => {
             const shapeType = getRandomItem(shapeOptions);
             const appearance = {
-                color: { value: getRandomBool(0.2) ? "random" : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette) },
+                color: { value: getRandomBool(0.2) ? "random" : getRandomItem(AppState.isDarkMode ? darkColorPalette : lightColorPalette) },
                 shape: {
                     type: shapeType,
                     options: {}
                 },
                 opacity: { value: { min: 0.3, max: 1 } },
-                size: { value: { min: 1, max: 1 + chaosLevel * 1.5 } },
+                size: { value: { min: 1, max: 1 + AppState.chaosLevel * 1.5 } },
                 stroke: { width: getRandomBool(getChaosProbability(0.5)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
             };
 
@@ -726,16 +766,15 @@
             return appearance;
         };
 
-        // Generates random movement properties (speed, direction, trails, etc.).
         const generateMovement = () => {
             const movement = {
                 enable: true,
-                speed: getRandomInRange(chaosLevel * 0.5, chaosLevel * 2),
+                speed: getRandomInRange(AppState.chaosLevel * 0.5, AppState.chaosLevel * 2),
                 direction: getRandomItem(directionOptions),
                 random: true,
                 straight: false,
                 outModes: { default: "out" },
-                trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } } }
+                trail: { enable: getRandomBool(getChaosProbability(0.4)), length: getRandomInRange(3, 15), fill: { color: { value: AppState.isDarkMode ? "#111" : "#f0f0f0" } } }
             };
 
             if (getRandomBool(getChaosProbability(0.4))) {
@@ -758,21 +797,21 @@
             const interaction = {
                 events: { onHover: { enable: true, mode: hoverMode }, onClick: { enable: true, mode: clickMode } },
                 modes: {
-                    repulse: { distance: 50 + chaosLevel * 10 },
-                    push: { quantity: chaosLevel },
-                    bubble: { distance: 100 + chaosLevel * 15, size: 10 + chaosLevel * 2, duration: 2 },
-                    parallax: { enable: true, force: 5 * chaosLevel, smooth: 10 },
-                    grab: { distance: 150 + chaosLevel * 10 },
+                    repulse: { distance: 50 + AppState.chaosLevel * 10 },
+                    push: { quantity: AppState.chaosLevel },
+                    bubble: { distance: 100 + AppState.chaosLevel * 15, size: 10 + AppState.chaosLevel * 2, duration: 2 },
+                    parallax: { enable: true, force: 5 * AppState.chaosLevel, smooth: 10 },
+                    grab: { distance: 150 + AppState.chaosLevel * 10 },
                     slow: { factor: 3, radius: 200 },
                     connect: { radius: 150 },
-                    remove: { quantity: chaosLevel },
+                    remove: { quantity: AppState.chaosLevel },
                     trail: { delay: 0.05, quantity: 1 },
-                    absorb: { speed: 2 + chaosLevel },
-                    attract: { distance: 200, speed: chaosLevel / 2 }
+                    absorb: { speed: 2 + AppState.chaosLevel },
+                    attract: { distance: 200, speed: AppState.chaosLevel / 2 }
                 }
             };
             
-            originalInteractionModes = {
+            AppState.originalInteractionModes = {
                 click: interaction.events.onClick.mode,
                 hover: interaction.events.onHover.mode
             };
@@ -781,142 +820,110 @@
         };
 
         const generateSpecialFX = (currentFx = {}) => ({
-            life: { enable: false }, // Particles live forever by default now.
+            life: { enable: false },
             collisions: { enable: getRandomBool(getChaosProbability(0.6)), mode: getRandomBool(0.5) ? "bounce" : "destroy" },
             wobble: { 
                 enable: getRandomBool(getChaosProbability(0.5)), 
-                distance: 1 + chaosLevel / 2, 
-                speed: 3 + chaosLevel / 2 
+                distance: 1 + AppState.chaosLevel / 2, 
+                speed: 3 + AppState.chaosLevel / 2 
             },
             rotate: { 
-                animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * chaosLevel, sync: false },
+                animation: { enable: getRandomBool(getChaosProbability(0.7)), speed: 5 * AppState.chaosLevel, sync: false },
                 direction: getRandomItem(["clockwise", "counter-clockwise"])
             },
-            links: { enable: getRandomBool(0.6), distance: 150, color: { value: isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
+            links: { enable: getRandomBool(0.6), distance: 150, color: { value: AppState.isDarkMode ? "#ffffff" : "#333333" }, opacity: 0.4, width: 1, triangles: { enable: getRandomBool(getChaosProbability(0.3)) } },
             destroy: currentFx.destroy || { mode: "none" },
             emitters: currentFx.emitters || [],
             twinkle: { particles: { enable: getRandomBool(getChaosProbability(0.4)), frequency: 0.05, opacity: 1 } }
         });
 
         // --- 7. CORE LOGIC FUNCTIONS ---
-        
-        /**
-         * Builds a new tsParticles configuration object based on shuffle options.
-         * @param {object} shuffleOptions - An object indicating which parts to shuffle (e.g., { all: true } or { appearance: true }).
-         * @returns {object} A complete tsParticles configuration object.
-         */
         const buildConfig = (shuffleOptions) => {
-            const isNew = !currentConfig || Object.keys(currentConfig).length === 0;
-            let newConfig = isNew ? {} : JSON.parse(JSON.stringify(currentConfig));
+            const isNew = !AppState.currentConfig || Object.keys(AppState.currentConfig).length === 0;
+            let newConfig = isNew ? {} : { ...AppState.currentConfig };
             
-            let baseParticles = newConfig.particles || {};
-            let baseInteractivity = newConfig.interactivity || {};
-            let baseEmitters = newConfig.emitters || [];
-
             if (shuffleOptions.all || isNew) {
-                const appearance = generateAppearance();
-                const movement = generateMovement();
-                const fx = generateSpecialFX();
-                const interaction = generateInteraction();
-                
-                baseParticles = { ...appearance, move: movement, ...fx };
-                baseInteractivity = interaction;
-                baseEmitters = fx.emitters;
+                newConfig.particles = { ...generateAppearance(), move: generateMovement(), ...generateSpecialFX() };
+                newConfig.interactivity = generateInteraction();
+                newConfig.emitters = newConfig.particles.emitters || [];
             } else {
-                if (shuffleOptions.appearance) Object.assign(baseParticles, generateAppearance());
-                if (shuffleOptions.movement) baseParticles.move = { ...baseParticles.move, ...generateMovement() };
-                if (shuffleOptions.interaction) baseInteractivity = generateInteraction();
+                newConfig.particles = { ...newConfig.particles };
+                if (shuffleOptions.appearance) Object.assign(newConfig.particles, generateAppearance());
+                if (shuffleOptions.movement) newConfig.particles.move = { ...newConfig.particles.move, ...generateMovement() };
+                if (shuffleOptions.interaction) newConfig.interactivity = generateInteraction();
                 if (shuffleOptions.fx) {
-                    const fx = generateSpecialFX(baseParticles);
-                    Object.assign(baseParticles, fx);
-                    baseInteractivity = generateInteraction();
-                    baseEmitters = fx.emitters;
+                    const fx = generateSpecialFX(newConfig.particles);
+                    Object.assign(newConfig.particles, fx);
+                    newConfig.interactivity = generateInteraction();
+                    newConfig.emitters = fx.emitters;
                 }
             }
             
-            delete baseParticles.emitters;
+            delete newConfig.particles.emitters;
 
-            newConfig = {
-                ...newConfig,
-                particles: baseParticles,
-                interactivity: baseInteractivity,
-                emitters: baseEmitters,
-                background: { color: { value: isDarkMode ? "#111" : "#f0f0f0" } },
+            Object.assign(newConfig, {
+                background: { color: { value: AppState.isDarkMode ? "#111" : "#f0f0f0" } },
                 fpsLimit: 120,
                 detectRetina: true,
-            };
-
+            });
             if (!newConfig.particles.move.gravity) newConfig.particles.move.gravity = {};
-            newConfig.particles.move.gravity.enable = isGravityOn;
-            newConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
-            newConfig.particles.number = { value: 20 + chaosLevel * 20 };
+            newConfig.particles.move.gravity.enable = AppState.isGravityOn;
+            newConfig.particles.move.gravity.acceleration = AppState.isGravityOn ? 20 : 0;
+            newConfig.particles.number = { value: 20 + AppState.chaosLevel * 20 };
             
             return newConfig;
         };
         
-        /**
-         * Loads a configuration into the tsParticles instance, effectively updating the animation.
-         * @param {object} config - The tsParticles configuration object to load.
-         */
         const loadParticles = async (config) => {
-          currentConfig = config;
-          // Save the latest config to localStorage
+          AppState.currentConfig = config;
           try {
             localStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
           } catch(e) {
             console.warn("Could not save config to localStorage, it might be too large.");
           }
 
-          particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
+          AppState.particlesContainer = await tsParticles.load({ id: "tsparticles", options: JSON.parse(JSON.stringify(config)) });
           
-          isPaused = false;
+          AppState.isPaused = false;
           btnPause.classList.remove("active");
           btnPause.setAttribute('aria-pressed', 'false');
           iconPause.style.display = "block";
           iconPlay.style.display = "none";
         };
         
-        // Applies or removes the cursor particle effect by modifying the config.
         const applyCursorMode = () => {
-            if (isCursorParticle) {
-                currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
-                currentConfig.interactivity.events.onHover.mode = "trail";
-                currentConfig.interactivity.events.onClick.enable = false;
+            if (AppState.isCursorParticle) {
+                AppState.currentConfig.interactivity.modes.trail = { delay: 0.05, quantity: 1, pauseOnStop: true };
+                AppState.currentConfig.interactivity.events.onHover.mode = "trail";
+                AppState.currentConfig.interactivity.events.onClick.enable = false;
             } else {
-                currentConfig.interactivity.events.onHover.mode = originalInteractionModes.hover || "repulse";
-                currentConfig.interactivity.events.onClick.enable = true;
+                AppState.currentConfig.interactivity.events.onHover.mode = AppState.originalInteractionModes.hover || "repulse";
+                AppState.currentConfig.interactivity.events.onClick.enable = true;
             }
         };
 
-        // Updates the theme (dark/light) and reloads the particles with adjusted colours.
         const updateTheme = () => {
-          document.body.classList.toggle("light-mode", !isDarkMode);
-          btnTheme.setAttribute('aria-pressed', !isDarkMode);
-          iconSun.style.display = isDarkMode ? "block" : "none";
-          iconMoon.style.display = isDarkMode ? "none" : "block";
-
-          localStorage.setItem('tsDiceTheme', isDarkMode ? 'dark' : 'light');
-          
-          // ACCESSIBILITY: Announce theme change
-          announce(isDarkMode ? "Dark theme enabled" : "Light theme enabled");
-          
-          if (!currentConfig || Object.keys(currentConfig).length === 0) return;
-
-          const newPalette = isDarkMode ? darkColorPalette : lightColorPalette;
-          currentConfig.background.color.value = isDarkMode ? "#111" : "#f0f0f0";
-          if (currentConfig.particles.color.value !== "random") {
-             currentConfig.particles.color.value = getRandomItem(newPalette);
+          document.body.classList.toggle("light-mode", !AppState.isDarkMode);
+          btnTheme.setAttribute('aria-pressed', !AppState.isDarkMode);
+          iconSun.style.display = AppState.isDarkMode ? "block" : "none";
+          iconMoon.style.display = AppState.isDarkMode ? "none" : "block";
+          localStorage.setItem('tsDiceTheme', AppState.isDarkMode ? 'dark' : 'light');
+          announce(AppState.isDarkMode ? "Dark theme enabled" : "Light theme enabled");
+          if (!AppState.currentConfig || Object.keys(AppState.currentConfig).length === 0) return;
+          const newPalette = AppState.isDarkMode ? darkColorPalette : lightColorPalette;
+          AppState.currentConfig.background.color.value = AppState.isDarkMode ? "#111" : "#f0f0f0";
+          if (AppState.currentConfig.particles.color.value !== "random") {
+             AppState.currentConfig.particles.color.value = getRandomItem(newPalette);
           }
-          if(currentConfig.particles.stroke.width > 0 && currentConfig.particles.stroke.color.value !== "random") {
-            currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
+          if(AppState.currentConfig.particles.stroke.width > 0 && AppState.currentConfig.particles.stroke.color.value !== "random") {
+            AppState.currentConfig.particles.stroke.color.value = getRandomItem(newPalette);
           }
-          if(currentConfig.particles.links.enable) currentConfig.particles.links.color.value = isDarkMode ? "#ffffff" : "#333333";
-          if(currentConfig.particles.move.trail.enable) currentConfig.particles.move.trail.fill.color.value = isDarkMode ? "#111" : "#f0f0f0";
+          if(AppState.currentConfig.particles.links.enable) AppState.currentConfig.particles.links.color.value = AppState.isDarkMode ? "#ffffff" : "#333333";
+          if(AppState.currentConfig.particles.move.trail.enable) AppState.currentConfig.particles.move.trail.fill.color.value = AppState.isDarkMode ? "#111" : "#f0f0f0";
           
-          loadParticles(currentConfig);
+          loadParticles(AppState.currentConfig);
         };
 
-        // Toggles fullscreen mode.
         const toggleFullScreen = () => {
           if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => console.error(err));
@@ -925,7 +932,6 @@
           }
         };
 
-        // Updates the fullscreen button icon based on the current state.
         const updateFullscreenIcons = () => {
           const isFullscreen = !!document.fullscreenElement;
           fullscreenBtn.setAttribute('aria-pressed', isFullscreen);
@@ -933,7 +939,6 @@
           iconExit.style.display = isFullscreen ? "block" : "none";
         };
 
-        // Populates the info modal with descriptions from button titles.
         const populateInfoModal = () => {
             const infoList = infoModal.querySelector('.info-list');
             infoList.innerHTML = '';
@@ -943,8 +948,11 @@
                 const title = control.getAttribute('data-title') || control.title;
                 if (!title) return;
 
-                const [name, description] = title.split(': ');
                 const icon = control.querySelector('svg')?.cloneNode(true);
+                
+                const shortcutMatch = title.match(/\(([^)]+)\)/);
+                const cleanTitle = title.replace(/\s*\(([^)]+)\)/, '');
+                const [name, description] = cleanTitle.split(': ');
                 
                 const li = document.createElement('li');
                 const iconWrapper = document.createElement('div');
@@ -952,13 +960,12 @@
                 if (icon) {
                     iconWrapper.appendChild(icon);
                 } else if (control.classList.contains('slider-container')) {
-                    // Provide a generic icon for the slider.
                     iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
                 }
                 
                 const textWrapper = document.createElement('div');
                 textWrapper.className = 'info-text';
-                textWrapper.innerHTML = `<strong>${name}</strong><span>${description || ''}</span>`;
+                textWrapper.innerHTML = `<strong>${name} ${shortcutMatch ? `<code>${shortcutMatch[1]}</code>` : ''}</strong><span>${description || ''}</span>`;
                 
                 li.appendChild(iconWrapper);
                 li.appendChild(textWrapper);
@@ -968,7 +975,7 @@
 
         // --- 8. ACCESSIBILITY - MODAL MANAGEMENT ---
         const openModal = (modal, opener) => {
-            lastFocusedElement = opener || document.activeElement;
+            AppState.lastFocusedElement = opener || document.activeElement;
             modal.classList.add('visible');
             const firstFocusableElement = modal.querySelector('button, [href]');
             if(firstFocusableElement) firstFocusableElement.focus();
@@ -976,7 +983,7 @@
 
         const closeModal = (modal) => {
             modal.classList.remove('visible');
-            if(lastFocusedElement) lastFocusedElement.focus();
+            if(AppState.lastFocusedElement) AppState.lastFocusedElement.focus();
         };
 
         const trapFocus = (e, modal) => {
@@ -999,26 +1006,22 @@
         };
 
         // --- 9. EVENT LISTENERS ---
-        // Attaching all event handling logic.
-
-        // Toggle the main menu visibility.
         mainMenuBtn.addEventListener("click", () => {
             const isActive = menuContainer.classList.toggle("active");
             mainMenuBtn.setAttribute('aria-pressed', isActive);
-            // ACCESSIBILITY: Update the aria-label dynamically
             mainMenuBtn.setAttribute('aria-label', isActive ? 'Close Settings Menu' : 'Open Settings Menu');
+            if (isActive) {
+                document.getElementById('btn-shuffle-all').focus();
+            }
         });
         
-        // Factory function to create shuffle handlers for different buttons.
         const createShuffleHandler = (options) => async () => {
             saveHistory();
             clearForwardHistory();
             const newConfig = buildConfig(options);
             
-            // If walls are on, ensure the new config respects this override.
-            if (areWallsOn) {
-                // Save the newly generated outModes so we can restore them if walls are toggled off later.
-                originalOutModes = JSON.parse(JSON.stringify(newConfig.particles.move.outModes));
+            if (AppState.areWallsOn) {
+                AppState.originalOutModes = structuredClone(newConfig.particles.move.outModes);
                 newConfig.particles.move.outModes = { default: "bounce" };
             }
 
@@ -1031,53 +1034,43 @@
         btnShuffleInteraction.addEventListener("click", createShuffleHandler({interaction: true}));
         btnShuffleFx.addEventListener("click", createShuffleHandler({fx: true}));
 
-        // Theme toggle button.
         btnTheme.addEventListener("click", () => {
-          isDarkMode = !isDarkMode;
+          AppState.isDarkMode = !AppState.isDarkMode;
           updateTheme();
         });
 
-        // Cursor particle toggle button.
         btnCursor.addEventListener("click", () => {
-            isCursorParticle = !isCursorParticle;
-            btnCursor.classList.toggle("active", isCursorParticle);
-            btnCursor.setAttribute('aria-pressed', isCursorParticle);
+            AppState.isCursorParticle = !AppState.isCursorParticle;
+            btnCursor.classList.toggle("active", AppState.isCursorParticle);
+            btnCursor.setAttribute('aria-pressed', AppState.isCursorParticle);
             applyCursorMode();
-            loadParticles(currentConfig);
-            // ACCESSIBILITY: Announce cursor particle state
-            announce(isCursorParticle ? "Cursor particle enabled" : "Cursor particle disabled");
+            loadParticles(AppState.currentConfig);
+            announce(AppState.isCursorParticle ? "Cursor particle enabled" : "Cursor particle disabled");
         });
         
-        // Pause/Play button.
         btnPause.addEventListener("click", () => {
-            if (!particlesContainer) return;
-
-            isPaused = !isPaused;
-            if (isPaused) {
-                particlesContainer.pause();
+            if (!AppState.particlesContainer) return;
+            AppState.isPaused = !AppState.isPaused;
+            if (AppState.isPaused) {
+                AppState.particlesContainer.pause();
             } else {
-                particlesContainer.play();
+                AppState.particlesContainer.play();
             }
-            
-            btnPause.classList.toggle("active", isPaused);
-            btnPause.setAttribute('aria-pressed', isPaused);
-            iconPause.style.display = isPaused ? "none" : "block";
-            iconPlay.style.display = isPaused ? "block" : "none";
-            
-            // ACCESSIBILITY: Announce pause/play state
-            announce(isPaused ? "Animation paused" : "Animation resumed");
+            btnPause.classList.toggle("active", AppState.isPaused);
+            btnPause.setAttribute('aria-pressed', AppState.isPaused);
+            iconPause.style.display = AppState.isPaused ? "none" : "block";
+            iconPlay.style.display = AppState.isPaused ? "block" : "none";
+            announce(AppState.isPaused ? "Animation paused" : "Animation resumed");
         });
         
-        // Back button to load the previous configuration.
         btnBack.addEventListener("click", async () => {
-            if (configHistory.length > 0) {
-                configForwardHistory.push(JSON.parse(JSON.stringify(currentConfig)));
-                const lastConfig = configHistory.pop();
+            if (AppState.configHistory.length > 0) {
+                AppState.configForwardHistory.push(structuredClone(AppState.currentConfig));
+                const lastConfig = AppState.configHistory.pop();
                 
-                // Update wall state based on the historical config
-                areWallsOn = lastConfig.particles.move.outModes?.default === 'bounce';
-                btnWalls.classList.toggle('active', areWallsOn);
-                btnWalls.setAttribute('aria-pressed', areWallsOn);
+                AppState.areWallsOn = lastConfig.particles.move.outModes?.default === 'bounce';
+                btnWalls.classList.toggle('active', AppState.areWallsOn);
+                btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
 
                 await loadParticles(lastConfig);
                 updateBackButtonState();
@@ -1085,67 +1078,54 @@
             }
         });
 
-        // Forward button to load the next configuration.
         btnForward.addEventListener("click", async () => {
-            if (configForwardHistory.length > 0) {
+            if (AppState.configForwardHistory.length > 0) {
                 saveHistory();
-                const nextConfig = configForwardHistory.pop();
+                const nextConfig = AppState.configForwardHistory.pop();
                 
-                // Update wall state based on the historical config
-                areWallsOn = nextConfig.particles.move.outModes?.default === 'bounce';
-                btnWalls.classList.toggle('active', areWallsOn);
-                btnWalls.setAttribute('aria-pressed', areWallsOn);
+                AppState.areWallsOn = nextConfig.particles.move.outModes?.default === 'bounce';
+                btnWalls.classList.toggle('active', AppState.areWallsOn);
+                btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
 
                 await loadParticles(nextConfig);
                 updateForwardButtonState();
             }
         });
 
-        // Refresh button to reload the current configuration.
         btnRefresh.addEventListener("click", async () => {
-            if (currentConfig && Object.keys(currentConfig).length > 0) {
-                await loadParticles(currentConfig);
+            if (AppState.currentConfig && Object.keys(AppState.currentConfig).length > 0) {
+                await loadParticles(AppState.currentConfig);
                 showToast('Scene refreshed!');
                 announce("Scene refreshed");
             }
         });
 
-        // Share button to generate and copy a shareable link with URL shortening.
         btnShare.addEventListener('click', async () => {
-            // --- Step 1: Prepare the configuration for sharing ---
-            const sharableConfig = JSON.parse(JSON.stringify(currentConfig));
+            const sharableConfig = structuredClone(AppState.currentConfig);
             sharableConfig.uiState = {
-                chaosLevel,
-                isDarkMode,
-                isCursorParticle,
-                isGravityOn,
-                areWallsOn,
-                originalOutModes: areWallsOn ? originalOutModes : undefined
+                chaosLevel: AppState.chaosLevel,
+                isDarkMode: AppState.isDarkMode,
+                isCursorParticle: AppState.isCursorParticle,
+                isGravityOn: AppState.isGravityOn,
+                areWallsOn: AppState.areWallsOn,
+                originalOutModes: AppState.areWallsOn ? AppState.originalOutModes : undefined
             };
         
             try {
                 btnShare.classList.add('disabled');
                 showToast('Creating shareable link...');
-        
-                // --- Step 2: Build the full, long URL ---
                 const configString = JSON.stringify(sharableConfig);
                 const compressedConfig = LZString.compressToEncodedURIComponent(configString);
                 const fullUrl = `${window.location.href.split('#')[0]}#config=${compressedConfig}`;
-        
-                // --- Step 3: Call our new API function ---
                 const shortUrl = await createEmojiShortUrl(fullUrl);
         
-                // --- Step 4: Copy the appropriate URL based on the result ---
                 if (shortUrl) {
-                    // Success: API returned a short URL
                     await copyToClipboard(shortUrl);
                     showToast('Short emoji link copied!');
                 } else {
-                    // Failure: The API call failed, so we fall back to the long URL
                     await copyToClipboard(fullUrl);
-                    showToast('Shortening failed. Full link copied.');
+                    showToast('Shortening failed. Full link copied instead.');
                 }
-        
             } catch (e) {
                 showToast("Could not create share link.");
                 console.error('Share error:', e);
@@ -1154,40 +1134,32 @@
             }
         });
 
-        // Gravity toggle button.
         btnGravity.addEventListener('click', async () => {
-            isGravityOn = !isGravityOn;
-            btnGravity.classList.toggle('active', isGravityOn);
-            btnGravity.setAttribute('aria-pressed', isGravityOn);
-            currentConfig.particles.move.gravity.enable = isGravityOn;
-            currentConfig.particles.move.gravity.acceleration = isGravityOn ? 20 : 0;
-            await loadParticles(currentConfig);
-            // ACCESSIBILITY: Announce gravity state
-            announce(isGravityOn ? "Gravity enabled" : "Gravity disabled");
+            AppState.isGravityOn = !AppState.isGravityOn;
+            btnGravity.classList.toggle('active', AppState.isGravityOn);
+            btnGravity.setAttribute('aria-pressed', AppState.isGravityOn);
+            AppState.currentConfig.particles.move.gravity.enable = AppState.isGravityOn;
+            AppState.currentConfig.particles.move.gravity.acceleration = AppState.isGravityOn ? 20 : 0;
+            await loadParticles(AppState.currentConfig);
+            announce(AppState.isGravityOn ? "Gravity enabled" : "Gravity disabled");
         });
 
-        // Wall toggle button
         btnWalls.addEventListener('click', async () => {
-            if (!currentConfig.particles) return;
-
-            areWallsOn = !areWallsOn;
-            btnWalls.classList.toggle('active', areWallsOn);
-            btnWalls.setAttribute('aria-pressed', areWallsOn);
+            if (!AppState.currentConfig.particles) return;
+            AppState.areWallsOn = !AppState.areWallsOn;
+            btnWalls.classList.toggle('active', AppState.areWallsOn);
+            btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
             
-            if (areWallsOn) {
-                // Save the current outModes before overriding
-                originalOutModes = JSON.parse(JSON.stringify(currentConfig.particles.move.outModes));
-                currentConfig.particles.move.outModes = { default: "bounce" };
+            if (AppState.areWallsOn) {
+                AppState.originalOutModes = structuredClone(AppState.currentConfig.particles.move.outModes);
+                AppState.currentConfig.particles.move.outModes = { default: "bounce" };
             } else {
-                // Restore the original outModes
-                currentConfig.particles.move.outModes = originalOutModes;
+                AppState.currentConfig.particles.move.outModes = AppState.originalOutModes;
             }
-            await loadParticles(currentConfig);
-             // ACCESSIBILITY: Announce wall state
-            announce(areWallsOn ? "Walls enabled" : "Walls disabled");
+            await loadParticles(AppState.currentConfig);
+            announce(AppState.areWallsOn ? "Walls enabled" : "Walls disabled");
         });
 
-        // Info modal buttons.
         btnInfo.addEventListener('click', (e) => {
             populateInfoModal();
             openModal(infoModal, e.currentTarget);
@@ -1198,17 +1170,13 @@
             if (e.target === infoModal) closeModal(infoModal);
         });
 
-        // Chaos slider input.
         chaosSlider.addEventListener('input', (e) => {
-            chaosLevel = parseInt(e.target.value, 10);
+            AppState.chaosLevel = parseInt(e.target.value, 10);
             updateChaosDisplay();
-            // Announce change to screen readers
-            announce(`Chaos level ${chaosLevel}`);
-            // Save to localStorage
-            localStorage.setItem('tsDiceChaos', chaosLevel);
+            announce(`Chaos level ${AppState.chaosLevel}`);
+            localStorage.setItem('tsDiceChaos', AppState.chaosLevel);
         });
 
-        // Welcome modal and fullscreen listeners.
         closeModalBtn.addEventListener("click", () => {
             closeModal(welcomeModal)
             localStorage.setItem('tsDiceWelcomeSeen', 'true');
@@ -1241,7 +1209,6 @@
             tooltip.style.top = `${top}px`;
         }
 
-        // Show tooltip on hover.
         subMenu.addEventListener('mouseover', (e) => {
             const target = e.target.closest('.menu-button, .slider-container');
             if (!target || !target.title) return;
@@ -1260,7 +1227,6 @@
             updateTooltipPosition(e.clientX, e.clientY);
         });
 
-        // Hide tooltip on mouseout.
         subMenu.addEventListener('mouseout', (e) => {
             const target = e.target.closest('.menu-button, .slider-container');
             if (!target || !target.getAttribute('data-title')) return;
@@ -1270,7 +1236,6 @@
             target.removeAttribute('data-title');
         });
 
-        // Update tooltip position on mousemove.
         subMenu.addEventListener('mousemove', (e) => {
             if (tooltip.classList.contains('visible')) {
                 updateTooltipPosition(e.clientX, e.clientY);
@@ -1278,8 +1243,6 @@
         });
         
         // --- 10. ACCESSIBILITY - KEYBOARD ACTIVATION & SHORTCUTS ---
-
-        // Generic handler for activating div-buttons with Enter/Space
         document.querySelectorAll('[role="button"]').forEach(button => {
             button.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -1289,7 +1252,6 @@
             });
         });
 
-        // Handler for slider arrow key navigation
         chaosSlider.addEventListener('keydown', (e) => {
             let value = parseInt(chaosSlider.value, 10);
             let valueChanged = false;
@@ -1307,15 +1269,11 @@
             }
         });
 
-        // Global shortcut handler
         document.addEventListener('keydown', (e) => {
-            // Close modals with Escape key
             if (e.key === 'Escape') {
                 if (welcomeModal.classList.contains('visible')) closeModal(welcomeModal);
                 if (infoModal.classList.contains('visible')) closeModal(infoModal);
             }
-
-            // Alt + Key shortcuts
             if (e.altKey && !e.ctrlKey && !e.metaKey) {
                 e.preventDefault();
                 switch (e.key.toLowerCase()) {
@@ -1336,8 +1294,6 @@
                     case 'y': btnForward.click(); break;
                 }
             }
-
-            // Spacebar for Pause/Play, only if not typing in a text field
             if (e.key === ' ' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                  if(!menuContainer.classList.contains('active')) {
                      e.preventDefault();
@@ -1348,14 +1304,11 @@
 
 
         // --- 11. INITIALISATION ---
-        // This runs once when the page loads.
-        
-        // Load settings from localStorage
         const savedTheme = localStorage.getItem('tsDiceTheme');
-        isDarkMode = savedTheme ? savedTheme === 'dark' : true;
+        AppState.isDarkMode = savedTheme ? savedTheme === 'dark' : true;
         
         const savedChaos = localStorage.getItem('tsDiceChaos');
-        chaosLevel = savedChaos ? parseInt(savedChaos, 10) : 5;
+        AppState.chaosLevel = savedChaos ? parseInt(savedChaos, 10) : 5;
 
         let initialConfigFromStorage = null;
         try {
@@ -1368,7 +1321,6 @@
             localStorage.removeItem('tsDiceLastConfig');
         }
 
-        // Check for a configuration in the URL hash (this takes priority).
         if (window.location.hash && window.location.hash.startsWith('#config=')) {
             try {
                 const encodedConfig = window.location.hash.substring(8);
@@ -1376,41 +1328,37 @@
                 
                 if (decodedString) {
                     const parsedConfig = JSON.parse(decodedString);
-                    // Restore UI state from the config if it exists.
                     if (parsedConfig.uiState) {
-                        chaosLevel = parsedConfig.uiState.chaosLevel || 5;
-                        isDarkMode = parsedConfig.uiState.isDarkMode !== false;
-                        isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
-                        isGravityOn = parsedConfig.uiState.isGravityOn === true;
-                        areWallsOn = parsedConfig.uiState.areWallsOn === true; // <-- Restore wall state
-                        if(areWallsOn) {
-                           originalOutModes = parsedConfig.uiState.originalOutModes; // <-- Restore original modes
+                        AppState.chaosLevel = parsedConfig.uiState.chaosLevel || 5;
+                        AppState.isDarkMode = parsedConfig.uiState.isDarkMode !== false;
+                        AppState.isCursorParticle = parsedConfig.uiState.isCursorParticle === true;
+                        AppState.isGravityOn = parsedConfig.uiState.isGravityOn === true;
+                        AppState.areWallsOn = parsedConfig.uiState.areWallsOn === true;
+                        if(AppState.areWallsOn) {
+                           AppState.originalOutModes = parsedConfig.uiState.originalOutModes;
                         }
                         delete parsedConfig.uiState;
                     }
-                    initialConfigFromUrl = parsedConfig;
+                    AppState.initialConfigFromUrl = parsedConfig;
                 } else {
                      throw new Error("Decompression failed");
                 }
             } catch (e) {
-                // If parsing fails, clear the hash to avoid errors on reload.
                 window.location.hash = '';
             }
         }
 
-        // Set UI based on loaded settings BEFORE loading particles
         updateChaosDisplay();
-        document.body.classList.toggle("light-mode", !isDarkMode);
-        btnTheme.setAttribute('aria-pressed', !isDarkMode);
-        btnWalls.classList.toggle('active', areWallsOn); // <-- Set wall button UI
-        btnWalls.setAttribute('aria-pressed', areWallsOn);
-        iconSun.style.display = isDarkMode ? "block" : "none";
-        iconMoon.style.display = isDarkMode ? "none" : "block";
+        document.body.classList.toggle("light-mode", !AppState.isDarkMode);
+        btnTheme.setAttribute('aria-pressed', !AppState.isDarkMode);
+        btnWalls.classList.toggle('active', AppState.areWallsOn);
+        btnWalls.setAttribute('aria-pressed', AppState.areWallsOn);
+        iconSun.style.display = AppState.isDarkMode ? "block" : "none";
+        iconMoon.style.display = AppState.isDarkMode ? "none" : "block";
 
-        // Determine which config to load: URL > localStorage > New Random
         let configToLoad;
-        if (initialConfigFromUrl) {
-            configToLoad = initialConfigFromUrl;
+        if (AppState.initialConfigFromUrl) {
+            configToLoad = AppState.initialConfigFromUrl;
         } else if (initialConfigFromStorage) {
             configToLoad = initialConfigFromStorage;
         } else {
@@ -1418,14 +1366,12 @@
         }
         await loadParticles(configToLoad);
         
-        // Only show welcome modal if it hasn't been seen
         if (!localStorage.getItem('tsDiceWelcomeSeen')) {
              setTimeout(() => {
                 openModal(welcomeModal);
             }, 500);
         }
         
-        // Final UI state updates
         updateBackButtonState();
         updateForwardButtonState();
 
@@ -1433,10 +1379,10 @@
         const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         const handleReducedMotion = () => {
-            if (motionQuery.matches && particlesContainer && !isPaused) {
-                particlesContainer.pause();
+            if (motionQuery.matches && AppState.particlesContainer && !AppState.isPaused) {
+                AppState.particlesContainer.pause();
                 
-                isPaused = true;
+                AppState.isPaused = true;
                 btnPause.classList.add("active");
                 btnPause.setAttribute('aria-pressed', 'true');
                 iconPause.style.display = "none";
@@ -1446,8 +1392,8 @@
             }
         };
 
-        handleReducedMotion(); // Check on initial load
-        motionQuery.addEventListener('change', handleReducedMotion); // Listen for changes
+        handleReducedMotion();
+        motionQuery.addEventListener('change', handleReducedMotion);
       })();
     </script>
 </body>
