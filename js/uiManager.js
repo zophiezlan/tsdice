@@ -1,5 +1,6 @@
 import { AppState } from './state.js';
 import { CommandManager } from './commandManager.js';
+import { BUTTON_IDS } from './constants.js';
 
 const infoModal = document.getElementById('info-modal');
 const toastNotification = document.getElementById('toast-notification');
@@ -9,9 +10,9 @@ const iconEnter = document.getElementById('icon-fullscreen-enter');
 const iconExit = document.getElementById('icon-fullscreen-exit');
 const iconSun = document.getElementById('theme-icon-sun');
 const iconMoon = document.getElementById('theme-icon-moon');
-const btnBack = document.getElementById('btn-back');
-const btnForward = document.getElementById('btn-forward');
-const btnPause = document.getElementById('btn-pause');
+const btnBack = document.getElementById(BUTTON_IDS.BACK);
+const btnForward = document.getElementById(BUTTON_IDS.FORWARD);
+const btnPause = document.getElementById(BUTTON_IDS.PAUSE);
 const iconPause = document.getElementById('icon-pause');
 const iconPlay = document.getElementById('icon-play');
 const chaosSlider = document.getElementById('chaos-slider');
@@ -71,7 +72,21 @@ export const UIManager = {
             
             const textWrapper = document.createElement('div');
             textWrapper.className = 'info-text';
-            textWrapper.innerHTML = `<strong>${name} ${shortcutMatch ? `<code>${shortcutMatch[1]}</code>` : ''}</strong><span>${description || ''}</span>`;
+            
+            const strong = document.createElement('strong');
+            strong.textContent = name + ' ';
+            
+            if (shortcutMatch) {
+                const code = document.createElement('code');
+                code.textContent = shortcutMatch[1];
+                strong.appendChild(code);
+            }
+
+            const span = document.createElement('span');
+            span.textContent = description || '';
+
+            textWrapper.appendChild(strong);
+            textWrapper.appendChild(span);
             
             li.appendChild(iconWrapper);
             li.appendChild(textWrapper);
@@ -99,19 +114,19 @@ export const UIManager = {
      */
     syncUI: () => {
         // Theme
-        const themeBtn = document.getElementById('btn-theme');
+        const themeBtn = document.getElementById(BUTTON_IDS.THEME);
         document.body.classList.toggle("light-mode", !AppState.ui.isDarkMode);
         themeBtn.setAttribute('aria-pressed', !AppState.ui.isDarkMode);
         iconSun.style.display = AppState.ui.isDarkMode ? "block" : "none";
         iconMoon.style.display = AppState.ui.isDarkMode ? "none" : "block";
         
         // Toggle Buttons
-        document.getElementById('btn-gravity').classList.toggle('active', AppState.ui.isGravityOn);
-        document.getElementById('btn-gravity').setAttribute('aria-pressed', AppState.ui.isGravityOn);
-        document.getElementById('btn-walls').classList.toggle('active', AppState.ui.areWallsOn);
-        document.getElementById('btn-walls').setAttribute('aria-pressed', AppState.ui.areWallsOn);
-        document.getElementById('btn-cursor').classList.toggle("active", AppState.ui.isCursorParticle);
-        document.getElementById('btn-cursor').setAttribute('aria-pressed', AppState.ui.isCursorParticle);
+        document.getElementById(BUTTON_IDS.GRAVITY).classList.toggle('active', AppState.ui.isGravityOn);
+        document.getElementById(BUTTON_IDS.GRAVITY).setAttribute('aria-pressed', AppState.ui.isGravityOn);
+        document.getElementById(BUTTON_IDS.WALLS).classList.toggle('active', AppState.ui.areWallsOn);
+        document.getElementById(BUTTON_IDS.WALLS).setAttribute('aria-pressed', AppState.ui.areWallsOn);
+        document.getElementById(BUTTON_IDS.CURSOR).classList.toggle("active", AppState.ui.isCursorParticle);
+        document.getElementById(BUTTON_IDS.CURSOR).setAttribute('aria-pressed', AppState.ui.isCursorParticle);
         btnPause.classList.toggle("active", AppState.ui.isPaused);
         btnPause.setAttribute('aria-pressed', AppState.ui.isPaused);
         iconPause.style.display = AppState.ui.isPaused ? "none" : "block";
