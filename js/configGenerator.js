@@ -2,6 +2,9 @@ import { AppState } from './state.js';
 import { getRandomBool, getRandomItem, getRandomInRange, getChaosProbability } from './utils.js';
 import { darkColorPalette, lightColorPalette, shapeOptions, directionOptions, hoverModeOptions, safeClickModes, emojiOptions } from './constants.js';
 
+const MIN_POLYGON_SIDES = 3;
+const MAX_POLYGON_SIDES = 12;
+
 /**
  * @description Encapsulates all logic for generating random particle configurations.
  */
@@ -16,7 +19,7 @@ export const ConfigGenerator = {
             stroke: { width: getRandomBool(getChaosProbability(0.5, AppState.particleState.chaosLevel)) ? getRandomInRange(1, 4) : 0, color: { value: "random" } },
         };
 
-        if (shapeType === 'polygon') appearance.shape.options.polygon = { sides: Math.floor(getRandomInRange(3, 13)) };
+        if (shapeType === 'polygon') appearance.shape.options.polygon = { sides: Math.floor(getRandomInRange(MIN_POLYGON_SIDES, MAX_POLYGON_SIDES + 1)) };
         if (shapeType === 'character') appearance.shape.options.character = { value: getRandomItem(emojiOptions), fill: true };
         if (Object.keys(appearance.shape.options).length === 0) delete appearance.shape.options;
         return appearance;
