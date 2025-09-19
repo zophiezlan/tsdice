@@ -192,6 +192,18 @@ import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from '.
         async undo() { await updateTheme(); }
     });
     
+    /** Sets up event listeners for a modal to handle closing. */
+    const setupModal = (modal, closeButton, onDismiss) => {
+        closeButton.addEventListener("click", onDismiss);
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') onDismiss();
+            else trapFocus(e, modal);
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) onDismiss();
+        });
+    };
+
     // --- 5. EVENT LISTENERS ---
     mainMenuBtn.addEventListener("click", () => {
         const isActive = menuContainer.classList.toggle("active");
@@ -319,17 +331,8 @@ import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from '.
         localStorage.setItem('tsDiceWelcomeTimestamp', Date.now());
     };
 
-    closeModalBtn.addEventListener("click", dismissWelcomeModal);
-    welcomeModal.addEventListener('keydown', (e) => trapFocus(e, welcomeModal));
-    welcomeModal.addEventListener('click', (e) => {
-        if (e.target === welcomeModal) dismissWelcomeModal();
-    });
-    
-    closeInfoModalBtn.addEventListener('click', () => UIManager.closeModal(infoModal));
-    infoModal.addEventListener('keydown', (e) => trapFocus(e, infoModal));
-    infoModal.addEventListener('click', (e) => {
-        if (e.target === infoModal) UIManager.closeModal(infoModal);
-    });
+    setupModal(welcomeModal, closeModalBtn, dismissWelcomeModal);
+    setupModal(infoModal, closeInfoModalBtn, () => UIManager.closeModal(infoModal));
 
     fullscreenBtn.addEventListener("click", toggleFullScreen);
     document.addEventListener("fullscreenchange", UIManager.updateFullscreenIcons);
