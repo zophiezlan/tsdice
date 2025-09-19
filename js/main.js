@@ -5,7 +5,7 @@ import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
 import { CommandManager } from './commandManager.js';
 import { copyToClipboard, getRandomItem } from './utils.js';
-import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.js';
+import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from './constants.js';
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
@@ -13,7 +13,7 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
     await loadAll(tsParticles);
 
     // --- 1. ELEMENT SELECTORS ---
-    const mainMenuBtn = document.getElementById('main-menu-btn');
+    const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
     const menuContainer = document.getElementById('menu-container');
     const subMenu = document.getElementById('sub-menu');
     const chaosSlider = document.getElementById('chaos-slider');
@@ -198,7 +198,7 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
         mainMenuBtn.setAttribute('aria-pressed', isActive);
         mainMenuBtn.setAttribute('aria-label', isActive ? 'Close Settings Menu' : 'Open Settings Menu');
         if (isActive) {
-            document.getElementById('btn-shuffle-all').focus();
+            document.getElementById(BUTTON_IDS.SHUFFLE_ALL).focus();
         } else {
             mainMenuBtn.focus(); // Return focus on close
         }
@@ -210,15 +210,15 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
         if (!button) return;
 
         switch (button.id) {
-            case 'btn-shuffle-all': CommandManager.execute(createShuffleCommand({ all: true })); break;
-            case 'btn-shuffle-appearance': CommandManager.execute(createShuffleCommand({ appearance: true })); break;
-            case 'btn-shuffle-movement': CommandManager.execute(createShuffleCommand({ movement: true })); break;
-            case 'btn-shuffle-interaction': CommandManager.execute(createShuffleCommand({ interaction: true })); break;
-            case 'btn-shuffle-fx': CommandManager.execute(createShuffleCommand({ fx: true })); break;
-            case 'btn-back': CommandManager.undo(); break;
-            case 'btn-forward': CommandManager.redo(); break;
-            case 'btn-theme': CommandManager.execute(createThemeCommand()); break;
-            case 'btn-gravity':
+            case BUTTON_IDS.SHUFFLE_ALL: CommandManager.execute(createShuffleCommand({ all: true })); break;
+            case BUTTON_IDS.SHUFFLE_APPEARANCE: CommandManager.execute(createShuffleCommand({ appearance: true })); break;
+            case BUTTON_IDS.SHUFFLE_MOVEMENT: CommandManager.execute(createShuffleCommand({ movement: true })); break;
+            case BUTTON_IDS.SHUFFLE_INTERACTION: CommandManager.execute(createShuffleCommand({ interaction: true })); break;
+            case BUTTON_IDS.SHUFFLE_FX: CommandManager.execute(createShuffleCommand({ fx: true })); break;
+            case BUTTON_IDS.BACK: CommandManager.undo(); break;
+            case BUTTON_IDS.FORWARD: CommandManager.redo(); break;
+            case BUTTON_IDS.THEME: CommandManager.execute(createThemeCommand()); break;
+            case BUTTON_IDS.GRAVITY:
                 CommandManager.execute(createToggleCommand('isGravityOn', async () => {
                     const config = AppState.particleState.currentConfig;
                     config.particles.move.gravity.enable = AppState.ui.isGravityOn;
@@ -226,7 +226,7 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
                     await loadParticles(config);
                 }));
                 break;
-            case 'btn-walls':
+            case BUTTON_IDS.WALLS:
                 CommandManager.execute(createToggleCommand('areWallsOn', async () => {
                     const config = AppState.particleState.currentConfig;
                     if (!config.particles) return;
@@ -239,13 +239,13 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
                     await loadParticles(config);
                 }));
                 break;
-            case 'btn-cursor':
+            case BUTTON_IDS.CURSOR:
                  CommandManager.execute(createToggleCommand('isCursorParticle', async () => {
                     applyCursorMode();
                     await loadParticles(AppState.particleState.currentConfig);
                 }));
                 break;
-            case 'btn-refresh':
+            case BUTTON_IDS.REFRESH:
                 (async () => {
                     const config = AppState.particleState.currentConfig;
                     if (config && Object.keys(config).length > 0) {
@@ -255,7 +255,7 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
                     }
                 })();
                 break;
-            case 'btn-pause':
+            case BUTTON_IDS.PAUSE:
                 (() => {
                     const container = AppState.ui.particlesContainer;
                     if (!container) return;
@@ -265,7 +265,7 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
                     UIManager.announce(AppState.ui.isPaused ? "Animation paused" : "Animation resumed");
                 })();
                 break;
-            case 'btn-share':
+            case BUTTON_IDS.SHARE:
                 (async () => {
                     const sharableConfig = structuredClone(AppState.particleState.currentConfig);
                     sharableConfig.uiState = {
@@ -299,7 +299,7 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
                     }
                 })();
                 break;
-            case 'btn-info':
+            case BUTTON_IDS.INFO:
                 UIManager.populateInfoModal();
                 UIManager.openModal(infoModal, button);
                 break;
@@ -358,7 +358,23 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
         const shortcutMatch = titleText.match(/\(([^)]+)\)/);
         const cleanTitle = titleText.replace(/\s*\(([^)]+)\)/, '');
         const [name, description] = cleanTitle.split(': ');
-        tooltip.innerHTML = `<strong>${name} ${shortcutMatch ? `<code>${shortcutMatch[1]}</code>` : ''}</strong><span>${description || ''}</span>`;
+        
+        tooltip.innerHTML = ''; // Clear previous content
+        const strong = document.createElement('strong');
+        strong.textContent = name + ' ';
+
+        if (shortcutMatch) {
+            const code = document.createElement('code');
+            code.textContent = shortcutMatch[1];
+            strong.appendChild(code);
+        }
+
+        const span = document.createElement('span');
+        span.textContent = description || '';
+
+        tooltip.appendChild(strong);
+        tooltip.appendChild(span);
+
         tooltip.classList.add('visible');
         updateTooltipPosition(e.clientX, e.clientY);
     });
@@ -406,15 +422,15 @@ import { emojiOptions, darkColorPalette, lightColorPalette } from './constants.j
         const isInput = activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable;
         if (e.key === ' ' && !isInput && !menuContainer.classList.contains('active')) {
             e.preventDefault();
-            document.getElementById('btn-pause').click();
+            document.getElementById(BUTTON_IDS.PAUSE).click();
             return;
         }
         if (e.altKey && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
             const btnId = {
-                'm': 'main-menu-btn', 'a': 'btn-shuffle-all', 'p': 'btn-shuffle-appearance', 'v': 'btn-shuffle-movement',
-                'i': 'btn-shuffle-interaction', 'f': 'btn-shuffle-fx', 'g': 'btn-gravity', 'w': 'btn-walls', 't': 'btn-theme',
-                'c': 'btn-cursor', 's': 'btn-share', '?': 'btn-info', 'r': 'btn-refresh', 'z': 'btn-back', 'y': 'btn-forward'
+                'm': BUTTON_IDS.MAIN_MENU, 'a': BUTTON_IDS.SHUFFLE_ALL, 'p': BUTTON_IDS.SHUFFLE_APPEARANCE, 'v': BUTTON_IDS.SHUFFLE_MOVEMENT,
+                'i': BUTTON_IDS.SHUFFLE_INTERACTION, 'f': BUTTON_IDS.SHUFFLE_FX, 'g': BUTTON_IDS.GRAVITY, 'w': BUTTON_IDS.WALLS, 't': BUTTON_IDS.THEME,
+                'c': BUTTON_IDS.CURSOR, 's': BUTTON_IDS.SHARE, '?': BUTTON_IDS.INFO, 'r': BUTTON_IDS.REFRESH, 'z': BUTTON_IDS.BACK, 'y': BUTTON_IDS.FORWARD
             }[e.key.toLowerCase()];
             if (btnId) document.getElementById(btnId)?.click();
         }

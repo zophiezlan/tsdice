@@ -14,3 +14,22 @@ export const emojiOptions = [
     '🌼', '🌷', '🌲', '🌳', '🐉', '🐲', '🐙', '🦑', '🕸️', '🌊', '🧠', '👁️‍🗨️', '💭', '💤', '⚡', '💥', '💧', '〰️', '➰', '➿',
     '🧩', '🗝️', '🚪', '♾️', '📉', '📈', '👻', '🤡', '🎭', '🤩', '🤪', '🤤', '😇', '🤠', '🥱', '😵', '🗿', '😮', '😲'
 ];
+
+export const BUTTON_IDS = {
+    SHUFFLE_ALL: 'btn-shuffle-all',
+    SHUFFLE_APPEARANCE: 'btn-shuffle-appearance',
+    SHUFFLE_MOVEMENT: 'btn-shuffle-movement',
+    SHUFFLE_INTERACTION: 'btn-shuffle-interaction',
+    SHUFFLE_FX: 'btn-shuffle-fx',
+    BACK: 'btn-back',
+    FORWARD: 'btn-forward',
+    THEME: 'btn-theme',
+    GRAVITY: 'btn-gravity',
+    WALLS: 'btn-walls',
+    CURSOR: 'btn-cursor',
+    REFRESH: 'btn-refresh',
+    PAUSE: 'btn-pause',
+    SHARE: 'btn-share',
+    INFO: 'btn-info',
+    MAIN_MENU: 'main-menu-btn'
+};
