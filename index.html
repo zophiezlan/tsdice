@@ -1,11 +1,39 @@
-<!DOCTYPE html>
-<html lang="en-AU">
-<head>
+<!doctype html>
+<html lang="en">
+  <head>
     <meta charset="UTF-8" />
-    <title>⭐🐎⭐🐎⭐🐎</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Library for link compression to create shareable URLs -->
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <title>tsDice - A tsParticles Playground</title>
+    <meta
+      name="description"
+      content="An interactive playground for the tsParticles library. Generate and customize random particle animations, and share them with others."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    />
+
+    <!-- Social Media Meta Tags -->
+    <meta property="og:title" content="tsDice - A tsParticles Playground" />
+    <meta
+      property="og:description"
+      content="An interactive playground for the tsParticles library. Generate and customize random particle animations, and share them with others."
+    />
+    <meta
+      property="og:image"
+      content="https://zophiezlan.github.io/tsdice/screenshot.png"
+    />
+    <meta
+      property="og:url"
+      content="https://zophiezlan.github.io/tsdice/"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>"
+    />
     <style>
       /* --- CSS Theming with Custom Properties (Variables) --- */
       :root {
@@ -103,8 +131,6 @@
         border-radius: 50%;
         background: var(--glass-bg);
         border: var(--glass-border);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -149,7 +175,33 @@
         clip: rect(0, 0, 0, 0);
         border: 0;
       }
-
+      @media print {
+        body {
+          font-family: serif;
+          line-height: 1.5;
+          color: #000;
+        }
+        .menu-bar,
+        .chaos-container,
+        .modal,
+        #btn-fullscreen,
+        #btn-history,
+        #btn-share,
+        #btn-info,
+        #btn-theme {
+          display: none;
+        }
+        #tsparticles {
+          display: none;
+        }
+        .container {
+          display: block;
+        }
+        h1,
+        h2 {
+          text-align: center;
+        }
+      }
 
       /* --- Corner Buttons --- */
       #fullscreen-btn {
@@ -197,9 +249,9 @@
         border-radius: 24px;
         background: var(--glass-bg);
         border: var(--glass-border);
-        backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        box-sizing: border-box;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
       /* --- ACCESSIBILITY: Style for fieldset to remove default styling --- */
       .sub-menu fieldset {
@@ -297,6 +349,8 @@
         max-height: 85vh; overflow-y: auto;
         text-align: center;
         will-change: transform;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
       }
       .modal-overlay.visible .modal-content { transform: scale(1); }
       .modal-content h2 { 
@@ -431,9 +485,307 @@
           animation-iteration-count: 1 !important;
         }
       }
+
+      .glass-button,
+      .sub-menu-button,
+      .modal-content {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      body,
+      button,
+      input {
+        font-family: sans-serif;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 40px);
+        position: relative;
+      }
+
+      /* --- Button and Control Styles --- */
+      .menu-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.3s;
+        position: relative;
+        overflow: hidden;
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border: 1px solid transparent;
+        color: var(--text-primary);
+        font-size: 14px;
+        height: 48px;
+        width: 48px;
+      }
+
+      .menu-button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+      }
+
+      .menu-button:active {
+        transform: scale(0.95);
+      }
+
+      /* --- Specific Icon Button Styles --- */
+      #btn-random {
+        background: var(--button-active-bg);
+        color: white;
+      }
+      #btn-random:hover {
+        background: var(--button-active-bg-hover);
+      }
+
+      /* --- Sub-menu Styles --- */
+      .sub-menu {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: slideUp 0.3s ease-out;
+        z-index: 1000;
+      }
+
+      .sub-menu-button {
+        background: transparent;
+        border: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      .sub-menu-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+      }
+
+      .sub-menu-button:active {
+        transform: scale(0.95);
+      }
+
+      /* --- Animation and Transition --- */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* --- Modal Styles --- */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.6);
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-content {
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 600px;
+        width: 90%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .close-button {
+        background: transparent;
+        border: none;
+        color: inherit;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+
+      .close-button:hover {
+        color: #ff6b6b;
+      }
+
+      /* --- History Modal Specific Styles --- */
+      #modal-history {
+        /* Inherit base modal styles */
+        @extend .modal;
+      }
+
+      #modal-history .modal-content {
+        /* Inherit base modal content styles */
+        @extend .modal-content;
+      }
+
+      #modal-history .modal-header {
+        /* Inherit base modal header styles */
+        @extend .modal-header;
+      }
+
+      #modal-history .modal-title {
+        /* Inherit base modal title styles */
+        @extend .modal-title;
+      }
+
+      /* --- Info Modal Specific Styles --- */
+      #modal-info {
+        /* Inherit base modal styles */
+        @extend .modal;
+      }
+
+      #modal-info .modal-content {
+        /* Inherit base modal content styles */
+        @extend .modal-content;
+      }
+
+      #modal-info .modal-header {
+        /* Inherit base modal header styles */
+        @extend .modal-header;
+      }
+
+      #modal-info .modal-title {
+        /* Inherit base modal title styles */
+        @extend .modal-title;
+      }
+
+      /* --- Fullscreen Button Animation --- */
+      #fullscreen-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+        transition: transform 0.3s ease;
+      }
+
+      #fullscreen-btn:hover {
+        transform: scale(1.1);
+      }
+
+      /* --- Miscellaneous --- */
+      #toast {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 2px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1001;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 30px;
+        font-size: 17px;
+        opacity: 0;
+        transition:
+          opacity 0.5s,
+          visibility 0.5s;
+      }
+
+      #toast.show {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .noscript-warning {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #ffc107;
+        color: #000;
+        text-align: center;
+        padding: 10px;
+        z-index: 2000;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+      @media print {
+        body {
+          font-family: serif;
+          line-height: 1.5;
+          color: #000;
+        }
+        .menu-bar,
+        .chaos-container,
+        .modal,
+        #btn-fullscreen,
+        #btn-history,
+        #btn-share,
+        #btn-info,
+        #btn-theme {
+          display: none;
+        }
+        #tsparticles {
+          display: none;
+        }
+        .container {
+          display: block;
+        }
+        h1,
+        h2 {
+          text-align: center;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- The main container for the tsParticles animation -->
     <div id="tsparticles" aria-hidden="true"></div>
     
@@ -448,9 +800,40 @@
     <div class="modal-overlay" id="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
         <div class="modal-content">
             <h2 id="welcome-modal-title">Welcome to tsDice!</h2>
-            <p>This is an interactive playground built on the powerful <a href="https://particles.js.org/" target="_blank">tsParticles</a> library. It's a fun way to discover unique particle animations with just a click.</p>
-            <p>You can find the official project on <a href="https://github.com/zophiezlan/tsdice" target="_blank">GitHub</a>. There is also a <a href="https://github.com/zophiezlan/tsdice/tree/desktop" target="_blank">desktop version</a> available with instructions for use with Lively Wallpaper.</p>
-            <p><strong>Pro-tip:</strong> Hover over any button in the menu to see what it does and discover its keyboard shortcut (e.g., <code>Alt+A</code> for Shuffle All).</p>
+            <div class="modal-body">
+            <p>
+              This is an interactive playground built on the powerful
+              <a
+                href="https://particles.js.org/"
+                target="_blank"
+                rel="noopener"
+                >tsParticles</a
+              >
+              library. It's a fun way to discover unique particle animations.
+            </p>
+            <p>
+              You can find the official project on
+              <a
+                href="https://github.com/zophiezlan/tsdice"
+                target="_blank"
+                rel="noopener"
+                >GitHub</a
+              >. There is also a
+              <a
+                href="https://github.com/zophiezlan/tsdice/tree/desktop-app"
+                target="_blank"
+                rel="noopener"
+                >desktop version</a
+              >
+              available.
+            </p>
+            <p>
+              Created by
+              <a href="https://zophie.zlan" target="_blank" rel="noopener"
+                >Zophie Zlan</a
+              >.
+            </p>
+          </div>
             <button class="modal-close-btn" id="close-welcome-modal">Start Creating!</button>
         </div>
     </div>
@@ -518,6 +901,144 @@
         </div>
     </div>
 
-    <script type="module" src="js/main.js"></script>
-</body>
+    <div class="container">
+      <h1 class="visually-hidden">tsDice - A tsParticles Playground</h1>
+      <main>
+        <div class="chaos-container">
+          <label for="chaos-slider" class="chaos-label">Chaos Level</label>
+          <input
+            type="range"
+            id="chaos-slider"
+            min="1"
+            max="100"
+            value="50"
+            class="chaos-slider"
+            aria-label="Chaos Level"
+          />
+        </div>
+      </main>
+
+      <nav class="menu-bar">
+        <div class="glass-button menu-button" id="btn-random" title="Shuffle All (Alt+R): Generates a completely new and random particle configuration.">
+          <svg id="icon-dice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M16 8h.01"></path><path d="M12 12h.01"></path><path d="M8 16h.01"></path><path d="M8 8h.01"></path><path d="M16 16h.01"></path></svg>
+          <span class="button-text">Shuffle</span>
+        </div>
+        <div class="sub-menu-container">
+          <div class="glass-button menu-button" id="btn-shuffle-menu" title="Shuffle Specific Category (Alt+S)">
+            <svg id="icon-shuffle" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+          </div>
+          <div class="sub-menu" id="sub-menu-shuffle">
+            <div class="sub-menu-button" id="btn-shuffle-appearance" title="Shuffle Appearance: Randomizes particle color, shape, and size.">Appearance</div>
+            <div class="sub-menu-button" id="btn-shuffle-movement" title="Shuffle Movement: Randomizes particle speed, direction, and gravity.">Movement</div>
+            <div class="sub-menu-button" id="btn-shuffle-interaction" title="Shuffle Interaction: Randomizes how particles react to mouse hover and clicks.">Interaction</div>
+            <div class="sub-menu-button" id="btn-shuffle-special" title="Shuffle Special FX: Randomizes advanced effects like trails, links, and attractors.">Special FX</div>
+          </div>
+        </div>
+        <div class="glass-button menu-button" id="btn-history" title="History (Alt+H): View and restore previous configurations.">
+          <svg id="icon-history" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+        </div>
+        <div class="glass-button menu-button" id="btn-share" title="Share (Alt+C): Copy a shareable link to the current configuration.">
+          <svg id="icon-share" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+        </div>
+        <div class="glass-button menu-button" id="btn-info" title="About (Alt+I): Show information about this project.">
+          <svg id="icon-info" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </div>
+        <div class="glass-button menu-button" id="btn-fullscreen" title="Toggle Fullscreen (Alt+F)">
+          <svg id="icon-fullscreen-enter" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+          <svg id="icon-fullscreen-exit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>
+        </div>
+      </nav>
+
+      <footer class="footer-controls">
+        <div class="playback-controls">
+          <div class="glass-button menu-button" id="btn-pause-play" title="Pause / Resume Animation (Spacebar)">
+            <svg id="icon-pause" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            <svg id="icon-play" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </div>
+        </div>
+        <div class="theme-controls">
+          <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme (Alt+T): Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background).">
+            <svg id="icon-sun" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg id="icon-moon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div id="modal-history" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>History</h2>
+          <span class="close-button" id="close-history">&times;</span>
+        </div>
+        <div class="modal-body">
+          <ul id="history-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-info" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>About tsDice</h2>
+          <span class="close-button" id="close-info">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>
+            This is an interactive playground built on the powerful
+            <a
+              href="https://particles.js.org/"
+              target="_blank"
+              rel="noopener"
+              >tsParticles</a
+            >
+            library. It's a fun way to discover unique particle animations.
+          </p>
+          <p>
+            You can find the official project on
+            <a
+              href="https://github.com/zophiezlan/tsdice"
+              target="_blank"
+              rel="noopener"
+              >GitHub</a
+            >. There is also a
+            <a
+              href="https://github.com/zophiezlan/tsdice/tree/desktop-app"
+              target="_blank"
+              rel="noopener"
+              >desktop version</a
+            >
+            available.
+          </p>
+          <p>
+            Created by
+            <a href="https://zophie.zlan" target="_blank" rel="noopener"
+              >Zophie Zlan</a
+            >.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast">Link copied to clipboard!</div>
+    <noscript>
+      <div class="noscript-warning">
+        <p>This application requires JavaScript to run.</p>
+        <p>Please enable JavaScript in your browser and refresh the page.</p>
+      </div>
+    </noscript>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/tsparticles@3.1.0/tsparticles.engine.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/tsparticles-slim@3.1.0/tsparticles.slim.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"
+    ></script>
+    <script src="dist/bundle.js"></script>
+  </body>
 </html>

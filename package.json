@@ -1,0 +1,12 @@
+{
+  "name": "tsdice",
+  "version": "1.0.0",
+  "description": "A tsParticles Playground",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.25",
+    "html-minifier-terser": "^7.2.0"
+  }
+}
