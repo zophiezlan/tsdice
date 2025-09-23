@@ -1,50 +1,56 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# tsDice Project Constitution
 
-## Core Principles
+This document defines principles that guide planning and implementation work for tsDice. All specifications, plans, tasks, and code changes should conform to these principles.
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## 1. Code Quality & Reliability
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+- Prefer small, composable functions with clear inputs/outputs.
+- No unhandled exceptions; guard against null/undefined and bad inputs.
+- Avoid tight coupling between UI, state, and generators. Keep configuration generation pure when possible.
+- Log user-facing errors clearly; use console warnings sparingly during development only.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+## 2. Performance
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+- Target 60 FPS on mid-range laptops for common presets.
+- Keep bundle size minimal; load libraries from `libs/` only as needed.
+- Debounce or throttle expensive UI interactions.
+- Avoid unnecessary re-initialization of the tsParticles engine.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## 3. Accessibility (a11y)
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Maintain keyboard navigability for all interactive controls.
+- Use ARIA attributes for custom components and ensure focus states are visible.
+- Provide sufficient color contrast across light/dark themes.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+## 4. UX Consistency
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+- Keep the “glassmorphism” look and feel consistent across buttons, modals, and sliders.
+- Prefer progressive disclosure: show advanced controls only when relevant.
+- Preserve user choices (theme, intensity, history) across sessions when reasonable.
+
+## 5. Testing & Validation
+
+
+- Manual testing is acceptable; document test steps for new features.
+- Validate that new presets do not throw runtime errors and that sliders/controls behave within their ranges.
+- Record a GIF or short note for complex UX flows when helpful.
+
+## 6. Documentation
+
+
+- Update `README.md` for user-visible features and noteworthy changes.
+- Add short inline comments for non-obvious logic (especially randomization and chaos scaling).
+
+## 7. Governance & Decision Records
+
+
+- When making non-trivial changes, add a short “Decision Note” to the spec/plan describing trade-offs and rationale.
+- Prefer reversible decisions; document rollback steps when introducing large UX changes.
+
+---
+
+Last updated: ${DATE}
