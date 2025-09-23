@@ -27,14 +27,17 @@ The project is implemented as a self-contained HTML file (`index.html`) with emb
 ## Architecture and Patterns
 
 ### 1. **Granular Randomization**
+
 - The application categorizes `tsParticles` settings into groups (e.g., Appearance, Movement, Interaction, Special FX).
 - Each category has a dedicated generator function (e.g., `generateAppearance()`) that modifies specific parts of the configuration object.
 
 ### 2. **Chaos Level Abstraction**
+
 - The "Chaos Level" slider is a custom abstraction that scales multiple random parameters simultaneously (e.g., particle count, speed).
 - This abstraction is not part of `tsParticles` but is implemented in the application logic.
 
 ### 3. **Configuration Persistence**
+
 - Configurations are serialized into strings for history and sharing.
 - The `lz-string` library is used for compressing configurations into URL-safe formats.
 
@@ -43,21 +46,28 @@ The project is implemented as a self-contained HTML file (`index.html`) with emb
 ## Developer Workflows
 
 ### Local Development
+
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/zophiezlan/tsdice.git
    ```
+
 2. Navigate to the project directory:
+
    ```bash
    cd tsdice
    ```
+
 3. Open `index.html` in a browser. No server setup is required.
 
 ### Debugging
+
 - Use browser developer tools to inspect and debug the application.
 - The `tsParticles` library provides extensive logging for particle configurations.
 
 ### Testing
+
 - There is no automated test suite. Testing is manual and involves verifying the UI and particle animations in the browser.
 
 ---
@@ -90,13 +100,17 @@ The project is implemented as a self-contained HTML file (`index.html`) with emb
 ## Examples
 
 ### Adding a New Shuffle Category
+
 To add a new shuffle category (e.g., "Physics"):
+
 1. Define a new generator function (e.g., `generatePhysics()`).
 2. Update the `sub-menu` in `index.html` to include a button for the new category.
 3. Bind the button to the generator function in the JavaScript logic.
 
 ### Modifying the Chaos Slider
+
 To change the behavior of the "Chaos Level" slider:
+
 1. Locate the slider logic in the JavaScript section of `index.html`.
 2. Adjust the scaling factors applied to random parameters.
 
