@@ -1,6 +1,8 @@
 import { AppState } from './state.js';
 import { CommandManager } from './commandManager.js';
 import { BUTTON_IDS } from './constants.js';
+import { getCurrentConfig, getCurrentConfigString, loadConfig } from './state.js';
+import { isValidParticlesConfig } from './utils.js';
 
 const infoModal = document.getElementById('info-modal');
 const toastNotification = document.getElementById('toast-notification');
@@ -153,20 +155,57 @@ export function copyConfig() {
     });
 }
 
-export function saveScene() {
-    // Placeholder function for saving the scene.
-    // In the final desktop app, this will trigger a file save dialog via the preload script.
-    console.log("Save scene button clicked.");
-    showToast("Save functionality is not yet implemented.");
-    // For now, we can copy the config to clipboard as a fallback.
-    copyConfig();
+export async function saveScene() {
+    try {
+        const configString = getCurrentConfigString();
+        // Access the exposed API from the preload script
+        if (window.electronAPI) {
+            const result = await window.electronAPI.invoke('save-file', configString);
+            if (result.success) {
+                showToast(`Scene saved to ${result.path}`);
+            } else {
+                // Handle cancellation or minor errors without showing a scary error message
+                console.log(result.message);
+            }
+            return result; // Return the result for the command manager
+        } else {
+            // Fallback for browser environment
+            console.log("Save functionality is only available in the desktop app.");
+            copyConfig(); // Provide a useful fallback
+            return { success: false, message: 'Not in desktop app.' };
+        }
+    } catch (error) {
+        console.error('Error saving scene:', error);
+        showToast('Failed to save scene.', 'error');
+        return { success: false, message: error.message };
+    }
 }
 
-export function loadScene() {
-    // Placeholder function for loading the scene.
-    // In the final desktop app, this will trigger a file open dialog via the preload script.
-    console.log("Load scene button clicked.");
-    showToast("Load functionality is not yet implemented.");
+export async function loadScene() {
+    try {
+        // Access the exposed API from the preload script
+        if (window.electronAPI) {
+            const result = await window.electronAPI.invoke('load-file');
+            if (result.success) {
+                const config = JSON.parse(result.content);
+
+                if (!isValidParticlesConfig(config)) {
+                    throw new Error('File is not a valid tsParticles configuration.');
+                }
+
+                loadConfig(config); // Load the new config into the app state and particles instance
+                showToast(`Scene loaded from ${result.path}`);
+            } else {
+                console.log(result.message);
+            }
+        } else {
+            // Fallback for browser environment
+            showToast("Load functionality is only available in the desktop app.", "info");
+        }
+    } catch (error) {
+        console.error('Error loading scene:', error);
+        showToast('Failed to load scene. Check file format.', 'error');
+    }
 }
 
 export function toggleHistory() {

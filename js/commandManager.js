@@ -74,11 +74,26 @@ export const CommandManager = {
             chaosSlider.addEventListener('input', commandMap['chaos-slider']);
         }
 
-        // Keyboard shortcuts
+        // Listen for menu actions from the main process
+        if (window.electronAPI) {
+            window.electronAPI.on('menu-action', async (action) => {
+                if (action === 'save-file') {
+                    saveScene();
+                } else if (action === 'load-file') {
+                    loadScene();
+                } else if (action === 'save-file-and-quit') {
+                    const result = await saveScene();
+                    if (result && result.success) {
+                        // This will be received by the main process to quit the app
+                        window.electronAPI.send('quit-app');
+                    }
+                }
+            });
+        }
+
+        // Remove the old Alt+key shortcuts
         document.addEventListener('keydown', (event) => {
             const keyMap = {
-                's': 'btn-save',
-                'l': 'btn-load',
                 'h': 'btn-history',
                 'c': 'btn-copy',
                 't': 'btn-toggle-theme',
