@@ -1,0 +1,432 @@
+
+      /* --- CSS Theming with Custom Properties (Variables) --- */
+      :root {
+        /* Backgrounds */
+        --bg-primary: #111;
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-bg-hover: rgba(255, 255, 255, 0.2);
+        --modal-bg: rgba(40, 40, 40, 0.8);
+        --toast-bg: rgba(30, 30, 30, 0.85);
+        --tooltip-bg: rgba(230, 230, 230, 0.25);
+        --slider-track-bg: rgba(255, 255, 255, 0.3);
+
+        /* Text */
+        --text-primary: white;
+        --text-secondary: #eee;
+        --text-strong: #fff;
+        --tooltip-text: #f0f0f0;
+        --tooltip-strong-text: #ffffff;
+        
+        /* Borders & Dividers */
+        --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+        --divider-color: rgba(255, 255, 255, 0.4);
+        --modal-border: 1px solid rgba(255, 255, 255, 0.2);
+        --modal-header-border: 1px solid rgba(255, 255, 255, 0.3);
+        --toast-border: 1px solid rgba(255, 255, 255, 0.2);
+        --tooltip-border: 1px solid rgba(255, 255, 255, 0.3);
+        
+        /* Interactive & Accent Colors */
+        --link-color: #87CEEB;
+        --link-color-hover: #9370DB;
+        --button-active-bg: rgba(142, 45, 226, 0.8);
+        --button-active-bg-hover: rgba(142, 45, 226, 1);
+        --slider-thumb-border: #8e2de2;
+        --focus-outline-color: #87CEEB;
+      }
+
+      body.light-mode {
+        /* Backgrounds */
+        --bg-primary: #f0f0f0;
+        --glass-bg: rgba(0, 0, 0, 0.1);
+        --glass-bg-hover: rgba(0, 0, 0, 0.2);
+        --modal-bg: rgba(255, 255, 255, 0.8);
+        --toast-bg: rgba(245, 245, 245, 0.85);
+        --tooltip-bg: rgba(30, 30, 30, 0.25);
+        --slider-track-bg: rgba(0, 0, 0, 0.2);
+
+        /* Text */
+        --text-primary: #333;
+        --text-secondary: #333;
+        --text-strong: #000;
+        --tooltip-text: #222;
+        --tooltip-strong-text: #000000;
+        
+        /* Borders & Dividers */
+        --glass-border: 1px solid rgba(0, 0, 0, 0.2);
+        --divider-color: rgba(0, 0, 0, 0.4);
+        --modal-border: 1px solid rgba(0, 0, 0, 0.2);
+        --modal-header-border: 1px solid rgba(0, 0, 0, 0.2);
+        --toast-border: 1px solid rgba(0,0,0,0.1);
+        --tooltip-border: 1px solid rgba(0, 0, 0, 0.2);
+        
+        /* Interactive & Accent Colors */
+        --link-color: #4361ee;
+        --link-color-hover: #7209b7;
+        --button-active-bg: rgba(67, 97, 238, 0.8);
+        --button-active-bg-hover: rgba(67, 97, 238, 1);
+        --slider-thumb-border: #4361ee;
+        --focus-outline-color: #4361ee;
+      }
+      
+      /* --- Base Styles --- */
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: var(--bg-primary);
+        overflow: hidden;
+        transition: background-color 0.5s ease;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      #tsparticles {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+
+      /* --- Glassmorphism Button Base Style --- */
+      .glass-button {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--glass-bg);
+        border: var(--glass-border);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-primary);
+        -webkit-user-select: none;
+        user-select: none;
+        flex-shrink: 0;
+      }
+      .glass-button:hover {
+        background: var(--glass-bg-hover);
+        transform: scale(1.1);
+      }
+      .glass-button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: scale(1) !important;
+        background: var(--glass-bg) !important;
+        pointer-events: none;
+      }
+
+      /* --- ACCESSIBILITY: Visible Focus Indicator --- */
+      .glass-button:focus-visible, .modal-close-btn:focus-visible {
+        outline: 3px solid var(--focus-outline-color);
+        outline-offset: 3px;
+        box-shadow: 0 0 10px var(--focus-outline-color);
+      }
+
+      #chaos-slider:focus-visible::-webkit-slider-thumb {
+        outline: 3px solid var(--focus-outline-color);
+        outline-offset: 3px;
+      }
+      
+      /* --- ACCESSIBILITY: Visually Hidden Class for Screen Readers --- */
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+
+      /* Utility class to hide elements that are toggled by JS */
+      .hidden-by-default {
+        display: none;
+      }
+
+      /* --- Corner Buttons --- */
+      #fullscreen-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+      }
+
+      /* --- Menu Styles --- */
+      .menu-container {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 100;
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        max-width: calc(100vw - 20px);
+      }
+      
+      #main-menu-btn svg {
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      .menu-container.active #main-menu-btn svg {
+        transform: rotate(90deg);
+      }
+
+      .menu-button.active {
+        background: var(--button-active-bg);
+        color: #fff;
+      }
+
+      .sub-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transform-origin: left center;
+        transform: scaleX(0);
+        opacity: 0;
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
+        width: 308px;
+        will-change: transform, opacity;
+        padding: 12px;
+        border-radius: 24px;
+        background: var(--glass-bg);
+        border: var(--glass-border);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        box-sizing: border-box;
+      }
+      /* --- ACCESSIBILITY: Style for fieldset to remove default styling --- */
+      .sub-menu fieldset {
+          border: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+      }
+
+      .menu-container.active .sub-menu {
+        transform: scaleX(1);
+        opacity: 1;
+      }
+      
+      /* --- Intensity Slider --- */
+      .slider-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 48px;
+        border-radius: 24px;
+        color: var(--text-primary);
+        padding: 0 15px;
+        box-sizing: border-box;
+      }
+      #chaos-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 4px;
+        background: var(--slider-track-bg);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      #chaos-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        border: 2px solid var(--slider-thumb-border);
+        transition: transform 0.2s ease;
+      }
+      #chaos-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        border: 2px solid var(--slider-thumb-border);
+        transition: transform 0.2s ease;
+      }
+      #chaos-slider:hover::-webkit-slider-thumb, #chaos-slider:hover::-moz-range-thumb {
+        transform: scale(1.2);
+      }
+      #chaos-display {
+        font-size: 18px;
+        font-weight: bold;
+        min-width: 24px;
+        text-align: center;
+        margin-left: 10px;
+      }
+
+      /* --- Sub-menu Divider --- */
+      .submenu-divider {
+        flex-basis: 100%;
+        height: 2px;
+        background: var(--divider-color);
+        margin: 8px 0;
+        border: none;
+        border-radius: 1px;
+        opacity: 0.8;
+      }
+
+      /* --- Modal Styles --- */
+      .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); 
+        display: flex; justify-content: center; align-items: center;
+        z-index: 200; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
+      }
+      .modal-overlay.visible { opacity: 1; visibility: visible; }
+      .modal-content {
+        background: var(--modal-bg); 
+        color: var(--text-secondary);
+        padding: 30px; border-radius: 20px; 
+        border: var(--modal-border);
+        width: 90%; max-width: 550px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        max-height: 85vh; overflow-y: auto;
+        text-align: center;
+        will-change: transform;
+      }
+      .modal-overlay.visible .modal-content { transform: scale(1); }
+      .modal-content h2 { 
+        margin-top: 0; 
+        border-bottom: var(--modal-header-border); 
+        padding-bottom: 10px; 
+      }
+      .modal-content p { line-height: 1.6; }
+      .modal-content strong { color: var(--text-strong); }
+      .modal-content a { color: var(--link-color); text-decoration: none; transition: color 0.3s; }
+      .modal-content a:hover { color: var(--link-color-hover); }
+
+      .modal-close-btn {
+        display: block; margin: 20px auto 0; padding: 12px 25px; border: none;
+        border-radius: 25px; 
+        background: var(--button-active-bg); 
+        color: white;
+        font-size: 16px; cursor: pointer; transition: all 0.3s ease;
+        text-decoration: none;
+        width: fit-content;
+      }
+      .modal-close-btn:hover { background: var(--button-active-bg-hover); }
+      
+      .info-list { list-style: none; padding: 0; }
+      .info-list li { display: flex; align-items: center; margin-bottom: 15px; }
+      .info-list .icon-wrapper { width: 30px; height: 30px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; }
+      .info-list .icon-wrapper svg { width: 20px; height: 20px; }
+      .info-text { text-align: left; }
+      .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
+      .info-text span { font-size: 0.9em; opacity: 0.8; }
+      .info-text code, #custom-tooltip code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        font-size: 0.9em;
+        padding: 2px 5px;
+        border-radius: 4px;
+        background-color: rgba(0,0,0,0.2);
+        margin-left: 5px;
+      }
+      body.light-mode .info-text code, body.light-mode #custom-tooltip code {
+        background-color: rgba(0,0,0,0.1);
+      }
+
+
+      /* --- Toast Notification --- */
+      #toast-notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--toast-bg);
+        color: var(--text-primary);
+        padding: 12px 25px;
+        border-radius: 25px;
+        z-index: 300;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.4s ease, visibility 0.4s ease, bottom 0.4s ease;
+        font-size: 14px;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        border: var(--toast-border);
+      }
+      #toast-notification.show {
+        bottom: 100px;
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      /* --- Custom Tooltip --- */
+      #custom-tooltip {
+        position: fixed;
+        z-index: 999;
+        padding: 10px 15px;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        max-width: 280px;
+        text-align: left;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0.9);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        
+        background: var(--tooltip-bg);
+        border: var(--tooltip-border);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+        color: var(--tooltip-text);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      }
+      #custom-tooltip.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
+      }
+      #custom-tooltip strong {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--tooltip-strong-text);
+      }
+      #custom-tooltip span {
+        opacity: 0.9;
+      }
+
+      /* --- RESPONSIVENESS & REDUCED MOTION --- */
+      @media (max-width: 660px) {
+        .sub-menu {
+            /* Make width fluid to allow wrapping on smaller screens */
+            width: calc(100vw - 90px);
+            max-width: 380px;
+        }
+        .submenu-divider {
+            width: 95%;
+            margin: 4px auto;
+        }
+        .slider-container {
+            max-width: 280px;
+            width: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        /* Disable expensive blur effects and animations for users who prefer reduced motion */
+        .glass-button, .modal-content, #toast-notification, #custom-tooltip, .slider-container {
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+        }
+        * {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    

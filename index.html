@@ -1,438 +1,13 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-    <meta charset="UTF-8" />
-    <title>⭐🐎⭐🐎⭐🐎</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Library for link compression to create shareable URLs -->
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
-    <style>
-      /* --- CSS Theming with Custom Properties (Variables) --- */
-      :root {
-        /* Backgrounds */
-        --bg-primary: #111;
-        --glass-bg: rgba(255, 255, 255, 0.1);
-        --glass-bg-hover: rgba(255, 255, 255, 0.2);
-        --modal-bg: rgba(40, 40, 40, 0.8);
-        --toast-bg: rgba(30, 30, 30, 0.85);
-        --tooltip-bg: rgba(230, 230, 230, 0.25);
-        --slider-track-bg: rgba(255, 255, 255, 0.3);
-
-        /* Text */
-        --text-primary: white;
-        --text-secondary: #eee;
-        --text-strong: #fff;
-        --tooltip-text: #f0f0f0;
-        --tooltip-strong-text: #ffffff;
-        
-        /* Borders & Dividers */
-        --glass-border: 1px solid rgba(255, 255, 255, 0.2);
-        --divider-color: rgba(255, 255, 255, 0.4);
-        --modal-border: 1px solid rgba(255, 255, 255, 0.2);
-        --modal-header-border: 1px solid rgba(255, 255, 255, 0.3);
-        --toast-border: 1px solid rgba(255, 255, 255, 0.2);
-        --tooltip-border: 1px solid rgba(255, 255, 255, 0.3);
-        
-        /* Interactive & Accent Colors */
-        --link-color: #87CEEB;
-        --link-color-hover: #9370DB;
-        --button-active-bg: rgba(142, 45, 226, 0.8);
-        --button-active-bg-hover: rgba(142, 45, 226, 1);
-        --slider-thumb-border: #8e2de2;
-        --focus-outline-color: #87CEEB;
-      }
-
-      body.light-mode {
-        /* Backgrounds */
-        --bg-primary: #f0f0f0;
-        --glass-bg: rgba(0, 0, 0, 0.1);
-        --glass-bg-hover: rgba(0, 0, 0, 0.2);
-        --modal-bg: rgba(255, 255, 255, 0.8);
-        --toast-bg: rgba(245, 245, 245, 0.85);
-        --tooltip-bg: rgba(30, 30, 30, 0.25);
-        --slider-track-bg: rgba(0, 0, 0, 0.2);
-
-        /* Text */
-        --text-primary: #333;
-        --text-secondary: #333;
-        --text-strong: #000;
-        --tooltip-text: #222;
-        --tooltip-strong-text: #000000;
-        
-        /* Borders & Dividers */
-        --glass-border: 1px solid rgba(0, 0, 0, 0.2);
-        --divider-color: rgba(0, 0, 0, 0.4);
-        --modal-border: 1px solid rgba(0, 0, 0, 0.2);
-        --modal-header-border: 1px solid rgba(0, 0, 0, 0.2);
-        --toast-border: 1px solid rgba(0,0,0,0.1);
-        --tooltip-border: 1px solid rgba(0, 0, 0, 0.2);
-        
-        /* Interactive & Accent Colors */
-        --link-color: #4361ee;
-        --link-color-hover: #7209b7;
-        --button-active-bg: rgba(67, 97, 238, 0.8);
-        --button-active-bg-hover: rgba(67, 97, 238, 1);
-        --slider-thumb-border: #4361ee;
-        --focus-outline-color: #4361ee;
-      }
-      
-      /* --- Base Styles --- */
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        background: var(--bg-primary);
-        overflow: hidden;
-        transition: background-color 0.5s ease;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      }
-
-      #tsparticles {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
-      }
-
-      /* --- Glassmorphism Button Base Style --- */
-      .glass-button {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: var(--glass-bg);
-        border: var(--glass-border);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: var(--text-primary);
-        user-select: none;
-        flex-shrink: 0;
-      }
-      .glass-button:hover {
-        background: var(--glass-bg-hover);
-        transform: scale(1.1);
-      }
-      .glass-button.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: scale(1) !important;
-        background: var(--glass-bg) !important;
-        pointer-events: none;
-      }
-
-      /* --- ACCESSIBILITY: Visible Focus Indicator --- */
-      .glass-button:focus-visible, .modal-close-btn:focus-visible {
-        outline: 3px solid var(--focus-outline-color);
-        outline-offset: 3px;
-        box-shadow: 0 0 10px var(--focus-outline-color);
-      }
-
-      #chaos-slider:focus-visible::-webkit-slider-thumb {
-        outline: 3px solid var(--focus-outline-color);
-        outline-offset: 3px;
-      }
-      
-      /* --- ACCESSIBILITY: Visually Hidden Class for Screen Readers --- */
-      .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        margin: -1px;
-        padding: 0;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        border: 0;
-      }
-
-
-      /* --- Corner Buttons --- */
-      #fullscreen-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 100;
-      }
-
-      /* --- Menu Styles --- */
-      .menu-container {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        z-index: 100;
-        display: flex;
-        align-items: flex-end;
-        gap: 8px;
-        max-width: calc(100vw - 20px);
-      }
-      
-      #main-menu-btn svg {
-        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      }
-      .menu-container.active #main-menu-btn svg {
-        transform: rotate(90deg);
-      }
-
-      .menu-button.active {
-        background: var(--button-active-bg);
-        color: #fff;
-      }
-
-      .sub-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        transform-origin: left center;
-        transform: scaleX(0);
-        opacity: 0;
-        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
-        width: 308px;
-        will-change: transform, opacity;
-        padding: 12px;
-        border-radius: 24px;
-        background: var(--glass-bg);
-        border: var(--glass-border);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        box-sizing: border-box;
-      }
-      /* --- ACCESSIBILITY: Style for fieldset to remove default styling --- */
-      .sub-menu fieldset {
-          border: none;
-          padding: 0;
-          margin: 0;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-      }
-
-      .menu-container.active .sub-menu {
-        transform: scaleX(1);
-        opacity: 1;
-      }
-      
-      /* --- Intensity Slider --- */
-      .slider-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        height: 48px;
-        border-radius: 24px;
-        color: var(--text-primary);
-        padding: 0 15px;
-        box-sizing: border-box;
-      }
-      #chaos-slider {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 100%;
-        height: 4px;
-        background: var(--slider-track-bg);
-        border-radius: 2px;
-        outline: none;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-      #chaos-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        background: #fff;
-        border-radius: 50%;
-        border: 2px solid var(--slider-thumb-border);
-        transition: transform 0.2s ease;
-      }
-      #chaos-slider::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        background: #fff;
-        border-radius: 50%;
-        border: 2px solid var(--slider-thumb-border);
-        transition: transform 0.2s ease;
-      }
-      #chaos-slider:hover::-webkit-slider-thumb, #chaos-slider:hover::-moz-range-thumb {
-        transform: scale(1.2);
-      }
-      #chaos-display {
-        font-size: 18px;
-        font-weight: bold;
-        min-width: 24px;
-        text-align: center;
-        margin-left: 10px;
-      }
-
-      /* --- Sub-menu Divider --- */
-      .submenu-divider {
-        flex-basis: 100%;
-        height: 2px;
-        background: var(--divider-color);
-        margin: 8px 0;
-        border: none;
-        border-radius: 1px;
-        opacity: 0.8;
-      }
-
-      /* --- Modal Styles --- */
-      .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-        display: flex; justify-content: center; align-items: center;
-        z-index: 200; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
-      }
-      .modal-overlay.visible { opacity: 1; visibility: visible; }
-      .modal-content {
-        background: var(--modal-bg); 
-        color: var(--text-secondary);
-        padding: 30px; border-radius: 20px; 
-        border: var(--modal-border);
-        width: 90%; max-width: 550px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        transform: scale(0.9); transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        max-height: 85vh; overflow-y: auto;
-        text-align: center;
-        will-change: transform;
-      }
-      .modal-overlay.visible .modal-content { transform: scale(1); }
-      .modal-content h2 { 
-        margin-top: 0; 
-        border-bottom: var(--modal-header-border); 
-        padding-bottom: 10px; 
-      }
-      .modal-content p { line-height: 1.6; }
-      .modal-content strong { color: var(--text-strong); }
-      .modal-content a { color: var(--link-color); text-decoration: none; transition: color 0.3s; }
-      .modal-content a:hover { color: var(--link-color-hover); }
-
-      .modal-close-btn {
-        display: block; margin: 20px auto 0; padding: 12px 25px; border: none;
-        border-radius: 25px; 
-        background: var(--button-active-bg); 
-        color: white;
-        font-size: 16px; cursor: pointer; transition: all 0.3s ease;
-        text-decoration: none;
-        width: fit-content;
-      }
-      .modal-close-btn:hover { background: var(--button-active-bg-hover); }
-      
-      .info-list { list-style: none; padding: 0; }
-      .info-list li { display: flex; align-items: center; margin-bottom: 15px; }
-      .info-list .icon-wrapper { width: 30px; height: 30px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; margin-right: 15px; }
-      .info-list .icon-wrapper svg { width: 20px; height: 20px; }
-      .info-text { text-align: left; }
-      .info-text strong { display: block; font-size: 1.1em; margin-bottom: 2px; }
-      .info-text span { font-size: 0.9em; opacity: 0.8; }
-      .info-text code, #custom-tooltip code {
-        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-        font-size: 0.9em;
-        padding: 2px 5px;
-        border-radius: 4px;
-        background-color: rgba(0,0,0,0.2);
-        margin-left: 5px;
-      }
-      body.light-mode .info-text code, body.light-mode #custom-tooltip code {
-        background-color: rgba(0,0,0,0.1);
-      }
-
-
-      /* --- Toast Notification --- */
-      #toast-notification {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--toast-bg);
-        color: var(--text-primary);
-        padding: 12px 25px;
-        border-radius: 25px;
-        z-index: 300;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.4s ease, visibility 0.4s ease, bottom 0.4s ease;
-        font-size: 14px;
-        backdrop-filter: blur(5px);
-        border: var(--toast-border);
-      }
-      #toast-notification.show {
-        bottom: 100px;
-        opacity: 1;
-        visibility: visible;
-      }
-      
-      /* --- Custom Tooltip --- */
-      #custom-tooltip {
-        position: fixed;
-        z-index: 999;
-        padding: 10px 15px;
-        border-radius: 12px;
-        font-size: 14px;
-        line-height: 1.5;
-        max-width: 280px;
-        text-align: left;
-        pointer-events: none;
-        opacity: 0;
-        visibility: hidden;
-        transform: scale(0.9);
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-        
-        background: var(--tooltip-bg);
-        border: var(--tooltip-border);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        color: var(--tooltip-text);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      }
-      #custom-tooltip.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: scale(1);
-      }
-      #custom-tooltip strong {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: var(--tooltip-strong-text);
-      }
-      #custom-tooltip span {
-        opacity: 0.9;
-      }
-
-      /* --- RESPONSIVENESS & REDUCED MOTION --- */
-      @media (max-width: 660px) {
-        .sub-menu {
-            /* Make width fluid to allow wrapping on smaller screens */
-            width: calc(100vw - 90px);
-            max-width: 380px;
-        }
-        .submenu-divider {
-            width: 95%;
-            margin: 4px auto;
-        }
-        .slider-container {
-            max-width: 280px;
-            width: 100%;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        /* Disable expensive blur effects and animations for users who prefer reduced motion */
-        .glass-button, .modal-content, #toast-notification, #custom-tooltip, .slider-container {
-          backdrop-filter: none;
-          -webkit-backdrop-filter: none;
-        }
-        * {
-          transition-duration: 0.01ms !important;
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-        }
-      }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tsDice - Desktop</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
 </head>
+
 <body>
     <!-- The main container for the tsParticles animation -->
     <div id="tsparticles" aria-hidden="true"></div>
@@ -444,14 +19,16 @@
     <div class="visually-hidden" aria-live="polite" id="announcer"></div>
 
 
-    <!-- Welcome modal displayed on first visit -->
-    <div class="modal-overlay" id="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="modal" role="dialog" aria-labelledby="welcome-heading" aria-hidden="false">
         <div class="modal-content">
-            <h2 id="welcome-modal-title">Welcome to tsDice!</h2>
-            <p>This is an interactive playground built on the powerful <a href="https://particles.js.org/" target="_blank">tsParticles</a> library. It's a fun way to discover unique particle animations with just a click.</p>
-            <p>You can find the official project on <a href="https://github.com/zophiezlan/tsdice" target="_blank">GitHub</a>. There is also a <a href="https://github.com/zophiezlan/tsdice/tree/desktop" target="_blank">desktop version</a> available with instructions for use with Lively Wallpaper.</p>
-            <p><strong>Pro-tip:</strong> Hover over any button in the menu to see what it does and discover its keyboard shortcut (e.g., <code>Alt+A</code> for Shuffle All).</p>
-            <button class="modal-close-btn" id="close-welcome-modal">Start Creating!</button>
+            <button id="btn-close-welcome" class="btn-close-modal" aria-label="Close Welcome Dialog">&times;</button>
+            <h2 id="welcome-heading">Welcome to tsDice!</h2>
+            <p>Click the dice buttons to generate random tsParticles configurations.</p>
+            <p>Use the <strong>Chaos Level</strong> slider to increase or decrease the intensity of the generated effects.</p>
+            <p>You can save your favorite scenes to a file and load them back later.</p>
+            <p>Have fun exploring the possibilities!</p>
+            <button id="btn-start" class="btn">Let's Go! <span class="icon">🚀</span></button>
         </div>
     </div>
 
@@ -467,7 +44,7 @@
     <!-- Fullscreen toggle button -->
     <div class="glass-button" id="fullscreen-btn" title="Toggle Fullscreen: Expands the view to fill your entire screen for an immersive experience, or returns to the normal windowed view." tabindex="0" role="button" aria-pressed="false">
       <svg id="icon-fullscreen-enter" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      <svg id="icon-fullscreen-exit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+      <svg id="icon-fullscreen-exit" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden-by-default"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
     </div>
 
     <!-- Main menu container -->
@@ -495,29 +72,50 @@
                 </div>
             </fieldset>
 
+            <hr class="submenu-divider">
+
             <fieldset>
-                <legend class="visually-hidden">History and Playback Controls</legend>
-                <div class="glass-button menu-button" id="btn-back" title="Go Back (Alt+Z): Reverts to the previous particle configuration. You can go back up to 20 steps." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v4"/></svg></div>
-                <div class="glass-button menu-button" id="btn-forward" title="Go Forward (Alt+Y): Moves to the next particle configuration in your history, after you have used 'Go Back'." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0-6 6v4"/></svg></div>
-                <div class="glass-button menu-button" id="btn-refresh" title="Refresh Scene (Alt+R): Resets the current particle animation to its starting state without changing any of the settings. Useful for animations where particles disappear over time." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
-                <div class="glass-button menu-button" id="btn-pause" title="Pause/Play (Spacebar): Freezes or resumes the particle animation on screen." tabindex="0" role="button" aria-pressed="false">
-                    <svg id="icon-pause" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-                    <svg id="icon-play" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <legend class="visually-hidden">Utility Controls</legend>
+                <div class="glass-button menu-button" id="btn-history-back" title="History Back (Alt+Left Arrow): Reverts to the previous particle configuration in your session history." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+                <div class="glass-button menu-button" id="btn-history-forward" title="History Forward (Alt+Right Arrow): Moves to the next particle configuration in your session history, if you've gone back." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+                <div class="tooltip-container">
+                    <button id="btn-save" class="btn btn-icon" title="Save Scene (Alt+S): Saves the current particle configuration to a file.">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                        </svg>
+                    </button>
+                    <span class="tooltip-text">Save Scene (Alt+S)</span>
                 </div>
-                <div class="glass-button menu-button" id="btn-theme" title="Toggle Theme (Alt+T): Switches between a dark theme (light particles on a black background) and a light theme (dark particles on a white background)." tabindex="0" role="button" aria-pressed="false"><svg id="theme-icon-sun" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg id="theme-icon-moon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div>
-            </fieldset>
-            
-            <fieldset>
-                <legend class="visually-hidden">Effect Toggles and Utility Controls</legend>
-                <div class="glass-button menu-button" id="btn-gravity" title="Toggle Gravity (Alt+G): Pulls all particles towards the bottom of the screen. Fun to toggle on and off to see them fall and float." tabindex="0" role="button" aria-pressed="false"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg></div>
-                <div class="glass-button menu-button" id="btn-walls" title="Toggle Walls (Alt+W): Forces particles to bounce off the screen edges instead of disappearing. This overrides any randomized 'out mode' setting." tabindex="0" role="button" aria-pressed="false"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1" ry="1"></rect><polyline points="8 12 12 8 16 12"></polyline><path d="M12 16V8"></path></svg></div>
-                <div class="glass-button menu-button" id="btn-cursor" title="Toggle Cursor Particle (Alt+C): Turns your mouse cursor into a particle emitter. When active, moving your mouse will leave a trail of new particles. This temporarily disables other hover and click interactions." tabindex="0" role="button" aria-pressed="false"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg></div>
-                <div class="glass-button menu-button" id="btn-share" title="Share Scene (Alt+S): Copies a unique, compressed link to your clipboard that recreates the current particle scene, including all settings." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></div>
-                <div class="glass-button menu-button" id="btn-info" title="Info (Alt+?): Shows a detailed guide explaining what each control button in the menu does." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+                <div class="tooltip-container">
+                    <button id="btn-load" class="btn btn-icon" title="Load Scene (Alt+L): Loads a particle configuration from a file.">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/>
+                        </svg>
+                    </button>
+                    <span class="tooltip-text">Load Scene (Alt+L)</span>
+                </div>
+                <div class="tooltip-container">
+                    <button id="btn-history" class="btn btn-icon" title="History (Alt+H): View and restore previous configurations.">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8H12z"/>
+                        </svg>
+                    </button>
+                    <span class="tooltip-text">History (Alt+H)</span>
+                </div>
+                <div class="tooltip-container">
+                    <button id="btn-copy" class="btn btn-icon" title="Copy Config (Alt+C): Copies the tsParticles configuration JSON to the clipboard.">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                    </button>
+                    <span class="tooltip-text">Copy Config (Alt+C)</span>
+                </div>
+                <div class="glass-button menu-button" id="btn-toggle-theme" title="Toggle Theme (Alt+T): Switches between light and dark mode for the user interface." tabindex="0" role="button"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></div>
             </fieldset>
         </div>
     </div>
 
+    <script src="libs/tsparticles.all.min.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

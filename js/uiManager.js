@@ -142,3 +142,40 @@ export const UIManager = {
         btnForward.classList.toggle('disabled', CommandManager.redoStack.length === 0);
     }
 };
+
+export function copyConfig() {
+    const configString = getCurrentConfigString();
+    navigator.clipboard.writeText(configString).then(() => {
+        showToast('Configuration copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy config: ', err);
+        showToast('Failed to copy configuration.', 'error');
+    });
+}
+
+export function saveScene() {
+    // Placeholder function for saving the scene.
+    // In the final desktop app, this will trigger a file save dialog via the preload script.
+    console.log("Save scene button clicked.");
+    showToast("Save functionality is not yet implemented.");
+    // For now, we can copy the config to clipboard as a fallback.
+    copyConfig();
+}
+
+export function loadScene() {
+    // Placeholder function for loading the scene.
+    // In the final desktop app, this will trigger a file open dialog via the preload script.
+    console.log("Load scene button clicked.");
+    showToast("Load functionality is not yet implemented.");
+}
+
+export function toggleHistory() {
+    const historyPanel = document.getElementById('history-panel');
+    const isVisible = historyPanel.classList.toggle('visible');
+    document.getElementById(BUTTON_IDS.HISTORY).setAttribute('aria-pressed', isVisible);
+    if (isVisible) {
+        historyPanel.querySelector('button').focus();
+    } else {
+        document.getElementById(BUTTON_IDS.RESET).focus();
+    }
+}

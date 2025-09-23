@@ -35,5 +35,59 @@ export const CommandManager = {
         this.undoStack.push(command);
         UIManager.syncUI();
         UIManager.announce("Action redone.");
+    },
+
+    initializeCommandManager(initialChaos) {
+        const commandMap = {
+            'btn-shuffle-appearance': () => shuffle('appearance'),
+            'btn-shuffle-movement': () => shuffle('movement'),
+            'btn-shuffle-interaction': () => shuffle('interaction'),
+            'btn-shuffle-special-fx': () => shuffle('special-fx'),
+            'btn-shuffle-all': shuffleAll,
+            'btn-save': saveScene,
+            'btn-load': loadScene,
+            'btn-history': toggleHistory,
+            'btn-copy': copyConfig,
+            'btn-toggle-theme': toggleTheme,
+            'btn-close-welcome': () => setWelcomeModalVisibility(false),
+            'btn-start': () => setWelcomeModalVisibility(false),
+            'btn-clear-history': clearHistory,
+            'chaos-slider': (event) => {
+                setChaosLevel(event.target.value);
+            }
+        };
+
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('[id^="btn-"]');
+            if (button && commandMap[button.id]) {
+                commandMap[button.id]();
+            } else if (event.target.closest('.history-item')) {
+                const historyIndex = event.target.closest('.history-item').dataset.index;
+                if (historyIndex) {
+                    restoreFromHistory(parseInt(historyIndex, 10));
+                }
+            }
+        });
+
+        const chaosSlider = document.getElementById('chaos-slider');
+        if (chaosSlider) {
+            chaosSlider.addEventListener('input', commandMap['chaos-slider']);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (event) => {
+            const keyMap = {
+                's': 'btn-save',
+                'l': 'btn-load',
+                'h': 'btn-history',
+                'c': 'btn-copy',
+                't': 'btn-toggle-theme',
+            };
+            if (event.altKey && keyMap[event.key.toLowerCase()]) {
+                event.preventDefault();
+                const btn = document.getElementById(keyMap[event.key.toLowerCase()]);
+                btn?.click();
+            }
+        });
     }
 };

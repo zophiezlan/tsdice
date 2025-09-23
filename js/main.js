@@ -1,5 +1,5 @@
-import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.4.0/+esm";
-import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.4.0/+esm";
+import { tsParticles } from "../../libs/tsparticles.engine.min.js";
+import { loadAll } from "../../libs/tsparticles.all.min.js";
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
@@ -9,9 +9,6 @@ import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from '.
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
-    // Must be called before any other tsParticles calls.
-    await loadAll(tsParticles);
-
     // --- 1. ELEMENT SELECTORS ---
     const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
     const menuContainer = document.getElementById('menu-container');
@@ -205,6 +202,59 @@ import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from '.
     };
 
     // --- 5. EVENT LISTENERS ---
+    const setupEventListeners = () => {
+        // Main menu button toggles the sub-menu's visibility.
+        mainMenuBtn.addEventListener('click', UIManager.toggleMenu);
+        mainMenuBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') UIManager.toggleMenu(); });
+
+        // Shuffle buttons execute the shuffle command with different options.
+        const shuffleCommands = {
+            [BUTTON_IDS.SHUFFLE_ALL]: { all: true },
+            [BUTTON_IDS.SHUFFLE_APPEARANCE]: { appearance: true },
+            [BUTTON_IDS.SHUFFLE_MOVEMENT]: { movement: true },
+            [BUTTON_IDS.SHUFFLE_INTERACTION]: { interaction: true },
+            [BUTTON_IDS.SHUFFLE_FX]: { fx: true }
+        };
+        for (const [id, options] of Object.entries(shuffleCommands)) {
+            document.getElementById(id).addEventListener('click', () => {
+                const command = createShuffleCommand(options);
+                CommandManager.execute(command);
+            });
+        }
+
+        // History buttons trigger undo and redo actions.
+        document.getElementById(BUTTON_IDS.HISTORY_BACK).addEventListener('click', () => CommandManager.undo());
+        document.getElementById(BUTTON_IDS.HISTORY_FORWARD).addEventListener('click', () => CommandManager.redo());
+
+        // Share button copies the configuration link to the clipboard.
+        document.getElementById(BUTTON_IDS.SAVE).addEventListener('click', async () => {
+            const configString = LZString.compressToEncodedURIComponent(JSON.stringify(AppState.particleState.currentConfig));
+            const url = `${window.location.origin}${window.location.pathname}?config=${configString}`;
+            
+            // Attempt to create a short URL
+            const shortUrl = await createEmojiShortUrl(url);
+            
+            if (shortUrl) {
+                copyToClipboard(shortUrl);
+                UIManager.showToast(`Copied ${shortUrl} to clipboard!`);
+            } else {
+                // Fallback to copying the long URL if the shortener fails
+                copyToClipboard(url);
+                UIManager.showToast("Copied configuration URL to clipboard!");
+            }
+        });
+
+        document.getElementById(BUTTON_IDS.LOAD).addEventListener('click', () => {
+            // This is a placeholder for the Electron implementation.
+        });
+
+        // Theme toggle button switches between light and dark modes.
+        document.getElementById(BUTTON_IDS.TOGGLE_THEME).addEventListener('click', () => {
+            const command = createThemeToggleCommand();
+            CommandManager.execute(command);
+        });
+    };
+
     mainMenuBtn.addEventListener("click", () => {
         const isActive = menuContainer.classList.toggle("active");
         mainMenuBtn.setAttribute('aria-pressed', isActive);
@@ -504,4 +554,6 @@ import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from '.
     };
     handleReducedMotion();
     motionQuery.addEventListener('change', handleReducedMotion);
+
+    setupEventListeners();
 })();
