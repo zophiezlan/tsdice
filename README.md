@@ -45,6 +45,23 @@ The application achieves this through several core mechanisms:
 * **History:** Made a change you don't like? The "Back" button lets you step back through your last 20 shuffles.
 * **Responsive Design:** A clean, glassmorphism-style UI that works beautifully on both desktop and mobile.
 
+## Spec-Driven Development (Optional)
+
+This repo includes lightweight scaffolding inspired by Spec Kit to help structure work:
+
+* `memory/constitution.md` – project principles
+* `templates/` – spec/plan/tasks templates
+* `scripts/create-feature.ps1` – creates a new feature folder under `specs/`
+
+Quick start on Windows PowerShell:
+
+```powershell
+# Create a new feature scaffold
+./scripts/create-feature.ps1 -Name "photo-albums"
+```
+
+Then use the templates to document the spec, plan, and tasks before you implement changes in `index.html` and `js/`.
+
 ## How to Use
 
 The interface is designed to be intuitive and fun to explore.
