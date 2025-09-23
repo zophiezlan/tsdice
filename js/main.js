@@ -1,5 +1,5 @@
-import { tsParticles } from "../../libs/tsparticles.engine.min.js";
-import { loadAll } from "../../libs/tsparticles.all.min.js";
+import { tsParticles } from "../libs/tsparticles.engine.min.js";
+import { loadFull } from "tsparticles"; // This is how you import the full bundle
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
@@ -20,6 +20,9 @@ import { emojiOptions, darkColorPalette, lightColorPalette, BUTTON_IDS } from '.
     const closeInfoModalBtn = document.getElementById('close-info-modal');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
     
+    // Initialize the tsParticles engine
+    await loadFull(tsParticles);
+
     // --- 2. TOOLTIP SETUP ---
     const tooltip = document.createElement('div');
     tooltip.id = 'custom-tooltip';
