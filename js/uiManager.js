@@ -110,6 +110,22 @@ export const UIManager = {
     if (AppState.ui.lastFocusedElement) AppState.ui.lastFocusedElement.focus();
   },
 
+  /** Shows a subtle loading indicator (only for operations > 300ms) */
+  showLoadingIndicator: () => {
+    const container = document.getElementById("tsparticles");
+    if (container) {
+      container.style.cursor = "wait";
+    }
+  },
+
+  /** Hides the loading indicator */
+  hideLoadingIndicator: () => {
+    const container = document.getElementById("tsparticles");
+    if (container) {
+      container.style.cursor = "";
+    }
+  },
+
   /**
    * @description Centralized function to synchronize the entire UI with the current AppState.
    * Ensures the UI is always a perfect reflection of the application state.

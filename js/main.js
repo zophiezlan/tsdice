@@ -171,16 +171,42 @@ import {
   /** Loads a given configuration into the tsParticles instance. */
   const loadParticles = async (config) => {
     try {
+      // Show subtle loading state for slow operations
+      const loadingTimeout = setTimeout(() => {
+        UIManager.showLoadingIndicator();
+      }, 300); // Only show if takes longer than 300ms
+
       AppState.particleState.currentConfig = config;
       localStorage.setItem("tsDiceLastConfig", JSON.stringify(config));
+
+      // Fade out old particles for smooth transition
+      const container = document.getElementById("tsparticles");
+      if (container && AppState.ui.particlesContainer) {
+        container.style.transition = "opacity 0.2s ease";
+        container.style.opacity = "0.3";
+      }
+
       AppState.ui.particlesContainer = await tsParticles.load({
         id: "tsparticles",
         options: JSON.parse(JSON.stringify(config)),
       });
+
+      // Fade in new particles
+      if (container) {
+        setTimeout(() => {
+          container.style.opacity = "1";
+        }, 50);
+      }
+
       AppState.ui.isPaused = false;
       UIManager.syncUI();
+
+      // Clear loading indicator
+      clearTimeout(loadingTimeout);
+      UIManager.hideLoadingIndicator();
     } catch (error) {
       console.error("Failed to load particles:", error);
+      UIManager.hideLoadingIndicator();
       UIManager.showToast("Failed to load particle configuration");
       UIManager.announce("Error loading particle configuration");
     }
@@ -696,6 +722,7 @@ import {
   const setupInfoModalTabs = () => {
     const tabButtons = infoModal.querySelectorAll(".modal-tab");
     const tabContents = infoModal.querySelectorAll(".modal-tab-content");
+    const LAST_TAB_KEY = "tsDiceLastInfoTab";
 
     tabButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -712,7 +739,28 @@ import {
         button.classList.add("active");
         button.setAttribute("aria-selected", "true");
         document.getElementById(`tab-${targetTab}`).classList.add("active");
+
+        // Remember the last viewed tab
+        localStorage.setItem(LAST_TAB_KEY, targetTab);
       });
+    });
+
+    // Restore last viewed tab when modal opens
+    const restoreLastTab = () => {
+      const lastTab = localStorage.getItem(LAST_TAB_KEY) || "controls";
+      const targetButton = Array.from(tabButtons).find(
+        (btn) => btn.dataset.tab === lastTab
+      );
+
+      if (targetButton) {
+        targetButton.click();
+      }
+    };
+
+    // Listen for modal open and restore last tab
+    btnInfo.addEventListener("click", () => {
+      // Use setTimeout to ensure modal is open before restoring tab
+      setTimeout(restoreLastTab, 0);
     });
   };
 
@@ -734,7 +782,10 @@ import {
     UIManager.updateFullscreenIcons
   );
 
-  // --- Tooltip Logic ---
+  // --- Tooltip Logic with delay ---
+  let tooltipTimeout;
+  const TOOLTIP_DELAY = 500; // 500ms delay before showing tooltip
+
   function updateTooltipPosition(mouseX, mouseY) {
     const tooltipRect = tooltip.getBoundingClientRect();
     const padding = 15;
@@ -753,6 +804,10 @@ import {
   subMenu.addEventListener("mouseover", (e) => {
     const target = e.target.closest(".menu-button, .slider-container");
     if (!target || !target.title) return;
+
+    // Clear any existing timeout
+    clearTimeout(tooltipTimeout);
+
     target.setAttribute("data-title", target.title);
     target.removeAttribute("title");
     const titleText = target.getAttribute("data-title");
@@ -776,13 +831,20 @@ import {
     tooltip.appendChild(strong);
     tooltip.appendChild(span);
 
-    tooltip.classList.add("visible");
-    updateTooltipPosition(e.clientX, e.clientY);
+    // Delay showing the tooltip
+    tooltipTimeout = setTimeout(() => {
+      tooltip.classList.add("visible");
+      updateTooltipPosition(e.clientX, e.clientY);
+    }, TOOLTIP_DELAY);
   });
 
   subMenu.addEventListener("mouseout", (e) => {
     const target = e.target.closest(".menu-button, .slider-container");
     if (!target || !target.getAttribute("data-title")) return;
+
+    // Clear timeout to prevent tooltip from showing after mouse has left
+    clearTimeout(tooltipTimeout);
+
     tooltip.classList.remove("visible");
     target.setAttribute("title", target.getAttribute("data-title"));
     target.removeAttribute("data-title");
