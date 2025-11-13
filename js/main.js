@@ -1,5 +1,5 @@
-import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.4.0/+esm";
-import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.4.0/+esm";
+import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm";
+import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.9.1/+esm";
 import { AppState } from "./state.js";
 import { UIManager } from "./uiManager.js";
 import { ConfigGenerator } from "./configGenerator.js";
