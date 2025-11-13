@@ -14,6 +14,16 @@ import {
   BUTTON_IDS,
   AUTO_HIDE_DELAY,
 } from "./constants.js";
+import {
+  buildConfig,
+  loadParticles,
+  reapplyToggleStates,
+  applyCursorMode,
+  applyWallsMode,
+  applyGravityMode,
+  updateThemeAndReload,
+} from "./particlesService.js";
+import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
@@ -34,292 +44,6 @@ import {
     return;
   }
 
-  // --- 1. ELEMENT SELECTORS ---
-  const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
-  const menuContainer = document.getElementById("menu-container");
-  const subMenu = document.getElementById("sub-menu");
-  const chaosSlider = document.getElementById("chaos-slider");
-  const welcomeModal = document.getElementById("welcome-modal");
-  const closeModalBtn = document.getElementById("close-welcome-modal");
-  const infoModal = document.getElementById("info-modal");
-  const closeInfoModalBtn = document.getElementById("close-info-modal");
-  const btnInfo = document.getElementById(BUTTON_IDS.INFO);
-  const fullscreenBtn = document.getElementById("fullscreen-btn");
-
-  // --- 2. TOOLTIP SETUP ---
-  initTooltipManager(subMenu);
-
-  // --- 3. CORE LOGIC FUNCTIONS ---
-
-  /**
-   * Generates a random string of emojis for the short URL.
-   * @param {number} count - Number of emojis to generate
-   * @returns {string} Random emoji string
-   */
-  const generateRandomEmojiString = (count) => {
-    let emojiString = "";
-    for (let i = 0; i < count; i++) {
-      emojiString += getRandomItem(emojiOptions);
-    }
-    return emojiString;
-  };
-
-  /**
-   * Creates a short URL using the spoo.me API hosted on share.ket.horse.
-   * Generates an 8-emoji shortened link for easier sharing.
-   * @param {string} longUrl - The full URL to shorten
-   * @returns {Promise<string|null>} The shortened URL or null if shortening fails
-   */
-  async function createEmojiShortUrl(longUrl) {
-    try {
-      const response = await fetch("https://share.ket.horse/emoji", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        // Call the function with 8 and remove .substring()
-        body: new URLSearchParams({
-          url: longUrl,
-          emojies: generateRandomEmojiString(8),
-        }),
-      });
-      if (!response.ok)
-        throw new Error(`API request failed with status ${response.status}`);
-      return (await response.json()).short_url;
-    } catch (error) {
-      console.error("Failed to create emoji short URL:", error);
-      return null;
-    }
-  }
-
-  /** Assembles a complete tsParticles configuration object based on shuffle options. */
-  const buildConfig = (shuffleOptions) => {
-    const isNew =
-      !AppState.particleState.currentConfig ||
-      Object.keys(AppState.particleState.currentConfig).length === 0;
-    let newConfig = isNew ? {} : { ...AppState.particleState.currentConfig };
-
-    if (shuffleOptions.all || isNew) {
-      newConfig.particles = {
-        ...ConfigGenerator.generateAppearance(),
-        move: ConfigGenerator.generateMovement(),
-        ...ConfigGenerator.generateSpecialFX(),
-      };
-      newConfig.interactivity = ConfigGenerator.generateInteraction();
-    } else {
-      newConfig.particles = { ...newConfig.particles };
-      if (shuffleOptions.appearance)
-        Object.assign(
-          newConfig.particles,
-          ConfigGenerator.generateAppearance()
-        );
-      if (shuffleOptions.movement)
-        newConfig.particles.move = {
-          ...newConfig.particles.move,
-          ...ConfigGenerator.generateMovement(),
-        };
-      if (shuffleOptions.interaction)
-        newConfig.interactivity = ConfigGenerator.generateInteraction();
-      if (shuffleOptions.fx) {
-        const fx = ConfigGenerator.generateSpecialFX(newConfig.particles);
-        Object.assign(newConfig.particles, fx);
-        newConfig.interactivity = ConfigGenerator.generateInteraction();
-      }
-    }
-
-    Object.assign(newConfig, {
-      background: {
-        color: { value: AppState.ui.isDarkMode ? "#111" : "#f0f0f0" },
-      },
-      fpsLimit: 120,
-      detectRetina: true,
-    });
-    newConfig.particles.number = {
-      value: 20 + AppState.particleState.chaosLevel * 20,
-    };
-
-    // Apply all UI toggle states to the new config
-    reapplyToggleStates(newConfig);
-
-    return newConfig;
-  };
-
-  /**
-   * Reapplies UI toggle states (walls, cursor, gravity) to a configuration.
-   * This ensures toggle states persist across shuffles and undo/redo operations.
-   */
-  const reapplyToggleStates = (config) => {
-    // Apply gravity state
-    if (!config.particles.move.gravity) config.particles.move.gravity = {};
-    config.particles.move.gravity.enable = AppState.ui.isGravityOn;
-    config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
-      ? 20
-      : 0;
-
-    // Apply walls state
-    if (AppState.ui.areWallsOn) {
-      if (
-        !AppState.particleState.originalOutModes ||
-        Object.keys(AppState.particleState.originalOutModes).length === 0
-      ) {
-        AppState.particleState.originalOutModes = structuredClone(
-          config.particles.move.outModes
-        );
-      }
-      config.particles.move.outModes = { default: "bounce" };
-    } else {
-      // When walls are off during shuffle, ensure we don't have stale originalOutModes
-      // But only clear if we're not in the middle of a toggle operation
-      if (config.particles.move.outModes?.default !== "bounce") {
-        AppState.particleState.originalOutModes = {};
-      }
-    }
-
-    // Apply cursor particle state
-    if (AppState.ui.isCursorParticle) {
-      if (!AppState.particleState.originalInteractionModes.hover) {
-        AppState.particleState.originalInteractionModes.hover =
-          config.interactivity.events.onHover.mode;
-      }
-      config.interactivity.modes.trail = {
-        delay: 0.05,
-        quantity: 1,
-        pauseOnStop: true,
-      };
-      config.interactivity.events.onHover.mode = "trail";
-      config.interactivity.events.onClick.enable = false;
-    }
-  };
-
-  /** Loads a given configuration into the tsParticles instance. */
-  const loadParticles = async (config) => {
-    // Store previous config for error recovery
-    const previousConfig = AppState.particleState.currentConfig;
-
-    try {
-      // Show subtle loading state for slow operations
-      const loadingTimeout = setTimeout(() => {
-        UIManager.showLoadingIndicator();
-      }, 300); // Only show if takes longer than 300ms
-
-      AppState.particleState.currentConfig = config;
-      localStorage.setItem("tsDiceLastConfig", JSON.stringify(config));
-
-      // Fade out old particles for smooth transition
-      const container = document.getElementById("tsparticles");
-      if (container && AppState.ui.particlesContainer) {
-        container.style.transition = "opacity 0.2s ease";
-        container.style.opacity = "0.3";
-      }
-
-      AppState.ui.particlesContainer = await tsParticles.load({
-        id: "tsparticles",
-        options: JSON.parse(JSON.stringify(config)),
-      });
-
-      // Fade in new particles
-      if (container) {
-        setTimeout(() => {
-          container.style.opacity = "1";
-        }, 50);
-      }
-
-      AppState.ui.isPaused = false;
-      UIManager.syncUI();
-
-      // Clear loading indicator
-      clearTimeout(loadingTimeout);
-      UIManager.hideLoadingIndicator();
-    } catch (error) {
-      console.error("Failed to load particles:", error);
-      UIManager.hideLoadingIndicator();
-
-      // Restore previous working config
-      if (previousConfig && Object.keys(previousConfig).length > 0) {
-        AppState.particleState.currentConfig = previousConfig;
-        try {
-          await tsParticles.load({
-            id: "tsparticles",
-            options: JSON.parse(JSON.stringify(previousConfig)),
-          });
-          UIManager.showToast("Config error - restored previous state");
-        } catch (recoveryError) {
-          console.error("Recovery also failed:", recoveryError);
-          UIManager.showToast("Failed to load particles - please refresh");
-        }
-      } else {
-        UIManager.showToast("Failed to load particle configuration");
-      }
-
-      UIManager.announce("Error loading particle configuration");
-    }
-  };
-
-  /** Applies or removes the cursor particle effect based on the current state. */
-  const applyCursorMode = () => {
-    const config = AppState.particleState.currentConfig;
-    if (AppState.ui.isCursorParticle) {
-      // Save original mode before applying cursor mode
-      if (!AppState.particleState.originalInteractionModes.hover) {
-        AppState.particleState.originalInteractionModes.hover =
-          config.interactivity.events.onHover.mode;
-      }
-      config.interactivity.modes.trail = {
-        delay: 0.05,
-        quantity: 1,
-        pauseOnStop: true,
-      };
-      config.interactivity.events.onHover.mode = "trail";
-      config.interactivity.events.onClick.enable = false;
-    } else {
-      // Restore original mode
-      config.interactivity.events.onHover.mode =
-        AppState.particleState.originalInteractionModes.hover || "repulse";
-      config.interactivity.events.onClick.enable = true;
-      // Clear the saved mode since we've restored it
-      delete AppState.particleState.originalInteractionModes.hover;
-    }
-  };
-
-  /** Applies or removes the walls effect based on the current state. */
-  const applyWallsMode = () => {
-    const config = AppState.particleState.currentConfig;
-    if (!config.particles) return;
-
-    if (AppState.ui.areWallsOn) {
-      // Save original outModes before applying walls
-      if (
-        !AppState.particleState.originalOutModes ||
-        Object.keys(AppState.particleState.originalOutModes).length === 0
-      ) {
-        AppState.particleState.originalOutModes = structuredClone(
-          config.particles.move.outModes
-        );
-      }
-      config.particles.move.outModes = { default: "bounce" };
-    } else {
-      // Restore original outModes
-      if (AppState.particleState.originalOutModes) {
-        config.particles.move.outModes = structuredClone(
-          AppState.particleState.originalOutModes
-        );
-      }
-      // Clear saved outModes since we've restored it
-      AppState.particleState.originalOutModes = {};
-    }
-  };
-
-  /** Applies or removes the gravity effect based on the current state. */
-  const applyGravityMode = () => {
-    const config = AppState.particleState.currentConfig;
-    if (!config.particles.move.gravity) config.particles.move.gravity = {};
-    config.particles.move.gravity.enable = AppState.ui.isGravityOn;
-    config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
-      ? 20
-      : 0;
-  };
-
   /** Handles the logic for toggling the application's color theme. */
   const updateTheme = async () => {
     AppState.ui.isDarkMode = !AppState.ui.isDarkMode;
@@ -330,28 +54,7 @@ import {
     UIManager.announce(
       AppState.ui.isDarkMode ? "Dark theme enabled" : "Light theme enabled"
     );
-
-    const config = AppState.particleState.currentConfig;
-    if (!config || Object.keys(config).length === 0) {
-      UIManager.syncUI();
-      return;
-    }
-
-    const newPalette = AppState.ui.isDarkMode
-      ? darkColorPalette
-      : lightColorPalette;
-    config.background.color.value = AppState.ui.isDarkMode ? "#111" : "#f0f0f0";
-    if (config.particles.color.value !== "random")
-      config.particles.color.value = getRandomItem(newPalette);
-    if (config.particles.links.enable)
-      config.particles.links.color.value = AppState.ui.isDarkMode
-        ? "#ffffff"
-        : "#333333";
-    if (config.particles.move.trail.enable)
-      config.particles.move.trail.fill.color.value = AppState.ui.isDarkMode
-        ? "#111"
-        : "#f0f0f0";
-    await loadParticles(config);
+    await updateThemeAndReload();
   };
 
   /** Toggles fullscreen mode for the browser window. */
@@ -512,7 +215,6 @@ import {
   // --- 5. EVENT LISTENERS ---
 
   // Auto-hide menu after 10 seconds of inactivity
-  const AUTO_HIDE_DELAY = 10000; // 10 seconds
   let menuInactivityTimer = null;
 
   const resetMenuInactivityTimer = () => {
@@ -876,65 +578,7 @@ import {
     chaosSlider.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
-  document.addEventListener("keydown", (e) => {
-    // Always allow Escape to close modals
-    if (e.key === "Escape") {
-      ModalManager.closeAll();
-      return;
-    }
-
-    // Check if user is typing in an input field
-    const activeEl = document.activeElement;
-    const isTyping =
-      activeEl.tagName === "INPUT" ||
-      activeEl.tagName === "TEXTAREA" ||
-      activeEl.isContentEditable;
-
-    // Spacebar to pause/play (only when not typing and menu is closed)
-    if (
-      e.key === " " &&
-      !isTyping &&
-      !menuContainer.classList.contains("active")
-    ) {
-      e.preventDefault();
-      document.getElementById(BUTTON_IDS.PAUSE).click();
-      return;
-    }
-
-    // Alt+key shortcuts (only when not typing)
-    if (e.altKey && !e.ctrlKey && !e.metaKey && !isTyping) {
-      e.preventDefault();
-      const btnId = {
-        m: BUTTON_IDS.MAIN_MENU,
-        a: BUTTON_IDS.SHUFFLE_ALL,
-        p: BUTTON_IDS.SHUFFLE_APPEARANCE,
-        v: BUTTON_IDS.SHUFFLE_MOVEMENT,
-        i: BUTTON_IDS.SHUFFLE_INTERACTION,
-        f: BUTTON_IDS.SHUFFLE_FX,
-        g: BUTTON_IDS.GRAVITY,
-        w: BUTTON_IDS.WALLS,
-        t: BUTTON_IDS.THEME,
-        c: BUTTON_IDS.CURSOR,
-        s: BUTTON_IDS.SHARE,
-        "?": BUTTON_IDS.INFO,
-        r: BUTTON_IDS.REFRESH,
-        z: BUTTON_IDS.BACK,
-        y: BUTTON_IDS.FORWARD,
-      }[e.key.toLowerCase()];
-
-      if (btnId) {
-        const button = document.getElementById(btnId);
-        if (button) {
-          // Add visual feedback for keyboard activation
-          button.style.transform = "scale(0.95)";
-          setTimeout(() => {
-            button.style.transform = "";
-          }, 150);
-          button.click();
-        }
-      }
-    }
-  });
+  initKeyboardShortcuts(menuContainer);
 
   // --- KONAMI CODE EASTER EGG ---
   /** Special particle configuration for Konami code (↑ ↑ ↓ ↓ ← → ← → B A) */
