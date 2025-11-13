@@ -44,6 +44,64 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
     return;
   }
 
+  // --- 1. ELEMENT SELECTORS ---
+  const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
+  const menuContainer = document.getElementById("menu-container");
+  const subMenu = document.getElementById("sub-menu");
+  const chaosSlider = document.getElementById("chaos-slider");
+  const welcomeModal = document.getElementById("welcome-modal");
+  const closeModalBtn = document.getElementById("close-welcome-modal");
+  const infoModal = document.getElementById("info-modal");
+  const closeInfoModalBtn = document.getElementById("close-info-modal");
+  const btnInfo = document.getElementById(BUTTON_IDS.INFO);
+  const fullscreenBtn = document.getElementById("fullscreen-btn");
+
+  // --- 2. TOOLTIP SETUP ---
+  initTooltipManager(subMenu);
+
+  // --- 3. CORE LOGIC FUNCTIONS ---
+
+  /**
+   * Generates a random string of emojis for the short URL.
+   * @param {number} count - Number of emojis to generate
+   * @returns {string} Random emoji string
+   */
+  const generateRandomEmojiString = (count) => {
+    let emojiString = "";
+    for (let i = 0; i < count; i++) {
+      emojiString += getRandomItem(emojiOptions);
+    }
+    return emojiString;
+  };
+
+  /**
+   * Creates a short URL using the spoo.me API hosted on share.ket.horse.
+   * Generates an 8-emoji shortened link for easier sharing.
+   * @param {string} longUrl - The full URL to shorten
+   * @returns {Promise<string|null>} The shortened URL or null if shortening fails
+   */
+  async function createEmojiShortUrl(longUrl) {
+    try {
+      const response = await fetch("https://share.ket.horse/emoji", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          url: longUrl,
+          emojies: generateRandomEmojiString(8),
+        }),
+      });
+      if (!response.ok)
+        throw new Error(`API request failed with status ${response.status}`);
+      return (await response.json()).short_url;
+    } catch (error) {
+      console.error("Failed to create emoji short URL:", error);
+      return null;
+    }
+  }
+
   /** Handles the logic for toggling the application's color theme. */
   const updateTheme = async () => {
     AppState.ui.isDarkMode = !AppState.ui.isDarkMode;
