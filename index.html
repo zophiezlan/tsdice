@@ -759,6 +759,18 @@
           what it does and discover its keyboard shortcut (e.g.,
           <code>Alt+A</code> for Shuffle All).
         </p>
+        <p>
+          <strong>📖 New User?</strong> Check out the comprehensive
+          <a
+            href="https://github.com/zophiezlan/tsdice/blob/main/USER_GUIDE.md"
+            target="_blank"
+            rel="noopener"
+            >User Guide</a
+          >
+          for creative recipes, troubleshooting tips, and power user techniques!
+          Also available in the Help menu (
+          <code>Alt+?</code>, then click "📖 User Guide" tab).
+        </p>
         <div class="modal-actions">
           <button class="modal-close-btn" id="close-welcome-modal">
             Start Creating!
@@ -803,6 +815,16 @@
             data-tab="shortcuts"
           >
             ⌨️ Shortcuts
+          </button>
+          <button
+            class="modal-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-guide"
+            id="tab-btn-guide"
+            data-tab="guide"
+          >
+            📖 User Guide
           </button>
         </div>
 
@@ -908,6 +930,137 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Tab Content: User Guide -->
+        <div
+          class="modal-tab-content"
+          id="tab-guide"
+          role="tabpanel"
+          aria-labelledby="tab-btn-guide"
+        >
+          <p style="text-align: center; line-height: 1.8">
+            <strong
+              style="font-size: 1.2em; display: block; margin-bottom: 15px"
+              >📚 Complete Documentation</strong
+            >
+          </p>
+
+          <div style="text-align: left; max-width: 500px; margin: 20px auto">
+            <div
+              style="
+                margin-bottom: 20px;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+              "
+            >
+              <strong
+                style="font-size: 1.1em; display: block; margin-bottom: 8px"
+              >
+                🎯
+                <a
+                  href="https://github.com/zophiezlan/tsdice/blob/main/USER_GUIDE.md"
+                  target="_blank"
+                  rel="noopener"
+                  style="color: var(--link-color)"
+                  >User Guide</a
+                >
+              </strong>
+              <span style="font-size: 0.95em; opacity: 0.9">
+                Complete journey from first click to power user. Includes
+                creative recipes, troubleshooting, and pro tips.
+              </span>
+            </div>
+
+            <div
+              style="
+                margin-bottom: 20px;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+              "
+            >
+              <strong
+                style="font-size: 1.1em; display: block; margin-bottom: 8px"
+              >
+                🏗️
+                <a
+                  href="https://github.com/zophiezlan/tsdice/blob/main/ARCHITECTURE.md"
+                  target="_blank"
+                  rel="noopener"
+                  style="color: var(--link-color)"
+                  >Architecture Guide</a
+                >
+              </strong>
+              <span style="font-size: 0.95em; opacity: 0.9">
+                Technical deep dive for developers. System overview, design
+                patterns, and algorithms explained.
+              </span>
+            </div>
+
+            <div
+              style="
+                margin-bottom: 20px;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+              "
+            >
+              <strong
+                style="font-size: 1.1em; display: block; margin-bottom: 8px"
+              >
+                📊
+                <a
+                  href="https://github.com/zophiezlan/tsdice/blob/main/ANALYSIS.md"
+                  target="_blank"
+                  rel="noopener"
+                  style="color: var(--link-color)"
+                  >Complete Analysis</a
+                >
+              </strong>
+              <span style="font-size: 0.95em; opacity: 0.9">
+                Fresh technical overview of the entire codebase with performance
+                insights and testing strategies.
+              </span>
+            </div>
+
+            <div
+              style="
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+              "
+            >
+              <strong
+                style="font-size: 1.1em; display: block; margin-bottom: 8px"
+              >
+                ⚡
+                <a
+                  href="https://github.com/zophiezlan/tsdice/blob/main/QUICK_REFERENCE.md"
+                  target="_blank"
+                  rel="noopener"
+                  style="color: var(--link-color)"
+                  >Quick Reference</a
+                >
+              </strong>
+              <span style="font-size: 0.95em; opacity: 0.9">
+                Fast lookup cheat sheet with all keyboard shortcuts, workflows,
+                and debugging commands.
+              </span>
+            </div>
+          </div>
+
+          <p
+            style="
+              text-align: center;
+              margin-top: 25px;
+              font-size: 0.9em;
+              opacity: 0.8;
+            "
+          >
+            💡 Tip: Bookmark the User Guide for easy access!
+          </p>
         </div>
 
         <button class="modal-close-btn" id="close-info-modal">Close</button>

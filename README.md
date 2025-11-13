@@ -31,6 +31,58 @@ cd tsdice
 # Open index.html in your browser - that's it! No build steps, no dependencies to install.
 ```
 
+**📖 First Time Here?** Check out the [**User Guide**](USER_GUIDE.md) — your complete journey from beginner to power user!
+
+---
+
+## 📚 Documentation
+
+**New to tsDice?** We've created comprehensive guides to help you master every aspect:
+
+### 🎯 [**User Guide**](USER_GUIDE.md) ⭐ START HERE!
+
+Your complete journey from first click to power user. Includes:
+
+- 🚀 Your first 5 minutes walkthrough
+- 🎛️ Complete interface explanation
+- 🎲 Chaos level deep dive
+- ⌨️ Keyboard ninja training
+- 🎨 Creative recipes (Zen Mode, Matrix Rain, Confetti, etc.)
+- 🐛 Troubleshooting guide
+- 💡 Pro tips & tricks
+
+### 🏗️ [**Architecture Guide**](ARCHITECTURE.md)
+
+Technical deep dive for developers:
+
+- System overview with diagrams
+- Design patterns explained
+- Data flow analysis
+- Key algorithms breakdown
+- Performance optimizations
+- Extension points for contributors
+
+### 📊 [**Complete Analysis**](ANALYSIS.md)
+
+Fresh technical overview of the entire codebase:
+
+- File structure & relationships
+- Module responsibilities
+- State management details
+- Security considerations
+- Testing strategies
+- Overall assessment (Grade: A+ 95/100)
+
+### ⚡ [**Quick Reference**](QUICK_REFERENCE.md)
+
+Fast lookup cheat sheet:
+
+- All keyboard shortcuts
+- API quick reference
+- Common workflows
+- Debugging commands
+- Quick recipes
+
 ---
 
 ## 🎯 What Makes tsDice Special?
