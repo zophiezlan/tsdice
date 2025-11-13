@@ -330,6 +330,9 @@
         overflow-y: auto;
         text-align: center;
         will-change: transform;
+        /* Smooth momentum scrolling on mobile */
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
       }
       .modal-overlay.visible .modal-content {
         transform: scale(1);
@@ -368,8 +371,34 @@
         text-decoration: none;
         width: fit-content;
       }
+
       .modal-close-btn:hover {
         background: var(--button-active-bg-hover);
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .modal-actions .modal-close-btn {
+        flex: 1;
+        margin: 0;
+      }
+
+      .welcome-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .welcome-checkbox-label input {
+        cursor: pointer;
       }
 
       .info-list {
@@ -728,9 +757,15 @@
           what it does and discover its keyboard shortcut (e.g.,
           <code>Alt+A</code> for Shuffle All).
         </p>
-        <button class="modal-close-btn" id="close-welcome-modal">
-          Start Creating!
-        </button>
+        <div class="modal-actions">
+          <button class="modal-close-btn" id="close-welcome-modal">
+            Start Creating!
+          </button>
+          <label class="welcome-checkbox-label">
+            <input type="checkbox" id="dont-show-welcome" />
+            Don't show again
+          </label>
+        </div>
       </div>
     </div>
 

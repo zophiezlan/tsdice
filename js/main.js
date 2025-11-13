@@ -735,8 +735,20 @@ import {
 
   /** Helper function to dismiss the welcome modal and set the timestamp. */
   const dismissWelcomeModal = () => {
+    const dontShowCheckbox = document.getElementById("dont-show-welcome");
     ModalManager.close("welcome");
-    localStorage.setItem("tsDiceWelcomeTimestamp", Date.now());
+
+    if (dontShowCheckbox && dontShowCheckbox.checked) {
+      // Set a far future timestamp so it never shows again
+      localStorage.setItem(
+        "tsDiceWelcomeTimestamp",
+        Date.now() + 365 * 24 * 60 * 60 * 1000
+      ); // 1 year in future
+      localStorage.setItem("tsDiceWelcomeDismissed", "true");
+    } else {
+      // Set current timestamp for 24-hour reset
+      localStorage.setItem("tsDiceWelcomeTimestamp", Date.now());
+    }
   };
 
   /** Tab switcher for info modal */
@@ -782,6 +794,28 @@ import {
     btnInfo.addEventListener("click", () => {
       // Use setTimeout to ensure modal is open before restoring tab
       setTimeout(restoreLastTab, 0);
+    });
+
+    // Add keyboard navigation for tabs (arrow keys)
+    const tabButtonsArray = Array.from(tabButtons);
+    tabButtons.forEach((button, index) => {
+      button.addEventListener("keydown", (e) => {
+        let targetIndex = -1;
+
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+          e.preventDefault();
+          targetIndex = (index + 1) % tabButtonsArray.length;
+        } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+          e.preventDefault();
+          targetIndex =
+            (index - 1 + tabButtonsArray.length) % tabButtonsArray.length;
+        }
+
+        if (targetIndex !== -1) {
+          tabButtonsArray[targetIndex].click();
+          tabButtonsArray[targetIndex].focus();
+        }
+      });
     });
   };
 
@@ -900,26 +934,32 @@ import {
   });
 
   document.addEventListener("keydown", (e) => {
+    // Always allow Escape to close modals
     if (e.key === "Escape") {
-      // Close all modals on Escape
       ModalManager.closeAll();
       return;
     }
+
+    // Check if user is typing in an input field
     const activeEl = document.activeElement;
-    const isInput =
+    const isTyping =
       activeEl.tagName === "INPUT" ||
       activeEl.tagName === "TEXTAREA" ||
       activeEl.isContentEditable;
+
+    // Spacebar to pause/play (only when not typing and menu is closed)
     if (
       e.key === " " &&
-      !isInput &&
+      !isTyping &&
       !menuContainer.classList.contains("active")
     ) {
       e.preventDefault();
       document.getElementById(BUTTON_IDS.PAUSE).click();
       return;
     }
-    if (e.altKey && !e.ctrlKey && !e.metaKey) {
+
+    // Alt+key shortcuts (only when not typing)
+    if (e.altKey && !e.ctrlKey && !e.metaKey && !isTyping) {
       e.preventDefault();
       const btnId = {
         m: BUTTON_IDS.MAIN_MENU,
@@ -938,7 +978,18 @@ import {
         z: BUTTON_IDS.BACK,
         y: BUTTON_IDS.FORWARD,
       }[e.key.toLowerCase()];
-      if (btnId) document.getElementById(btnId)?.click();
+
+      if (btnId) {
+        const button = document.getElementById(btnId);
+        if (button) {
+          // Add visual feedback for keyboard activation
+          button.style.transform = "scale(0.95)";
+          setTimeout(() => {
+            button.style.transform = "";
+          }, 150);
+          button.click();
+        }
+      }
     }
   });
 
@@ -1019,14 +1070,17 @@ import {
 
   UIManager.syncUI();
 
-  // Show the welcome modal on first visit or after 24 hours have passed.
+  // Show the welcome modal on first visit or after 24 hours have passed
+  // (unless permanently dismissed)
   const welcomeTimestamp = localStorage.getItem("tsDiceWelcomeTimestamp");
+  const welcomeDismissed = localStorage.getItem("tsDiceWelcomeDismissed");
   const now = Date.now();
   const twentyFourHours = 24 * 60 * 60 * 1000; // Milliseconds in 24 hours
 
   if (
-    !welcomeTimestamp ||
-    now - parseInt(welcomeTimestamp, 10) > twentyFourHours
+    welcomeDismissed !== "true" &&
+    (!welcomeTimestamp ||
+      now - parseInt(welcomeTimestamp, 10) > twentyFourHours)
   ) {
     setTimeout(() => ModalManager.open("welcome"), 500);
   }
@@ -1044,4 +1098,13 @@ import {
   };
   handleReducedMotion();
   motionQuery.addEventListener("change", handleReducedMotion);
+
+  // --- 9. DEBOUNCED WINDOW RESIZE ---
+  const handleResize = debounce(() => {
+    const container = AppState.ui.particlesContainer;
+    if (container) {
+      container.refresh();
+    }
+  }, 250);
+  window.addEventListener("resize", handleResize);
 })();
