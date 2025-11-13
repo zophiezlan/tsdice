@@ -86,6 +86,8 @@ export const buildConfig = (shuffleOptions) => {
     },
     fpsLimit: 120,
     detectRetina: true,
+    pauseOnBlur: false,
+    pauseOnOutsideViewport: false,
   });
   newConfig.particles.number = {
     value: 20 + AppState.particleState.chaosLevel * 20,
