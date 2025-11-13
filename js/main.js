@@ -985,10 +985,15 @@ import {
     }
   }
 
+  // Determine initial config: URL config > saved config > fresh random shuffle
   let configToLoad =
-    AppState.particleState.initialConfigFromUrl ||
-    initialConfigFromStorage ||
-    buildConfig({ all: true });
+    AppState.particleState.initialConfigFromUrl || initialConfigFromStorage;
+
+  // If no saved or URL config, generate a fresh random shuffle
+  if (!configToLoad) {
+    configToLoad = buildConfig({ all: true });
+  }
+
   await loadParticles(configToLoad);
 
   UIManager.syncUI();
