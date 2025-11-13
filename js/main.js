@@ -144,6 +144,12 @@ import {
         );
       }
       config.particles.move.outModes = { default: "bounce" };
+    } else {
+      // When walls are off during shuffle, ensure we don't have stale originalOutModes
+      // But only clear if we're not in the middle of a toggle operation
+      if (config.particles.move.outModes?.default !== "bounce") {
+        AppState.particleState.originalOutModes = {};
+      }
     }
 
     // Apply cursor particle state
@@ -164,20 +170,31 @@ import {
 
   /** Loads a given configuration into the tsParticles instance. */
   const loadParticles = async (config) => {
-    AppState.particleState.currentConfig = config;
-    localStorage.setItem("tsDiceLastConfig", JSON.stringify(config));
-    AppState.ui.particlesContainer = await tsParticles.load({
-      id: "tsparticles",
-      options: JSON.parse(JSON.stringify(config)),
-    });
-    AppState.ui.isPaused = false;
-    UIManager.syncUI();
+    try {
+      AppState.particleState.currentConfig = config;
+      localStorage.setItem("tsDiceLastConfig", JSON.stringify(config));
+      AppState.ui.particlesContainer = await tsParticles.load({
+        id: "tsparticles",
+        options: JSON.parse(JSON.stringify(config)),
+      });
+      AppState.ui.isPaused = false;
+      UIManager.syncUI();
+    } catch (error) {
+      console.error("Failed to load particles:", error);
+      UIManager.showToast("Failed to load particle configuration");
+      UIManager.announce("Error loading particle configuration");
+    }
   };
 
   /** Applies or removes the cursor particle effect based on the current state. */
   const applyCursorMode = () => {
     const config = AppState.particleState.currentConfig;
     if (AppState.ui.isCursorParticle) {
+      // Save original mode before applying cursor mode
+      if (!AppState.particleState.originalInteractionModes.hover) {
+        AppState.particleState.originalInteractionModes.hover =
+          config.interactivity.events.onHover.mode;
+      }
       config.interactivity.modes.trail = {
         delay: 0.05,
         quantity: 1,
@@ -186,10 +203,51 @@ import {
       config.interactivity.events.onHover.mode = "trail";
       config.interactivity.events.onClick.enable = false;
     } else {
+      // Restore original mode
       config.interactivity.events.onHover.mode =
         AppState.particleState.originalInteractionModes.hover || "repulse";
       config.interactivity.events.onClick.enable = true;
+      // Clear the saved mode since we've restored it
+      delete AppState.particleState.originalInteractionModes.hover;
     }
+  };
+
+  /** Applies or removes the walls effect based on the current state. */
+  const applyWallsMode = () => {
+    const config = AppState.particleState.currentConfig;
+    if (!config.particles) return;
+
+    if (AppState.ui.areWallsOn) {
+      // Save original outModes before applying walls
+      if (
+        !AppState.particleState.originalOutModes ||
+        Object.keys(AppState.particleState.originalOutModes).length === 0
+      ) {
+        AppState.particleState.originalOutModes = structuredClone(
+          config.particles.move.outModes
+        );
+      }
+      config.particles.move.outModes = { default: "bounce" };
+    } else {
+      // Restore original outModes
+      if (AppState.particleState.originalOutModes) {
+        config.particles.move.outModes = structuredClone(
+          AppState.particleState.originalOutModes
+        );
+      }
+      // Clear saved outModes since we've restored it
+      AppState.particleState.originalOutModes = {};
+    }
+  };
+
+  /** Applies or removes the gravity effect based on the current state. */
+  const applyGravityMode = () => {
+    const config = AppState.particleState.currentConfig;
+    if (!config.particles.move.gravity) config.particles.move.gravity = {};
+    config.particles.move.gravity.enable = AppState.ui.isGravityOn;
+    config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
+      ? 20
+      : 0;
   };
 
   /** Handles the logic for toggling the application's color theme. */
@@ -414,30 +472,22 @@ import {
       case BUTTON_IDS.GRAVITY:
         CommandManager.execute(
           createToggleCommand("isGravityOn", async () => {
-            const config = AppState.particleState.currentConfig;
-            config.particles.move.gravity.enable = AppState.ui.isGravityOn;
-            config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
-              ? 20
-              : 0;
-            await loadParticles(config);
+            applyGravityMode();
+            await loadParticles(AppState.particleState.currentConfig);
+            UIManager.showToast(
+              `Gravity ${AppState.ui.isGravityOn ? "enabled" : "disabled"}`
+            );
           })
         );
         break;
       case BUTTON_IDS.WALLS:
         CommandManager.execute(
           createToggleCommand("areWallsOn", async () => {
-            const config = AppState.particleState.currentConfig;
-            if (!config.particles) return;
-            if (AppState.ui.areWallsOn) {
-              AppState.particleState.originalOutModes = structuredClone(
-                config.particles.move.outModes
-              );
-              config.particles.move.outModes = { default: "bounce" };
-            } else {
-              config.particles.move.outModes =
-                AppState.particleState.originalOutModes;
-            }
-            await loadParticles(config);
+            applyWallsMode();
+            await loadParticles(AppState.particleState.currentConfig);
+            UIManager.showToast(
+              `Walls ${AppState.ui.areWallsOn ? "enabled" : "disabled"}`
+            );
           })
         );
         break;
@@ -446,6 +496,11 @@ import {
           createToggleCommand("isCursorParticle", async () => {
             applyCursorMode();
             await loadParticles(AppState.particleState.currentConfig);
+            UIManager.showToast(
+              `Cursor particle ${
+                AppState.ui.isCursorParticle ? "enabled" : "disabled"
+              }`
+            );
           })
         );
         break;
@@ -462,7 +517,10 @@ import {
       case BUTTON_IDS.PAUSE:
         (() => {
           const container = AppState.ui.particlesContainer;
-          if (!container) return;
+          if (!container) {
+            UIManager.showToast("No particle animation loaded");
+            return;
+          }
           AppState.ui.isPaused = !AppState.ui.isPaused;
           if (AppState.ui.isPaused) container.pause();
           else container.play();
@@ -526,10 +584,23 @@ import {
   });
 
   chaosSlider.addEventListener("input", (e) => {
-    AppState.particleState.chaosLevel = parseInt(e.target.value, 10);
+    const newValue = parseInt(e.target.value, 10);
+    // Validate range
+    if (newValue < 1 || newValue > 10 || isNaN(newValue)) {
+      console.warn("Invalid chaos level:", newValue);
+      return;
+    }
+    AppState.particleState.chaosLevel = newValue;
     UIManager.syncUI();
     UIManager.announce(`Chaos level ${AppState.particleState.chaosLevel}`);
     localStorage.setItem("tsDiceChaos", AppState.particleState.chaosLevel);
+  });
+
+  chaosSlider.addEventListener("change", () => {
+    // Show toast on change (when user releases the slider)
+    UIManager.showToast(
+      `Chaos level set to ${AppState.particleState.chaosLevel}`
+    );
   });
 
   /** Helper function to dismiss the welcome modal and set the timestamp. */
@@ -686,8 +757,18 @@ import {
   let initialConfigFromStorage = null;
   try {
     const savedConfigString = localStorage.getItem("tsDiceLastConfig");
-    if (savedConfigString)
+    if (savedConfigString) {
       initialConfigFromStorage = JSON.parse(savedConfigString);
+      // Validate that the config has required structure
+      if (
+        !initialConfigFromStorage.particles ||
+        !initialConfigFromStorage.interactivity
+      ) {
+        console.warn("Saved config is malformed, ignoring.");
+        initialConfigFromStorage = null;
+        localStorage.removeItem("tsDiceLastConfig");
+      }
+    }
   } catch (e) {
     console.error("Could not parse saved config from localStorage.", e);
     localStorage.removeItem("tsDiceLastConfig");
@@ -700,6 +781,11 @@ import {
       );
       if (decodedString) {
         const parsedConfig = JSON.parse(decodedString);
+        // Validate config structure
+        if (!parsedConfig || typeof parsedConfig !== "object") {
+          throw new Error("Invalid config structure");
+        }
+
         if (parsedConfig.uiState) {
           AppState.particleState.chaosLevel =
             parsedConfig.uiState.chaosLevel || 5;
@@ -718,7 +804,9 @@ import {
         throw new Error("Decompression failed");
       }
     } catch (e) {
+      console.error("Failed to parse config from URL:", e);
       window.location.hash = "";
+      UIManager.showToast("Invalid shared configuration link");
     }
   }
 
