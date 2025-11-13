@@ -11,14 +11,19 @@ export const CommandManager = {
   /** Executes a command, adds it to the undo stack, and clears the redo stack. */
   execute(command) {
     // Check if this command produces the same config as the last one (deduplication)
-    if (this.undoStack.length > 0) {
+    // Only deduplicate shuffle commands that have newConfig property
+    if (this.undoStack.length > 0 && command.newConfig) {
       const lastCommand = this.undoStack[this.undoStack.length - 1];
-      const lastConfig = JSON.stringify(lastCommand.newConfig);
-      const newConfig = JSON.stringify(command.newConfig);
 
-      if (lastConfig === newConfig) {
-        // Skip adding duplicate consecutive configs
-        return;
+      // Only compare if both commands have configs
+      if (lastCommand.newConfig) {
+        const lastConfig = JSON.stringify(lastCommand.newConfig);
+        const newConfig = JSON.stringify(command.newConfig);
+
+        if (lastConfig === newConfig) {
+          // Skip adding duplicate consecutive configs
+          return;
+        }
       }
     }
 
