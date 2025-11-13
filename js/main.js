@@ -2,6 +2,8 @@ import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.
 import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.9.1/+esm";
 import { AppState } from "./state.js";
 import { UIManager } from "./uiManager.js";
+import { ModalManager } from "./modalManager.js";
+import { initTooltipManager } from "./tooltipManager.js";
 import { ConfigGenerator } from "./configGenerator.js";
 import { CommandManager } from "./commandManager.js";
 import { copyToClipboard, getRandomItem, debounce } from "./utils.js";
@@ -10,6 +12,7 @@ import {
   darkColorPalette,
   lightColorPalette,
   BUTTON_IDS,
+  AUTO_HIDE_DELAY,
 } from "./constants.js";
 
 // Main async function to encapsulate the entire application logic.
@@ -44,9 +47,7 @@ import {
   const fullscreenBtn = document.getElementById("fullscreen-btn");
 
   // --- 2. TOOLTIP SETUP ---
-  const tooltip = document.createElement("div");
-  tooltip.id = "custom-tooltip";
-  document.body.appendChild(tooltip);
+  initTooltipManager(subMenu);
 
   // --- 3. CORE LOGIC FUNCTIONS ---
 
@@ -386,65 +387,7 @@ import {
     }
   };
 
-  /**
-   * Unified Modal Manager - handles all modal operations consistently
-   */
-  const ModalManager = {
-    modals: new Map(),
-
-    /** Register a modal with its close button and optional dismiss callback */
-    register(modalId, modal, closeButton, onDismiss = null) {
-      const dismissFn = onDismiss || (() => this.close(modalId));
-
-      closeButton.addEventListener("click", dismissFn);
-      modal.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") dismissFn();
-        else trapFocus(e, modal);
-      });
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) dismissFn();
-      });
-
-      this.modals.set(modalId, { modal, closeButton, dismissFn });
-    },
-
-    /** Open a modal by ID */
-    open(modalId, returnFocusElement = null) {
-      const modalData = this.modals.get(modalId);
-      if (!modalData) {
-        console.warn(`Modal "${modalId}" not registered`);
-        return;
-      }
-
-      UIManager.openModal(modalData.modal, returnFocusElement);
-    },
-
-    /** Close a modal by ID */
-    close(modalId) {
-      const modalData = this.modals.get(modalId);
-      if (!modalData) {
-        console.warn(`Modal "${modalId}" not registered`);
-        return;
-      }
-
-      UIManager.closeModal(modalData.modal);
-    },
-
-    /** Check if a modal is currently open */
-    isOpen(modalId) {
-      const modalData = this.modals.get(modalId);
-      return modalData?.modal.classList.contains("visible") || false;
-    },
-
-    /** Close all open modals */
-    closeAll() {
-      this.modals.forEach((data, id) => {
-        if (this.isOpen(id)) {
-          this.close(id);
-        }
-      });
-    },
-  };
+  // ModalManager now imported as a module
 
   // --- 4. COMMAND PATTERN IMPLEMENTATION ---
 
@@ -564,17 +507,7 @@ import {
     },
   });
 
-  /** Sets up event listeners for a modal to handle closing. */
-  const setupModal = (modal, closeButton, onDismiss) => {
-    closeButton.addEventListener("click", onDismiss);
-    modal.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") onDismiss();
-      else trapFocus(e, modal);
-    });
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) onDismiss();
-    });
-  };
+  // Note: Legacy setupModal helper removed; ModalManager now centralizes modal handling
 
   // --- 5. EVENT LISTENERS ---
 
@@ -918,116 +851,7 @@ import {
     UIManager.updateFullscreenIcons
   );
 
-  // --- Tooltip Logic with delay ---
-  let tooltipTimeout;
-  let tooltipHideTimeout;
-  const TOOLTIP_DELAY = 500; // 500ms delay before showing tooltip
-  const TOOLTIP_AUTO_HIDE = 3000; // 3s auto-hide on mobile
-
-  function updateTooltipPosition(mouseX, mouseY) {
-    const tooltipRect = tooltip.getBoundingClientRect();
-    const padding = 15;
-    let top = mouseY - tooltipRect.height - padding;
-    let left = mouseX - tooltipRect.width / 2;
-
-    if (top < padding) top = mouseY + padding;
-    if (left < padding) left = padding;
-    if (left + tooltipRect.width > window.innerWidth - padding)
-      left = window.innerWidth - tooltipRect.width - padding;
-
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
-  }
-
-  function hideTooltip() {
-    clearTimeout(tooltipTimeout);
-    clearTimeout(tooltipHideTimeout);
-    tooltip.classList.remove("visible");
-  }
-
-  // Hide tooltip when clicking anywhere on the page
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".menu-button, .slider-container")) {
-      hideTooltip();
-    }
-  });
-
-  // Hide tooltip on scroll (mobile)
-  document.addEventListener("scroll", hideTooltip, { passive: true });
-
-  subMenu.addEventListener("mouseover", (e) => {
-    const target = e.target.closest(".menu-button, .slider-container");
-    if (!target || !target.title) return;
-
-    // Clear any existing timeout
-    clearTimeout(tooltipTimeout);
-    clearTimeout(tooltipHideTimeout);
-
-    target.setAttribute("data-title", target.title);
-    target.removeAttribute("title");
-    const titleText = target.getAttribute("data-title");
-    const shortcutMatch = titleText.match(/\(([^)]+)\)/);
-    const cleanTitle = titleText.replace(/\s*\(([^)]+)\)/, "");
-    const [name, description] = cleanTitle.split(": ");
-
-    tooltip.innerHTML = ""; // Clear previous content
-    const strong = document.createElement("strong");
-    strong.textContent = name + " ";
-
-    if (shortcutMatch) {
-      const code = document.createElement("code");
-      code.textContent = shortcutMatch[1];
-      strong.appendChild(code);
-    }
-
-    const span = document.createElement("span");
-    span.textContent = description || "";
-
-    tooltip.appendChild(strong);
-    tooltip.appendChild(span);
-
-    // Delay showing the tooltip
-    tooltipTimeout = setTimeout(() => {
-      tooltip.classList.add("visible");
-      updateTooltipPosition(e.clientX, e.clientY);
-
-      // Auto-hide after 3 seconds (helpful for touch devices)
-      tooltipHideTimeout = setTimeout(() => {
-        hideTooltip();
-      }, TOOLTIP_AUTO_HIDE);
-    }, TOOLTIP_DELAY);
-  });
-
-  subMenu.addEventListener("mouseout", (e) => {
-    const target = e.target.closest(".menu-button, .slider-container");
-    if (!target || !target.getAttribute("data-title")) return;
-
-    // Clear timeout to prevent tooltip from showing after mouse has left
-    clearTimeout(tooltipTimeout);
-    clearTimeout(tooltipHideTimeout);
-
-    tooltip.classList.remove("visible");
-    target.setAttribute("title", target.getAttribute("data-title"));
-    target.removeAttribute("data-title");
-  });
-
-  // Touch event handlers for mobile
-  subMenu.addEventListener(
-    "touchstart",
-    (e) => {
-      const target = e.target.closest(".menu-button, .slider-container");
-      if (target) {
-        // Hide any existing tooltip on touch
-        hideTooltip();
-      }
-    },
-    { passive: true }
-  );
-
-  subMenu.addEventListener("mousemove", (e) => {
-    if (tooltip.classList.contains("visible"))
-      updateTooltipPosition(e.clientX, e.clientY);
-  });
+  // Tooltip logic moved into tooltipManager module
 
   // --- 6. ACCESSIBILITY - KEYBOARD ACTIVATION & SHORTCUTS ---
   document.querySelectorAll('[role="button"]').forEach((button) => {

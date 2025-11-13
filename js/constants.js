@@ -192,3 +192,8 @@ export const BUTTON_IDS = {
   INFO: "btn-info",
   MAIN_MENU: "main-menu-btn",
 };
+
+// --- TIMING CONSTANTS ---
+export const AUTO_HIDE_DELAY = 10000; // 10s for menu auto-hide
+export const TOOLTIP_DELAY = 500; // ms before showing tooltip
+export const TOOLTIP_AUTO_HIDE = 3000; // ms auto-hide for tooltip
