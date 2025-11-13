@@ -97,10 +97,11 @@ export const ConfigGenerator = {
   },
 
   generateInteraction: () => {
+    const hoverMode = getRandomItem(hoverModeOptions);
     const interaction = {
       detectsOn: "canvas",
       events: {
-        onHover: { enable: true, mode: getRandomItem(hoverModeOptions) },
+        onHover: { enable: true, mode: hoverMode },
         onClick: { enable: true, mode: getRandomItem(safeClickModes) },
       },
       modes: {
@@ -112,7 +113,7 @@ export const ConfigGenerator = {
           duration: 2,
         },
         parallax: {
-          enable: true,
+          enable: hoverMode === "parallax",
           force: 5 * AppState.particleState.chaosLevel,
           smooth: 10,
         },
