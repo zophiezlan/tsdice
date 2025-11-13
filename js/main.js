@@ -920,7 +920,9 @@ import {
 
   // --- Tooltip Logic with delay ---
   let tooltipTimeout;
+  let tooltipHideTimeout;
   const TOOLTIP_DELAY = 500; // 500ms delay before showing tooltip
+  const TOOLTIP_AUTO_HIDE = 3000; // 3s auto-hide on mobile
 
   function updateTooltipPosition(mouseX, mouseY) {
     const tooltipRect = tooltip.getBoundingClientRect();
@@ -937,12 +939,29 @@ import {
     tooltip.style.top = `${top}px`;
   }
 
+  function hideTooltip() {
+    clearTimeout(tooltipTimeout);
+    clearTimeout(tooltipHideTimeout);
+    tooltip.classList.remove("visible");
+  }
+
+  // Hide tooltip when clicking anywhere on the page
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menu-button, .slider-container")) {
+      hideTooltip();
+    }
+  });
+
+  // Hide tooltip on scroll (mobile)
+  document.addEventListener("scroll", hideTooltip, { passive: true });
+
   subMenu.addEventListener("mouseover", (e) => {
     const target = e.target.closest(".menu-button, .slider-container");
     if (!target || !target.title) return;
 
     // Clear any existing timeout
     clearTimeout(tooltipTimeout);
+    clearTimeout(tooltipHideTimeout);
 
     target.setAttribute("data-title", target.title);
     target.removeAttribute("title");
@@ -971,6 +990,11 @@ import {
     tooltipTimeout = setTimeout(() => {
       tooltip.classList.add("visible");
       updateTooltipPosition(e.clientX, e.clientY);
+
+      // Auto-hide after 3 seconds (helpful for touch devices)
+      tooltipHideTimeout = setTimeout(() => {
+        hideTooltip();
+      }, TOOLTIP_AUTO_HIDE);
     }, TOOLTIP_DELAY);
   });
 
@@ -980,11 +1004,25 @@ import {
 
     // Clear timeout to prevent tooltip from showing after mouse has left
     clearTimeout(tooltipTimeout);
+    clearTimeout(tooltipHideTimeout);
 
     tooltip.classList.remove("visible");
     target.setAttribute("title", target.getAttribute("data-title"));
     target.removeAttribute("data-title");
   });
+
+  // Touch event handlers for mobile
+  subMenu.addEventListener(
+    "touchstart",
+    (e) => {
+      const target = e.target.closest(".menu-button, .slider-container");
+      if (target) {
+        // Hide any existing tooltip on touch
+        hideTooltip();
+      }
+    },
+    { passive: true }
+  );
 
   subMenu.addEventListener("mousemove", (e) => {
     if (tooltip.classList.contains("visible"))
