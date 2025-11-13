@@ -190,5 +190,6 @@ export const BUTTON_IDS = {
   PAUSE: "btn-pause",
   SHARE: "btn-share",
   INFO: "btn-info",
+  SHORTCUTS: "btn-shortcuts",
   MAIN_MENU: "main-menu-btn",
 };

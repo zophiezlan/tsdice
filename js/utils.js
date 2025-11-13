@@ -5,6 +5,22 @@ export const getRandomItem = (arr) =>
 export const getChaosProbability = (baseProb, chaosLevel) =>
   Math.min(baseProb * (chaosLevel / 5), 1);
 
+/**
+ * Debounce function - delays execution until after wait milliseconds have passed
+ * since the last time it was invoked.
+ */
+export const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 /** Copies text to the user's clipboard. */
 export const copyToClipboard = async (text) => {
   try {

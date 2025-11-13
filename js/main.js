@@ -4,7 +4,7 @@ import { AppState } from "./state.js";
 import { UIManager } from "./uiManager.js";
 import { ConfigGenerator } from "./configGenerator.js";
 import { CommandManager } from "./commandManager.js";
-import { copyToClipboard, getRandomItem } from "./utils.js";
+import { copyToClipboard, getRandomItem, debounce } from "./utils.js";
 import {
   emojiOptions,
   darkColorPalette,
@@ -26,6 +26,10 @@ import {
   const closeModalBtn = document.getElementById("close-welcome-modal");
   const infoModal = document.getElementById("info-modal");
   const closeInfoModalBtn = document.getElementById("close-info-modal");
+  const shortcutsModal = document.getElementById("shortcuts-modal");
+  const closeShortcutsModalBtn = document.getElementById(
+    "close-shortcuts-modal"
+  );
   const fullscreenBtn = document.getElementById("fullscreen-btn");
 
   // --- 2. TOOLTIP SETUP ---
@@ -317,10 +321,81 @@ import {
     }
   };
 
+  /**
+   * Unified Modal Manager - handles all modal operations consistently
+   */
+  const ModalManager = {
+    modals: new Map(),
+
+    /** Register a modal with its close button and optional dismiss callback */
+    register(modalId, modal, closeButton, onDismiss = null) {
+      const dismissFn = onDismiss || (() => this.close(modalId));
+
+      closeButton.addEventListener("click", dismissFn);
+      modal.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") dismissFn();
+        else trapFocus(e, modal);
+      });
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) dismissFn();
+      });
+
+      this.modals.set(modalId, { modal, closeButton, dismissFn });
+    },
+
+    /** Open a modal by ID */
+    open(modalId, returnFocusElement = null) {
+      const modalData = this.modals.get(modalId);
+      if (!modalData) {
+        console.warn(`Modal "${modalId}" not registered`);
+        return;
+      }
+
+      UIManager.openModal(modalData.modal, returnFocusElement);
+    },
+
+    /** Close a modal by ID */
+    close(modalId) {
+      const modalData = this.modals.get(modalId);
+      if (!modalData) {
+        console.warn(`Modal "${modalId}" not registered`);
+        return;
+      }
+
+      UIManager.closeModal(modalData.modal);
+    },
+
+    /** Check if a modal is currently open */
+    isOpen(modalId) {
+      const modalData = this.modals.get(modalId);
+      return modalData?.modal.classList.contains("visible") || false;
+    },
+
+    /** Close all open modals */
+    closeAll() {
+      this.modals.forEach((data, id) => {
+        if (this.isOpen(id)) {
+          this.close(id);
+        }
+      });
+    },
+  };
+
   // --- 4. COMMAND PATTERN IMPLEMENTATION ---
+
+  /** Helper to get human-readable shuffle type name */
+  const getShuffleTypeName = (shuffleOptions) => {
+    if (shuffleOptions.all) return "All";
+    if (shuffleOptions.appearance) return "Appearance";
+    if (shuffleOptions.movement) return "Movement";
+    if (shuffleOptions.interaction) return "Interaction";
+    if (shuffleOptions.fx) return "Special FX";
+    return "Configuration";
+  };
 
   /** Factory function to create a shuffle command object. */
   const createShuffleCommand = (shuffleOptions) => {
+    const shuffleType = getShuffleTypeName(shuffleOptions);
     const oldConfig = structuredClone(AppState.particleState.currentConfig);
     const oldUIStates = {
       isGravityOn: AppState.ui.isGravityOn,
@@ -363,6 +438,7 @@ import {
           AppState.particleState.originalInteractionModes = structuredClone(
             newUIStates.originalInteractionModes
           );
+          UIManager.showToast(`Redid ${shuffleType} shuffle`);
         }
         await loadParticles(newConfig);
         UIManager.announce("New scene generated.");
@@ -380,6 +456,7 @@ import {
         );
 
         await loadParticles(oldConfig);
+        UIManager.showToast(`Undid ${shuffleType} shuffle`);
       },
     };
   };
@@ -578,10 +655,22 @@ import {
         break;
       case BUTTON_IDS.INFO:
         UIManager.populateInfoModal();
-        UIManager.openModal(infoModal, button);
+        ModalManager.open("info", button);
+        break;
+      case BUTTON_IDS.SHORTCUTS:
+        ModalManager.open("shortcuts", button);
         break;
     }
   });
+
+  // Create debounced functions for chaos slider
+  const debouncedChaosAnnounce = debounce((level) => {
+    UIManager.announce(`Chaos level ${level}`);
+  }, 300);
+
+  const debouncedChaosSave = debounce((level) => {
+    localStorage.setItem("tsDiceChaos", level);
+  }, 500);
 
   chaosSlider.addEventListener("input", (e) => {
     const newValue = parseInt(e.target.value, 10);
@@ -592,8 +681,9 @@ import {
     }
     AppState.particleState.chaosLevel = newValue;
     UIManager.syncUI();
-    UIManager.announce(`Chaos level ${AppState.particleState.chaosLevel}`);
-    localStorage.setItem("tsDiceChaos", AppState.particleState.chaosLevel);
+    // Use debounced versions to prevent excessive calls
+    debouncedChaosAnnounce(AppState.particleState.chaosLevel);
+    debouncedChaosSave(AppState.particleState.chaosLevel);
   });
 
   chaosSlider.addEventListener("change", () => {
@@ -605,14 +695,19 @@ import {
 
   /** Helper function to dismiss the welcome modal and set the timestamp. */
   const dismissWelcomeModal = () => {
-    UIManager.closeModal(welcomeModal);
+    ModalManager.close("welcome");
     localStorage.setItem("tsDiceWelcomeTimestamp", Date.now());
   };
 
-  setupModal(welcomeModal, closeModalBtn, dismissWelcomeModal);
-  setupModal(infoModal, closeInfoModalBtn, () =>
-    UIManager.closeModal(infoModal)
+  // Register all modals with the ModalManager
+  ModalManager.register(
+    "welcome",
+    welcomeModal,
+    closeModalBtn,
+    dismissWelcomeModal
   );
+  ModalManager.register("info", infoModal, closeInfoModalBtn);
+  ModalManager.register("shortcuts", shortcutsModal, closeShortcutsModalBtn);
 
   fullscreenBtn.addEventListener("click", toggleFullScreen);
   document.addEventListener(
@@ -704,9 +799,8 @@ import {
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      if (welcomeModal.classList.contains("visible")) dismissWelcomeModal();
-      if (infoModal.classList.contains("visible"))
-        UIManager.closeModal(infoModal);
+      // Close all modals on Escape
+      ModalManager.closeAll();
       return;
     }
     const activeEl = document.activeElement;
@@ -738,6 +832,7 @@ import {
         c: BUTTON_IDS.CURSOR,
         s: BUTTON_IDS.SHARE,
         "?": BUTTON_IDS.INFO,
+        k: BUTTON_IDS.SHORTCUTS,
         r: BUTTON_IDS.REFRESH,
         z: BUTTON_IDS.BACK,
         y: BUTTON_IDS.FORWARD,
@@ -827,7 +922,7 @@ import {
     !welcomeTimestamp ||
     now - parseInt(welcomeTimestamp, 10) > twentyFourHours
   ) {
-    setTimeout(() => UIManager.openModal(welcomeModal), 500);
+    setTimeout(() => ModalManager.open("welcome"), 500);
   }
 
   // --- 8. REDUCED MOTION HANDLING ---
