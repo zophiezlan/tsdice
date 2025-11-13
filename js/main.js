@@ -111,45 +111,55 @@ import {
       fpsLimit: 120,
       detectRetina: true,
     });
-    if (!newConfig.particles.move.gravity)
-      newConfig.particles.move.gravity = {};
-    newConfig.particles.move.gravity.enable = AppState.ui.isGravityOn;
-    newConfig.particles.move.gravity.acceleration = AppState.ui.isGravityOn
-      ? 20
-      : 0;
     newConfig.particles.number = {
       value: 20 + AppState.particleState.chaosLevel * 20,
     };
 
-    // Preserve walls state after shuffle
+    // Apply all UI toggle states to the new config
+    reapplyToggleStates(newConfig);
+
+    return newConfig;
+  };
+
+  /**
+   * Reapplies UI toggle states (walls, cursor, gravity) to a configuration.
+   * This ensures toggle states persist across shuffles and undo/redo operations.
+   */
+  const reapplyToggleStates = (config) => {
+    // Apply gravity state
+    if (!config.particles.move.gravity) config.particles.move.gravity = {};
+    config.particles.move.gravity.enable = AppState.ui.isGravityOn;
+    config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
+      ? 20
+      : 0;
+
+    // Apply walls state
     if (AppState.ui.areWallsOn) {
       if (
         !AppState.particleState.originalOutModes ||
         Object.keys(AppState.particleState.originalOutModes).length === 0
       ) {
         AppState.particleState.originalOutModes = structuredClone(
-          newConfig.particles.move.outModes
+          config.particles.move.outModes
         );
       }
-      newConfig.particles.move.outModes = { default: "bounce" };
+      config.particles.move.outModes = { default: "bounce" };
     }
 
-    // Preserve cursor particle mode after shuffle
+    // Apply cursor particle state
     if (AppState.ui.isCursorParticle) {
       if (!AppState.particleState.originalInteractionModes.hover) {
         AppState.particleState.originalInteractionModes.hover =
-          newConfig.interactivity.events.onHover.mode;
+          config.interactivity.events.onHover.mode;
       }
-      newConfig.interactivity.modes.trail = {
+      config.interactivity.modes.trail = {
         delay: 0.05,
         quantity: 1,
         pauseOnStop: true,
       };
-      newConfig.interactivity.events.onHover.mode = "trail";
-      newConfig.interactivity.events.onClick.enable = false;
+      config.interactivity.events.onHover.mode = "trail";
+      config.interactivity.events.onClick.enable = false;
     }
-
-    return newConfig;
   };
 
   /** Loads a given configuration into the tsParticles instance. */
@@ -254,14 +264,63 @@ import {
   /** Factory function to create a shuffle command object. */
   const createShuffleCommand = (shuffleOptions) => {
     const oldConfig = structuredClone(AppState.particleState.currentConfig);
+    const oldUIStates = {
+      isGravityOn: AppState.ui.isGravityOn,
+      areWallsOn: AppState.ui.areWallsOn,
+      isCursorParticle: AppState.ui.isCursorParticle,
+      originalOutModes: AppState.particleState.originalOutModes
+        ? structuredClone(AppState.particleState.originalOutModes)
+        : null,
+      originalInteractionModes: structuredClone(
+        AppState.particleState.originalInteractionModes
+      ),
+    };
     let newConfig = null;
+    let newUIStates = null;
+
     return {
       async execute() {
-        if (!newConfig) newConfig = buildConfig(shuffleOptions);
+        if (!newConfig) {
+          newConfig = buildConfig(shuffleOptions);
+          // Capture UI states after shuffle (they should be same, but let's be explicit)
+          newUIStates = {
+            isGravityOn: AppState.ui.isGravityOn,
+            areWallsOn: AppState.ui.areWallsOn,
+            isCursorParticle: AppState.ui.isCursorParticle,
+            originalOutModes: AppState.particleState.originalOutModes
+              ? structuredClone(AppState.particleState.originalOutModes)
+              : null,
+            originalInteractionModes: structuredClone(
+              AppState.particleState.originalInteractionModes
+            ),
+          };
+        } else {
+          // Restore new UI states on redo
+          AppState.ui.isGravityOn = newUIStates.isGravityOn;
+          AppState.ui.areWallsOn = newUIStates.areWallsOn;
+          AppState.ui.isCursorParticle = newUIStates.isCursorParticle;
+          AppState.particleState.originalOutModes = newUIStates.originalOutModes
+            ? structuredClone(newUIStates.originalOutModes)
+            : {};
+          AppState.particleState.originalInteractionModes = structuredClone(
+            newUIStates.originalInteractionModes
+          );
+        }
         await loadParticles(newConfig);
         UIManager.announce("New scene generated.");
       },
       async undo() {
+        // Restore old UI states
+        AppState.ui.isGravityOn = oldUIStates.isGravityOn;
+        AppState.ui.areWallsOn = oldUIStates.areWallsOn;
+        AppState.ui.isCursorParticle = oldUIStates.isCursorParticle;
+        AppState.particleState.originalOutModes = oldUIStates.originalOutModes
+          ? structuredClone(oldUIStates.originalOutModes)
+          : {};
+        AppState.particleState.originalInteractionModes = structuredClone(
+          oldUIStates.originalInteractionModes
+        );
+
         await loadParticles(oldConfig);
       },
     };
