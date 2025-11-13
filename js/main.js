@@ -26,6 +26,7 @@ import {
   const closeModalBtn = document.getElementById("close-welcome-modal");
   const infoModal = document.getElementById("info-modal");
   const closeInfoModalBtn = document.getElementById("close-info-modal");
+  const btnInfo = document.getElementById(BUTTON_IDS.INFO);
   const fullscreenBtn = document.getElementById("fullscreen-btn");
 
   // --- 2. TOOLTIP SETUP ---
