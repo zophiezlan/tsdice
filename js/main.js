@@ -14,8 +14,22 @@ import {
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
-  // Must be called before any other tsParticles calls.
-  await loadAll(tsParticles);
+  try {
+    // Must be called before any other tsParticles calls.
+    await loadAll(tsParticles);
+  } catch (error) {
+    console.error("Failed to load tsParticles library:", error);
+    document.body.innerHTML = `
+      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui; text-align: center; padding: 20px;">
+        <div>
+          <h1 style="color: #ff6b6b; margin-bottom: 16px;">⚠️ Failed to Load</h1>
+          <p style="color: #666; margin-bottom: 20px;">Unable to initialize the particle engine. Please check your internet connection and refresh the page.</p>
+          <button onclick="location.reload()" style="padding: 12px 24px; background: #4ecdc4; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">Reload Page</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   // --- 1. ELEMENT SELECTORS ---
   const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
@@ -36,17 +50,25 @@ import {
 
   // --- 3. CORE LOGIC FUNCTIONS ---
 
-  /** Generates a random string of emojis for the short URL. */
+  /**
+   * Generates a random string of emojis for the short URL.
+   * @param {number} count - Number of emojis to generate
+   * @returns {string} Random emoji string
+   */
   const generateRandomEmojiString = (count) => {
     let emojiString = "";
-    // Loop 'count' times instead of a fixed number
     for (let i = 0; i < count; i++) {
       emojiString += getRandomItem(emojiOptions);
     }
     return emojiString;
   };
 
-  /** Creates a short URL using the spoo.me API hosted on share.ket.horse */
+  /**
+   * Creates a short URL using the spoo.me API hosted on share.ket.horse.
+   * Generates an 8-emoji shortened link for easier sharing.
+   * @param {string} longUrl - The full URL to shorten
+   * @returns {Promise<string|null>} The shortened URL or null if shortening fails
+   */
   async function createEmojiShortUrl(longUrl) {
     try {
       const response = await fetch("https://share.ket.horse/emoji", {
@@ -483,6 +505,16 @@ import {
           );
           UIManager.showToast(`Redid ${shuffleType} shuffle`);
         }
+
+        // Add subtle burst effect on shuffle
+        const container = document.getElementById("tsparticles");
+        if (container) {
+          container.style.filter = "brightness(1.3)";
+          setTimeout(() => {
+            container.style.filter = "";
+          }, 150);
+        }
+
         await loadParticles(newConfig);
         UIManager.announce("New scene generated.");
       },
@@ -545,6 +577,28 @@ import {
   };
 
   // --- 5. EVENT LISTENERS ---
+
+  // Auto-hide menu after 10 seconds of inactivity
+  const AUTO_HIDE_DELAY = 10000; // 10 seconds
+  let menuInactivityTimer = null;
+
+  const resetMenuInactivityTimer = () => {
+    clearTimeout(menuInactivityTimer);
+    if (menuContainer.classList.contains("active")) {
+      menuInactivityTimer = setTimeout(() => {
+        if (menuContainer.classList.contains("active")) {
+          mainMenuBtn.click(); // Close the menu
+        }
+      }, AUTO_HIDE_DELAY);
+    }
+  };
+
+  // Track menu interaction to reset inactivity timer
+  menuContainer.addEventListener("mouseenter", resetMenuInactivityTimer);
+  menuContainer.addEventListener("mousemove", resetMenuInactivityTimer);
+  menuContainer.addEventListener("click", resetMenuInactivityTimer);
+  menuContainer.addEventListener("touchstart", resetMenuInactivityTimer);
+
   mainMenuBtn.addEventListener("click", () => {
     const isActive = menuContainer.classList.toggle("active");
     mainMenuBtn.setAttribute("aria-pressed", isActive);
@@ -554,8 +608,10 @@ import {
     );
     if (isActive) {
       document.getElementById(BUTTON_IDS.SHUFFLE_ALL).focus();
+      resetMenuInactivityTimer(); // Start auto-hide timer
     } else {
       mainMenuBtn.focus(); // Return focus on close
+      clearTimeout(menuInactivityTimer); // Clear timer when closed manually
     }
   });
 
@@ -667,30 +723,55 @@ import {
           };
           try {
             button.classList.add("disabled");
-            UIManager.showToast("Creating shareable link...");
-            UIManager.announce("Creating shareable link...");
+            UIManager.showToast("⏳ Creating shareable link...");
+            UIManager.announce("Creating shareable link");
+
             const compressedConfig = LZString.compressToEncodedURIComponent(
               JSON.stringify(sharableConfig)
             );
             const fullUrl = `${
               window.location.href.split("#")[0]
             }#config=${compressedConfig}`;
-            const shortUrl = await createEmojiShortUrl(fullUrl);
-            if (shortUrl) {
-              await copyToClipboard(shortUrl);
-              UIManager.showToast("Short emoji link copied!");
-              UIManager.announce("Short emoji link copied!");
-            } else {
-              await copyToClipboard(fullUrl);
-              UIManager.showToast(
-                "Shortening failed. Full link copied instead."
+
+            // Try to create short URL, but don't block on failure
+            let finalUrl = fullUrl;
+            try {
+              const shortUrl = await createEmojiShortUrl(fullUrl);
+              if (shortUrl) {
+                finalUrl = shortUrl;
+              }
+            } catch (shortenError) {
+              console.warn(
+                "URL shortening failed, using full URL:",
+                shortenError
               );
-              UIManager.announce("Full link copied.");
+            }
+
+            await copyToClipboard(finalUrl);
+
+            // Show different message based on URL type
+            const isShortenedUrl = finalUrl !== fullUrl;
+            if (isShortenedUrl) {
+              UIManager.showToast(
+                `✓ Short link copied! ${finalUrl.split("/").pop()}`
+              );
+              UIManager.announce("Short emoji link copied to clipboard");
+            } else {
+              UIManager.showToast("✓ Link copied to clipboard");
+              UIManager.announce("Full configuration link copied to clipboard");
             }
           } catch (e) {
-            UIManager.showToast("Could not create share link.");
-            UIManager.announce("Error creating share link.");
             console.error("Share error:", e);
+            UIManager.showToast("❌ Failed to create share link");
+            UIManager.announce("Error creating share link");
+
+            // Attempt to at least copy current URL as fallback
+            try {
+              await copyToClipboard(window.location.href);
+              UIManager.showToast("Current page URL copied as fallback");
+            } catch (fallbackError) {
+              console.error("Even fallback failed:", fallbackError);
+            }
           } finally {
             button.classList.remove("disabled");
           }
@@ -993,6 +1074,63 @@ import {
     }
   });
 
+  // --- KONAMI CODE EASTER EGG ---
+  /** Special particle configuration for Konami code (↑ ↑ ↓ ↓ ← → ← → B A) */
+  const konamiCode = [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight",
+    "b",
+    "a",
+  ];
+  let konamiIndex = 0;
+
+  document.addEventListener("keydown", (e) => {
+    const key = e.key.toLowerCase();
+    const expectedKey = konamiCode[konamiIndex].toLowerCase();
+
+    if (key === expectedKey || e.key === expectedKey) {
+      konamiIndex++;
+      if (konamiIndex === konamiCode.length) {
+        konamiIndex = 0;
+        // Trigger special "party mode" configuration
+        const partyConfig = buildConfig({ all: true });
+        partyConfig.particles.number.value = 300;
+        partyConfig.particles.color.value = "random";
+        partyConfig.particles.move.speed = 10;
+        partyConfig.particles.shape.type = ["star", "circle", "triangle"];
+        partyConfig.particles.size.value = { min: 2, max: 8 };
+        partyConfig.particles.move.direction = "none";
+        partyConfig.particles.move.random = true;
+        partyConfig.particles.move.outModes = { default: "bounce" };
+
+        CommandManager.execute({
+          newConfig: partyConfig,
+          shuffleType: "🎉 Party Mode",
+          async execute() {
+            await loadParticles(partyConfig);
+            AppState.particleState.currentConfig = partyConfig;
+            UIManager.syncUI();
+            UIManager.showToast("🎉 Party Mode Activated! 🎊");
+            UIManager.announce("Party mode activated with Konami code");
+          },
+          async undo() {
+            const prevConfig = AppState.particleState.currentConfig;
+            await loadParticles(prevConfig);
+            UIManager.syncUI();
+          },
+        });
+      }
+    } else {
+      konamiIndex = 0;
+    }
+  });
+
   // --- 7. INITIALISATION ---
   /** This section sets up the initial state of the application on load. */
   const savedTheme = localStorage.getItem("tsDiceTheme");
@@ -1107,4 +1245,13 @@ import {
     }
   }, 250);
   window.addEventListener("resize", handleResize);
+
+  // --- 10. MEMORY LEAK PREVENTION ---
+  /** Cleanup function to prevent memory leaks on page unload */
+  window.addEventListener("beforeunload", () => {
+    const container = AppState.ui.particlesContainer;
+    if (container) {
+      container.destroy();
+    }
+  });
 })();
