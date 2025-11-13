@@ -98,6 +98,7 @@ export const ConfigGenerator = {
 
   generateInteraction: () => {
     const interaction = {
+      detectsOn: "canvas",
       events: {
         onHover: { enable: true, mode: getRandomItem(hoverModeOptions) },
         onClick: { enable: true, mode: getRandomItem(safeClickModes) },
