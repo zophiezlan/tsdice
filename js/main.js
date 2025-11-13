@@ -120,6 +120,35 @@ import {
     newConfig.particles.number = {
       value: 20 + AppState.particleState.chaosLevel * 20,
     };
+
+    // Preserve walls state after shuffle
+    if (AppState.ui.areWallsOn) {
+      if (
+        !AppState.particleState.originalOutModes ||
+        Object.keys(AppState.particleState.originalOutModes).length === 0
+      ) {
+        AppState.particleState.originalOutModes = structuredClone(
+          newConfig.particles.move.outModes
+        );
+      }
+      newConfig.particles.move.outModes = { default: "bounce" };
+    }
+
+    // Preserve cursor particle mode after shuffle
+    if (AppState.ui.isCursorParticle) {
+      if (!AppState.particleState.originalInteractionModes.hover) {
+        AppState.particleState.originalInteractionModes.hover =
+          newConfig.interactivity.events.onHover.mode;
+      }
+      newConfig.interactivity.modes.trail = {
+        delay: 0.05,
+        quantity: 1,
+        pauseOnStop: true,
+      };
+      newConfig.interactivity.events.onHover.mode = "trail";
+      newConfig.interactivity.events.onClick.enable = false;
+    }
+
     return newConfig;
   };
 
