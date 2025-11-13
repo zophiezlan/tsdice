@@ -26,10 +26,6 @@ import {
   const closeModalBtn = document.getElementById("close-welcome-modal");
   const infoModal = document.getElementById("info-modal");
   const closeInfoModalBtn = document.getElementById("close-info-modal");
-  const shortcutsModal = document.getElementById("shortcuts-modal");
-  const closeShortcutsModalBtn = document.getElementById(
-    "close-shortcuts-modal"
-  );
   const fullscreenBtn = document.getElementById("fullscreen-btn");
 
   // --- 2. TOOLTIP SETUP ---
@@ -657,9 +653,6 @@ import {
         UIManager.populateInfoModal();
         ModalManager.open("info", button);
         break;
-      case BUTTON_IDS.SHORTCUTS:
-        ModalManager.open("shortcuts", button);
-        break;
     }
   });
 
@@ -699,6 +692,30 @@ import {
     localStorage.setItem("tsDiceWelcomeTimestamp", Date.now());
   };
 
+  /** Tab switcher for info modal */
+  const setupInfoModalTabs = () => {
+    const tabButtons = infoModal.querySelectorAll(".modal-tab");
+    const tabContents = infoModal.querySelectorAll(".modal-tab-content");
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const targetTab = button.dataset.tab;
+
+        // Remove active class from all tabs and contents
+        tabButtons.forEach((btn) => {
+          btn.classList.remove("active");
+          btn.setAttribute("aria-selected", "false");
+        });
+        tabContents.forEach((content) => content.classList.remove("active"));
+
+        // Add active class to clicked tab and corresponding content
+        button.classList.add("active");
+        button.setAttribute("aria-selected", "true");
+        document.getElementById(`tab-${targetTab}`).classList.add("active");
+      });
+    });
+  };
+
   // Register all modals with the ModalManager
   ModalManager.register(
     "welcome",
@@ -707,7 +724,9 @@ import {
     dismissWelcomeModal
   );
   ModalManager.register("info", infoModal, closeInfoModalBtn);
-  ModalManager.register("shortcuts", shortcutsModal, closeShortcutsModalBtn);
+
+  // Setup tab functionality for info modal
+  setupInfoModalTabs();
 
   fullscreenBtn.addEventListener("click", toggleFullScreen);
   document.addEventListener(
@@ -832,7 +851,6 @@ import {
         c: BUTTON_IDS.CURSOR,
         s: BUTTON_IDS.SHARE,
         "?": BUTTON_IDS.INFO,
-        k: BUTTON_IDS.SHORTCUTS,
         r: BUTTON_IDS.REFRESH,
         z: BUTTON_IDS.BACK,
         y: BUTTON_IDS.FORWARD,
