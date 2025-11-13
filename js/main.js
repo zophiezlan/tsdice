@@ -171,6 +171,9 @@ import {
 
   /** Loads a given configuration into the tsParticles instance. */
   const loadParticles = async (config) => {
+    // Store previous config for error recovery
+    const previousConfig = AppState.particleState.currentConfig;
+
     try {
       // Show subtle loading state for slow operations
       const loadingTimeout = setTimeout(() => {
@@ -208,7 +211,24 @@ import {
     } catch (error) {
       console.error("Failed to load particles:", error);
       UIManager.hideLoadingIndicator();
-      UIManager.showToast("Failed to load particle configuration");
+
+      // Restore previous working config
+      if (previousConfig && Object.keys(previousConfig).length > 0) {
+        AppState.particleState.currentConfig = previousConfig;
+        try {
+          await tsParticles.load({
+            id: "tsparticles",
+            options: JSON.parse(JSON.stringify(previousConfig)),
+          });
+          UIManager.showToast("Config error - restored previous state");
+        } catch (recoveryError) {
+          console.error("Recovery also failed:", recoveryError);
+          UIManager.showToast("Failed to load particles - please refresh");
+        }
+      } else {
+        UIManager.showToast("Failed to load particle configuration");
+      }
+
       UIManager.announce("Error loading particle configuration");
     }
   };

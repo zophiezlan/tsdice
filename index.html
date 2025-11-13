@@ -116,11 +116,20 @@
         -webkit-user-select: none;
         user-select: none;
         flex-shrink: 0;
+        /* Ensure minimum touch target size for accessibility */
+        min-width: 44px;
+        min-height: 44px;
       }
       .glass-button:hover {
         background: var(--glass-bg-hover);
         transform: scale(1.1);
       }
+
+      /* Subtle tap feedback for mobile */
+      .glass-button:active {
+        transform: scale(0.95);
+      }
+
       .glass-button.disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -613,6 +622,18 @@
           width: calc(100vw - 90px);
           max-width: 380px;
         }
+
+        /* Smaller buttons on mobile for 4-column grid */
+        .glass-button {
+          width: 44px;
+          height: 44px;
+        }
+
+        /* Ensure 4-column layout on mobile */
+        .sub-menu fieldset {
+          gap: 6px;
+        }
+
         .submenu-divider {
           width: 95%;
           margin: 4px auto;
@@ -620,6 +641,23 @@
         .slider-container {
           max-width: 280px;
           width: 100%;
+        }
+      }
+
+      /* Extra small screens - even smaller buttons */
+      @media (max-width: 400px) {
+        .glass-button {
+          width: 40px;
+          height: 40px;
+        }
+
+        .sub-menu fieldset {
+          gap: 5px;
+        }
+
+        .sub-menu {
+          width: calc(100vw - 80px);
+          padding: 10px;
         }
       }
 

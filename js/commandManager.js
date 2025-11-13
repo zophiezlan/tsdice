@@ -10,6 +10,18 @@ export const CommandManager = {
 
   /** Executes a command, adds it to the undo stack, and clears the redo stack. */
   execute(command) {
+    // Check if this command produces the same config as the last one (deduplication)
+    if (this.undoStack.length > 0) {
+      const lastCommand = this.undoStack[this.undoStack.length - 1];
+      const lastConfig = JSON.stringify(lastCommand.newConfig);
+      const newConfig = JSON.stringify(command.newConfig);
+
+      if (lastConfig === newConfig) {
+        // Skip adding duplicate consecutive configs
+        return;
+      }
+    }
+
     command.execute();
     this.undoStack.push(command);
     if (this.undoStack.length > 20) this.undoStack.shift();
