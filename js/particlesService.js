@@ -145,15 +145,16 @@ export const loadParticles = async (config) => {
           options: JSON.parse(JSON.stringify(previousConfig)),
         });
         UIManager.showToast("Config error - restored previous state");
+        UIManager.announce("Config error - restored previous state");
       } catch (recoveryError) {
         console.error("Recovery also failed:", recoveryError);
         UIManager.showToast("Failed to load particles - please refresh");
+        UIManager.announce("Failed to load particles - please refresh");
       }
     } else {
       UIManager.showToast("Failed to load particle configuration");
+      UIManager.announce("Failed to load particle configuration");
     }
-
-    UIManager.announce("Error loading particle configuration");
   }
 };
 

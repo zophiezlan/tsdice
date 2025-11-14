@@ -109,9 +109,9 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
       "tsDiceTheme",
       AppState.ui.isDarkMode ? "dark" : "light"
     );
-    UIManager.announce(
-      AppState.ui.isDarkMode ? "Dark theme enabled" : "Light theme enabled"
-    );
+    const themeMessage = AppState.ui.isDarkMode ? "Dark theme enabled" : "Light theme enabled";
+    UIManager.announce(themeMessage);
+    UIManager.showToast(themeMessage);
     await updateThemeAndReload();
   };
 
@@ -207,7 +207,9 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
           AppState.particleState.originalInteractionModes = structuredClone(
             newUIStates.originalInteractionModes
           );
-          UIManager.showToast(`Redid ${shuffleType} shuffle`);
+          const redoMessage = `Redid ${shuffleType} shuffle`;
+          UIManager.showToast(redoMessage);
+          UIManager.announce(redoMessage);
         }
 
         // Add subtle burst effect on shuffle
@@ -235,7 +237,9 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
         );
 
         await loadParticles(oldConfig);
-        UIManager.showToast(`Undid ${shuffleType} shuffle`);
+        const undoMessage = `Undid ${shuffleType} shuffle`;
+        UIManager.showToast(undoMessage);
+        UIManager.announce(undoMessage);
       },
     };
   };
@@ -388,15 +392,16 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
           const container = AppState.ui.particlesContainer;
           if (!container) {
             UIManager.showToast("No particle animation loaded");
+            UIManager.announce("No particle animation loaded");
             return;
           }
           AppState.ui.isPaused = !AppState.ui.isPaused;
           if (AppState.ui.isPaused) container.pause();
           else container.play();
           UIManager.syncUI();
-          UIManager.announce(
-            AppState.ui.isPaused ? "Animation paused" : "Animation resumed"
-          );
+          const pauseMessage = AppState.ui.isPaused ? "Animation paused" : "Animation resumed";
+          UIManager.announce(pauseMessage);
+          UIManager.showToast(pauseMessage);
         })();
         break;
       case BUTTON_IDS.SHARE:
@@ -462,6 +467,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
             try {
               await copyToClipboard(window.location.href);
               UIManager.showToast("Current page URL copied as fallback");
+              UIManager.announce("Current page URL copied as fallback");
             } catch (fallbackError) {
               console.error("Even fallback failed:", fallbackError);
             }
@@ -501,10 +507,10 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
   });
 
   chaosSlider.addEventListener("change", () => {
-    // Show toast on change (when user releases the slider)
-    UIManager.showToast(
-      `Chaos level set to ${AppState.particleState.chaosLevel}`
-    );
+    // Show toast and announce on change (when user releases the slider)
+    const chaosMessage = `Chaos level set to ${AppState.particleState.chaosLevel}`;
+    UIManager.showToast(chaosMessage);
+    UIManager.announce(chaosMessage);
   });
 
   /** Helper function to dismiss the welcome modal and set the timestamp. */
@@ -756,6 +762,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
       console.error("Failed to parse config from URL:", e);
       window.location.hash = "";
       UIManager.showToast("Invalid shared configuration link");
+      UIManager.announce("Invalid shared configuration link");
     }
   }
 
