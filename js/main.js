@@ -4,22 +4,14 @@ import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ModalManager } from './modalManager.js';
 import { initTooltipManager } from './tooltipManager.js';
-import { ConfigGenerator } from './configGenerator.js';
 import { CommandManager } from './commandManager.js';
 import { copyToClipboard, getRandomItem, debounce } from './utils.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { StateManager, Actions } from './stateManager.js';
-import {
-  emojiOptions,
-  darkColorPalette,
-  lightColorPalette,
-  BUTTON_IDS,
-  AUTO_HIDE_DELAY,
-} from './constants.js';
+import { emojiOptions, BUTTON_IDS, AUTO_HIDE_DELAY } from './constants.js';
 import {
   buildConfig,
   loadParticles,
-  reapplyToggleStates,
   applyCursorMode,
   applyWallsMode,
   applyGravityMode,
@@ -127,28 +119,6 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         .catch((err) => console.error(err));
     } else if (document.exitFullscreen) {
       document.exitFullscreen();
-    }
-  };
-
-  /** Traps focus within a modal for accessibility. */
-  const trapFocus = (e, modal) => {
-    if (e.key !== 'Tab') return;
-    const focusableElements = modal.querySelectorAll('button, [href]');
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    if (e.shiftKey) {
-      // Shift + Tab
-      if (document.activeElement === firstElement) {
-        lastElement.focus();
-        e.preventDefault();
-      }
-    } else {
-      // Tab
-      if (document.activeElement === lastElement) {
-        firstElement.focus();
-        e.preventDefault();
-      }
     }
   };
 
@@ -625,7 +595,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
   });
 
   chaosSlider.addEventListener('keydown', (e) => {
-    let value = parseInt(chaosSlider.value, 10);
+    const value = parseInt(chaosSlider.value, 10);
     if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
       chaosSlider.value = Math.max(1, value - 1);
     } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {

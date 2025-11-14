@@ -159,6 +159,8 @@ export const ErrorHandler = {
     }
 
     const requiredProps = ['particles', 'interactivity'];
-    return requiredProps.every((prop) => config.hasOwnProperty(prop));
+    return requiredProps.every((prop) =>
+      Object.prototype.hasOwnProperty.call(config, prop)
+    );
   },
 };

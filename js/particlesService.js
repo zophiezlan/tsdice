@@ -57,7 +57,7 @@ export const buildConfig = (shuffleOptions) => {
   const isNew =
     !AppState.particleState.currentConfig ||
     Object.keys(AppState.particleState.currentConfig).length === 0;
-  let newConfig = isNew ? {} : { ...AppState.particleState.currentConfig };
+  const newConfig = isNew ? {} : { ...AppState.particleState.currentConfig };
 
   if (shuffleOptions.all || isNew) {
     newConfig.particles = {

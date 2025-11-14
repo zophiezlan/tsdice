@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ConfigGenerator } from '../js/configGenerator.js';
 import { AppState } from '../js/state.js';
 
@@ -124,7 +124,7 @@ describe('ConfigGenerator', () => {
 
     it('should scale speed with chaos level', () => {
       AppState.particleState.chaosLevel = 1;
-      const lowChaosMovement = ConfigGenerator.generateMovement();
+      ConfigGenerator.generateMovement(); // Low chaos
 
       AppState.particleState.chaosLevel = 10;
       const highChaosMovement = ConfigGenerator.generateMovement();

@@ -25,17 +25,17 @@ export const debounce = (func, wait) => {
 export const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text);
-  } catch (err) {
-    const textArea = document.createElement("textarea");
+  } catch {
+    const textArea = document.createElement('textarea');
     textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.top = "-9999px";
+    textArea.style.position = 'fixed';
+    textArea.style.top = '-9999px';
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
     try {
-      document.execCommand("copy");
-    } catch (execErr) {
+      document.execCommand('copy');
+    } catch {
       // UIManager.showToast('Failed to copy link.');
     }
     document.body.removeChild(textArea);

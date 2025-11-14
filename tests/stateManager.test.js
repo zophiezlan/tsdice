@@ -42,6 +42,7 @@ describe('StateManager', () => {
     vi.clearAllMocks();
 
     // Mock localStorage
+    // eslint-disable-next-line no-undef
     global.localStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),

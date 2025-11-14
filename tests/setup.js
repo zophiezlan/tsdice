@@ -1,18 +1,21 @@
 // Test setup file for Vitest
-import { vi } from 'vitest';
+/* global global */
+import { beforeAll, vi } from 'vitest';
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
-global.localStorage = localStorageMock;
+beforeAll(() => {
+  // Mock localStorage
+  const localStorageMock = {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+  };
+  global.localStorage = localStorageMock;
 
-// Mock console.warn and console.error to reduce noise in tests
-global.console = {
-  ...console,
-  warn: vi.fn(),
-  error: vi.fn(),
-};
+  // Mock console.warn and console.error to reduce noise in tests
+  global.console = {
+    ...console,
+    warn: vi.fn(),
+    error: vi.fn(),
+  };
+});
