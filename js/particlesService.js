@@ -1,9 +1,11 @@
-import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm";
-import { AppState } from "./state.js";
-import { UIManager } from "./uiManager.js";
-import { ConfigGenerator } from "./configGenerator.js";
-import { getRandomItem } from "./utils.js";
-import { darkColorPalette, lightColorPalette } from "./constants.js";
+import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
+import { AppState } from './state.js';
+import { UIManager } from './uiManager.js';
+import { ConfigGenerator } from './configGenerator.js';
+import { getRandomItem } from './utils.js';
+import { darkColorPalette, lightColorPalette } from './constants.js';
+import { PARTICLE_CONFIG } from './constants/particles.js';
+import { THEME_BACKGROUNDS } from './constants/colors.js';
 
 /**
  * Reapplies UI toggle states (walls, cursor, gravity) to a configuration.
@@ -13,7 +15,9 @@ export const reapplyToggleStates = (config) => {
   // Apply gravity state
   if (!config.particles.move.gravity) config.particles.move.gravity = {};
   config.particles.move.gravity.enable = AppState.ui.isGravityOn;
-  config.particles.move.gravity.acceleration = AppState.ui.isGravityOn ? 20 : 0;
+  config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
+    ? PARTICLE_CONFIG.GRAVITY_ACCELERATION
+    : 0;
 
   // Apply walls state
   if (AppState.ui.areWallsOn) {
@@ -25,9 +29,9 @@ export const reapplyToggleStates = (config) => {
         config.particles.move.outModes
       );
     }
-    config.particles.move.outModes = { default: "bounce" };
+    config.particles.move.outModes = { default: 'bounce' };
   } else {
-    if (config.particles.move.outModes?.default !== "bounce") {
+    if (config.particles.move.outModes?.default !== 'bounce') {
       AppState.particleState.originalOutModes = {};
     }
   }
@@ -43,7 +47,7 @@ export const reapplyToggleStates = (config) => {
       quantity: 1,
       pauseOnStop: true,
     };
-    config.interactivity.events.onHover.mode = "trail";
+    config.interactivity.events.onHover.mode = 'trail';
     config.interactivity.events.onClick.enable = false;
   }
 };
@@ -82,15 +86,22 @@ export const buildConfig = (shuffleOptions) => {
 
   Object.assign(newConfig, {
     background: {
-      color: { value: AppState.ui.isDarkMode ? "#111" : "#f0f0f0" },
+      color: {
+        value: AppState.ui.isDarkMode
+          ? THEME_BACKGROUNDS.DARK
+          : THEME_BACKGROUNDS.LIGHT,
+      },
     },
-    fpsLimit: 120,
+    fpsLimit: PARTICLE_CONFIG.FPS_LIMIT,
     detectRetina: true,
     pauseOnBlur: false,
     pauseOnOutsideViewport: false,
   });
   newConfig.particles.number = {
-    value: 20 + AppState.particleState.chaosLevel * 20,
+    value:
+      PARTICLE_CONFIG.BASE_PARTICLE_COUNT +
+      AppState.particleState.chaosLevel *
+        PARTICLE_CONFIG.CHAOS_PARTICLE_MULTIPLIER,
   };
 
   // Apply all UI toggle states to the new config
@@ -109,22 +120,22 @@ export const loadParticles = async (config) => {
     }, 300);
 
     AppState.particleState.currentConfig = config;
-    localStorage.setItem("tsDiceLastConfig", JSON.stringify(config));
+    localStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
 
-    const containerEl = document.getElementById("tsparticles");
+    const containerEl = document.getElementById('tsparticles');
     if (containerEl && AppState.ui.particlesContainer) {
-      containerEl.style.transition = "opacity 0.2s ease";
-      containerEl.style.opacity = "0.3";
+      containerEl.style.transition = 'opacity 0.2s ease';
+      containerEl.style.opacity = '0.3';
     }
 
     AppState.ui.particlesContainer = await tsParticles.load({
-      id: "tsparticles",
+      id: 'tsparticles',
       options: JSON.parse(JSON.stringify(config)),
     });
 
     if (containerEl) {
       setTimeout(() => {
-        containerEl.style.opacity = "1";
+        containerEl.style.opacity = '1';
       }, 50);
     }
 
@@ -134,26 +145,26 @@ export const loadParticles = async (config) => {
     clearTimeout(loadingTimeout);
     UIManager.hideLoadingIndicator();
   } catch (error) {
-    console.error("Failed to load particles:", error);
+    console.error('Failed to load particles:', error);
     UIManager.hideLoadingIndicator();
 
     if (previousConfig && Object.keys(previousConfig).length > 0) {
       AppState.particleState.currentConfig = previousConfig;
       try {
         await tsParticles.load({
-          id: "tsparticles",
+          id: 'tsparticles',
           options: JSON.parse(JSON.stringify(previousConfig)),
         });
-        UIManager.showToast("Config error - restored previous state");
-        UIManager.announce("Config error - restored previous state");
+        UIManager.showToast('Config error - restored previous state');
+        UIManager.announce('Config error - restored previous state');
       } catch (recoveryError) {
-        console.error("Recovery also failed:", recoveryError);
-        UIManager.showToast("Failed to load particles - please refresh");
-        UIManager.announce("Failed to load particles - please refresh");
+        console.error('Recovery also failed:', recoveryError);
+        UIManager.showToast('Failed to load particles - please refresh');
+        UIManager.announce('Failed to load particles - please refresh');
       }
     } else {
-      UIManager.showToast("Failed to load particle configuration");
-      UIManager.announce("Failed to load particle configuration");
+      UIManager.showToast('Failed to load particle configuration');
+      UIManager.announce('Failed to load particle configuration');
     }
   }
 };
@@ -171,11 +182,11 @@ export const applyCursorMode = () => {
       quantity: 1,
       pauseOnStop: true,
     };
-    config.interactivity.events.onHover.mode = "trail";
+    config.interactivity.events.onHover.mode = 'trail';
     config.interactivity.events.onClick.enable = false;
   } else {
     config.interactivity.events.onHover.mode =
-      AppState.particleState.originalInteractionModes.hover || "repulse";
+      AppState.particleState.originalInteractionModes.hover || 'repulse';
     config.interactivity.events.onClick.enable = true;
     delete AppState.particleState.originalInteractionModes.hover;
   }
@@ -195,7 +206,7 @@ export const applyWallsMode = () => {
         config.particles.move.outModes
       );
     }
-    config.particles.move.outModes = { default: "bounce" };
+    config.particles.move.outModes = { default: 'bounce' };
   } else {
     if (AppState.particleState.originalOutModes) {
       config.particles.move.outModes = structuredClone(
@@ -211,7 +222,9 @@ export const applyGravityMode = () => {
   const config = AppState.particleState.currentConfig;
   if (!config.particles.move.gravity) config.particles.move.gravity = {};
   config.particles.move.gravity.enable = AppState.ui.isGravityOn;
-  config.particles.move.gravity.acceleration = AppState.ui.isGravityOn ? 20 : 0;
+  config.particles.move.gravity.acceleration = AppState.ui.isGravityOn
+    ? PARTICLE_CONFIG.GRAVITY_ACCELERATION
+    : 0;
 };
 
 /** Update theme-sensitive colors of current config and reload. */
@@ -225,17 +238,19 @@ export const updateThemeAndReload = async () => {
   const newPalette = AppState.ui.isDarkMode
     ? darkColorPalette
     : lightColorPalette;
-  config.background.color.value = AppState.ui.isDarkMode ? "#111" : "#f0f0f0";
-  if (config.particles.color.value !== "random")
+  config.background.color.value = AppState.ui.isDarkMode
+    ? THEME_BACKGROUNDS.DARK
+    : THEME_BACKGROUNDS.LIGHT;
+  if (config.particles.color.value !== 'random')
     config.particles.color.value = getRandomItem(newPalette);
   if (config.particles.links.enable)
     config.particles.links.color.value = AppState.ui.isDarkMode
-      ? "#ffffff"
-      : "#333333";
+      ? '#ffffff'
+      : '#333333';
   if (config.particles.move.trail.enable)
     config.particles.move.trail.fill.color.value = AppState.ui.isDarkMode
-      ? "#111"
-      : "#f0f0f0";
+      ? THEME_BACKGROUNDS.DARK
+      : THEME_BACKGROUNDS.LIGHT;
 
   await loadParticles(config);
 };

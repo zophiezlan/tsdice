@@ -4,6 +4,9 @@
   "description": "tsDice - The Ultimate tsParticles Scene Randomizer",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -21,6 +24,7 @@
   "author": "zophiezlan",
   "license": "MIT",
   "devDependencies": {
+    "@vitejs/plugin-legacy": "^7.2.1",
     "@vitest/coverage-v8": "^4.0.8",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
@@ -28,6 +32,8 @@
     "happy-dom": "^20.0.10",
     "jsdom": "^27.2.0",
     "prettier": "^3.6.2",
+    "vite": "^7.2.2",
+    "vite-plugin-html": "^3.2.2",
     "vitest": "^4.0.8"
   }
 }
