@@ -86,6 +86,8 @@ Each module has a single, well-defined responsibility:
 | `keyboardShortcuts.js` | Global keyboard event handling           | Constants, Modal Manager |
 | `utils.js`             | Pure utility functions                   | None                     |
 | `constants.js`         | Static data arrays                       | None                     |
+| `errorHandler.js`      | Centralized error handling & validation  | UI Manager               |
+| `stateManager.js`      | State mutations & dispatch pattern       | State, UI Manager, Error |
 
 ### 2. Unidirectional Data Flow
 
@@ -96,6 +98,8 @@ User Input → Event Handler → Command Factory → Command Manager
                                                      ↓
                                               Execute Command
                                                      ↓
+                                     StateManager.dispatch(action)
+                                                     ↓
                                         Update AppState (state.js)
                                                      ↓
                                         Generate/Apply Config (configGenerator + particlesService)
@@ -104,6 +108,8 @@ User Input → Event Handler → Command Factory → Command Manager
                                                      ↓
                                               Visual Feedback
 ```
+
+**New in Phase 2:** State mutations now go through `StateManager.dispatch()` for validation and centralized control.
 
 ### 3. Command Pattern for Time Travel
 
@@ -135,11 +141,138 @@ This enables:
 - Tooltips provide context but aren't required
 - Reduced motion preferences honored automatically
 
+### 6. Centralized Error Handling (Phase 2)
+
+All error-prone operations are wrapped with `ErrorHandler`:
+
+- **Typed Errors**: Classify errors by type for appropriate handling
+- **User Feedback**: Show user-friendly messages via toast notifications
+- **Recovery**: Distinguish between recoverable and fatal errors
+- **Validation**: Centralized config validation before operations
+
+### 7. Dispatch Pattern for State (Phase 2)
+
+State mutations follow a dispatch pattern:
+
+- **Action Creators**: Type-safe functions for creating actions
+- **Validation**: StateManager validates changes before applying
+- **Persistence**: Automatic localStorage sync
+- **Immutability**: State changes return new objects, not mutations
+
 ---
 
 ## Module Architecture
 
 ### Core Modules
+
+#### `errorHandler.js` — Centralized Error Handling (Phase 2)
+
+**Purpose:** Provide consistent error handling with user-friendly feedback and automatic recovery.
+
+```javascript
+// Error Types
+export const ErrorType = {
+  LIBRARY_LOAD: 'LIBRARY_LOAD', // tsParticles loading failure
+  CONFIG_INVALID: 'CONFIG_INVALID', // Invalid particle configuration
+  PARTICLES_LOAD: 'PARTICLES_LOAD', // Particle initialization failure
+  SHARE_FAILED: 'SHARE_FAILED', // Share functionality error
+  STORAGE_ERROR: 'STORAGE_ERROR', // localStorage operation failure
+  NETWORK_ERROR: 'NETWORK_ERROR', // Network request failure
+  UNKNOWN: 'UNKNOWN', // Catch-all for unexpected errors
+};
+
+// API
+ErrorHandler.handle(error, errorType); // Handle and log error
+ErrorHandler.wrap(asyncFn, errorType); // Wrap async function
+ErrorHandler.validateConfig(config); // Validate particle config
+```
+
+**Features:**
+
+- **User-Friendly Messages**: Shows toast notifications with helpful error messages
+- **Accessibility**: Announces errors to screen readers
+- **Recovery Classification**: Distinguishes fatal vs. recoverable errors
+- **Console Logging**: Detailed error info for debugging
+
+**Example Usage:**
+
+```javascript
+// Wrap an async function with automatic error handling
+const safeLoadParticles = ErrorHandler.wrap(
+  loadParticles,
+  ErrorType.PARTICLES_LOAD
+);
+await safeLoadParticles(config);
+
+// Validate configuration before using
+if (!ErrorHandler.validateConfig(config)) {
+  // Handle invalid config
+}
+```
+
+#### `stateManager.js` — State Management with Dispatch Pattern (Phase 2)
+
+**Purpose:** Centralize state mutations with validation and automatic persistence.
+
+```javascript
+// Action Types
+export const ActionType = {
+  SET_THEME: 'SET_THEME', // Dark/light mode
+  SET_CHAOS_LEVEL: 'SET_CHAOS_LEVEL', // Chaos slider value
+  TOGGLE_GRAVITY: 'TOGGLE_GRAVITY', // Gravity on/off
+  TOGGLE_WALLS: 'TOGGLE_WALLS', // Wall collisions
+  TOGGLE_CURSOR: 'TOGGLE_CURSOR', // Cursor particle mode
+  TOGGLE_PAUSE: 'TOGGLE_PAUSE', // Animation pause
+  SET_CONFIG: 'SET_CONFIG', // Particle configuration
+  SAVE_INTERACTION: 'SAVE_INTERACTION', // Save interaction modes
+  SAVE_OUT_MODES: 'SAVE_OUT_MODES', // Save out modes
+};
+
+// API
+StateManager.dispatch(action); // Apply state change
+StateManager.getState(); // Get immutable copy
+StateManager.persist(); // Save to localStorage
+StateManager.validate(); // Validate state integrity
+```
+
+**Action Creators:**
+
+```javascript
+// Convenient functions for creating actions
+Actions.setTheme(isDark); // Set theme
+Actions.setChaosLevel(level); // Set chaos level (1-10)
+Actions.toggleGravity(); // Toggle gravity
+Actions.toggleWalls(); // Toggle walls
+Actions.toggleCursor(); // Toggle cursor mode
+Actions.togglePause(); // Toggle pause
+Actions.setConfig(config); // Set particle config
+```
+
+**Example Usage:**
+
+```javascript
+// Dispatch an action to change theme
+StateManager.dispatch(Actions.setTheme(false));
+
+// Persist changes to localStorage
+StateManager.persist();
+
+// Get immutable state snapshot
+const currentState = StateManager.getState();
+
+// Validate state integrity
+if (!StateManager.validate()) {
+  console.error('State validation failed');
+}
+```
+
+**Benefits:**
+
+- **Type-Safe Actions**: Action creators prevent typos and ensure correct payloads
+- **Centralized Validation**: All state changes validated in one place
+- **Automatic UI Sync**: UIManager.syncUI() called after mutations
+- **Easy Debugging**: All state changes logged with action type
+- **Immutability**: getState() returns deep copies, preventing accidental mutations
 
 #### `state.js` — The Single Source of Truth
 
@@ -280,7 +413,7 @@ Called after **every state change**, guaranteeing UI consistency.
 
 ```javascript
 // 1. USER CLICKS "Shuffle All"
-subMenu.addEventListener("click", (e) => {
+subMenu.addEventListener('click', (e) => {
   if (button.id === BUTTON_IDS.SHUFFLE_ALL) {
     // 2. CREATE SHUFFLE COMMAND
     const command = createShuffleCommand({ all: true });
@@ -303,21 +436,21 @@ const createShuffleCommand = (shuffleOptions) => {
       newConfig = buildConfig(shuffleOptions);
 
       // 5. VISUAL EFFECT (optional burst)
-      container.style.filter = "brightness(1.3)";
-      setTimeout(() => (container.style.filter = ""), 150);
+      container.style.filter = 'brightness(1.3)';
+      setTimeout(() => (container.style.filter = ''), 150);
 
       // 6. LOAD INTO tsParticles
       await loadParticles(newConfig);
 
       // 7. ANNOUNCE TO SCREEN READERS
-      UIManager.announce("New scene generated.");
+      UIManager.announce('New scene generated.');
     },
 
     async undo() {
       // 8. RESTORE OLD STATE
       AppState.particleState.currentConfig = oldConfig;
       await loadParticles(oldConfig);
-      UIManager.showToast("Undid shuffle");
+      UIManager.showToast('Undid shuffle');
     },
   };
 };
@@ -337,7 +470,7 @@ const buildConfig = (shuffleOptions) => {
   }
 
   // 10. APPLY THEME & PARTICLE COUNT
-  config.background = { color: { value: isDarkMode ? "#111" : "#f0f0f0" } };
+  config.background = { color: { value: isDarkMode ? '#111' : '#f0f0f0' } };
   config.particles.number = { value: 20 + chaosLevel * 20 };
 
   // 11. REAPPLY UI TOGGLES
@@ -355,11 +488,11 @@ const loadParticles = async (config) => {
   );
 
   // 13. SAVE TO LOCAL STORAGE
-  localStorage.setItem("tsDiceLastConfig", JSON.stringify(config));
+  localStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
 
   // 14. INITIALIZE tsParticles
   AppState.ui.particlesContainer = await tsParticles.load({
-    id: "tsparticles",
+    id: 'tsparticles',
     options: config,
   });
 
@@ -519,7 +652,7 @@ const applyWallsMode = () => {
     }
 
     // 2. Override with bounce
-    config.particles.move.outModes = { default: "bounce" };
+    config.particles.move.outModes = { default: 'bounce' };
   } else {
     // 3. Restore original out modes
     config.particles.move.outModes = structuredClone(
@@ -556,7 +689,7 @@ const debounce = (func, wait) => {
 };
 
 // Usage: Chaos slider
-chaosSlider.addEventListener("input", (e) => {
+chaosSlider.addEventListener('input', (e) => {
   AppState.particleState.chaosLevel = parseInt(e.target.value);
 
   // Announce after 300ms of no changes (prevents spam)
@@ -576,8 +709,8 @@ chaosSlider.addEventListener("input", (e) => {
 Instead of 17 individual click listeners, **one listener** handles all buttons:
 
 ```javascript
-subMenu.addEventListener("click", (e) => {
-  const button = e.target.closest(".menu-button");
+subMenu.addEventListener('click', (e) => {
+  const button = e.target.closest('.menu-button');
   if (!button) return;
 
   switch (button.id) {
@@ -645,7 +778,7 @@ All UI animations use CSS transitions:
 ### 5. Reduced Motion Support
 
 ```javascript
-const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 if (motionQuery.matches) {
   // Auto-pause animations
   container.pause();
@@ -655,7 +788,7 @@ if (motionQuery.matches) {
 ### 6. Memory Leak Prevention
 
 ```javascript
-window.addEventListener("beforeunload", () => {
+window.addEventListener('beforeunload', () => {
   if (AppState.ui.particlesContainer) {
     AppState.ui.particlesContainer.destroy();
   }
@@ -692,7 +825,7 @@ Could add to `index.html`:
 // Chaos slider validation
 const newValue = parseInt(e.target.value, 10);
 if (newValue < 1 || newValue > 10 || isNaN(newValue)) {
-  console.warn("Invalid chaos level:", newValue);
+  console.warn('Invalid chaos level:', newValue);
   return;
 }
 ```
@@ -705,20 +838,20 @@ try {
   const parsedConfig = JSON.parse(decodedString);
 
   // Validate structure
-  if (!parsedConfig || typeof parsedConfig !== "object") {
-    throw new Error("Invalid config structure");
+  if (!parsedConfig || typeof parsedConfig !== 'object') {
+    throw new Error('Invalid config structure');
   }
 
   if (!parsedConfig.particles || !parsedConfig.interactivity) {
-    throw new Error("Missing required config properties");
+    throw new Error('Missing required config properties');
   }
 
   // Safe to use
   await loadParticles(parsedConfig);
 } catch (e) {
-  console.error("Failed to parse config from URL:", e);
-  window.location.hash = "";
-  UIManager.showToast("Invalid shared configuration link");
+  console.error('Failed to parse config from URL:', e);
+  window.location.hash = '';
+  UIManager.showToast('Invalid shared configuration link');
 }
 ```
 
@@ -809,7 +942,7 @@ case BUTTON_IDS.FULLSCREEN_TOGGLE:
 ```javascript
 document
   .getElementById(BUTTON_IDS.FULLSCREEN_TOGGLE)
-  .classList.toggle("active", AppState.ui.isFullscreen);
+  .classList.toggle('active', AppState.ui.isFullscreen);
 ```
 
 ### Adding a New Keyboard Shortcut

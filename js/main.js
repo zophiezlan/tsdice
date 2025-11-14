@@ -1,19 +1,21 @@
-import { tsParticles } from "https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm";
-import { loadAll } from "https://cdn.jsdelivr.net/npm/@tsparticles/all@3.9.1/+esm";
-import { AppState } from "./state.js";
-import { UIManager } from "./uiManager.js";
-import { ModalManager } from "./modalManager.js";
-import { initTooltipManager } from "./tooltipManager.js";
-import { ConfigGenerator } from "./configGenerator.js";
-import { CommandManager } from "./commandManager.js";
-import { copyToClipboard, getRandomItem, debounce } from "./utils.js";
+import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
+import { loadAll } from 'https://cdn.jsdelivr.net/npm/@tsparticles/all@3.9.1/+esm';
+import { AppState } from './state.js';
+import { UIManager } from './uiManager.js';
+import { ModalManager } from './modalManager.js';
+import { initTooltipManager } from './tooltipManager.js';
+import { ConfigGenerator } from './configGenerator.js';
+import { CommandManager } from './commandManager.js';
+import { copyToClipboard, getRandomItem, debounce } from './utils.js';
+import { ErrorHandler, ErrorType } from './errorHandler.js';
+import { StateManager, Actions } from './stateManager.js';
 import {
   emojiOptions,
   darkColorPalette,
   lightColorPalette,
   BUTTON_IDS,
   AUTO_HIDE_DELAY,
-} from "./constants.js";
+} from './constants.js';
 import {
   buildConfig,
   loadParticles,
@@ -22,16 +24,19 @@ import {
   applyWallsMode,
   applyGravityMode,
   updateThemeAndReload,
-} from "./particlesService.js";
-import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
+} from './particlesService.js';
+import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
-  try {
-    // Must be called before any other tsParticles calls.
-    await loadAll(tsParticles);
-  } catch (error) {
-    console.error("Failed to load tsParticles library:", error);
+  // Initialize tsParticles with error handling
+  const loadTsParticles = ErrorHandler.wrap(
+    async () => await loadAll(tsParticles),
+    ErrorType.LIBRARY_LOAD
+  );
+
+  const particlesLoaded = await loadTsParticles();
+  if (!particlesLoaded) {
     document.body.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui; text-align: center; padding: 20px;">
         <div>
@@ -46,15 +51,15 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   // --- 1. ELEMENT SELECTORS ---
   const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
-  const menuContainer = document.getElementById("menu-container");
-  const subMenu = document.getElementById("sub-menu");
-  const chaosSlider = document.getElementById("chaos-slider");
-  const welcomeModal = document.getElementById("welcome-modal");
-  const closeModalBtn = document.getElementById("close-welcome-modal");
-  const infoModal = document.getElementById("info-modal");
-  const closeInfoModalBtn = document.getElementById("close-info-modal");
+  const menuContainer = document.getElementById('menu-container');
+  const subMenu = document.getElementById('sub-menu');
+  const chaosSlider = document.getElementById('chaos-slider');
+  const welcomeModal = document.getElementById('welcome-modal');
+  const closeModalBtn = document.getElementById('close-welcome-modal');
+  const infoModal = document.getElementById('info-modal');
+  const closeInfoModalBtn = document.getElementById('close-info-modal');
   const btnInfo = document.getElementById(BUTTON_IDS.INFO);
-  const fullscreenBtn = document.getElementById("fullscreen-btn");
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
 
   // --- 2. TOOLTIP SETUP ---
   initTooltipManager(subMenu);
@@ -67,7 +72,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
    * @returns {string} Random emoji string
    */
   const generateRandomEmojiString = (count) => {
-    let emojiString = "";
+    let emojiString = '';
     for (let i = 0; i < count; i++) {
       emojiString += getRandomItem(emojiOptions);
     }
@@ -82,11 +87,11 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
    */
   async function createEmojiShortUrl(longUrl) {
     try {
-      const response = await fetch("https://share.ket.horse/emoji", {
-        method: "POST",
+      const response = await fetch('https://share.ket.horse/emoji', {
+        method: 'POST',
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
           url: longUrl,
@@ -97,19 +102,18 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
         throw new Error(`API request failed with status ${response.status}`);
       return (await response.json()).short_url;
     } catch (error) {
-      console.error("Failed to create emoji short URL:", error);
+      console.error('Failed to create emoji short URL:', error);
       return null;
     }
   }
 
   /** Handles the logic for toggling the application's color theme. */
   const updateTheme = async () => {
-    AppState.ui.isDarkMode = !AppState.ui.isDarkMode;
-    localStorage.setItem(
-      "tsDiceTheme",
-      AppState.ui.isDarkMode ? "dark" : "light"
-    );
-    const themeMessage = AppState.ui.isDarkMode ? "Dark theme enabled" : "Light theme enabled";
+    StateManager.dispatch(Actions.setTheme(!AppState.ui.isDarkMode));
+    StateManager.persist();
+    const themeMessage = AppState.ui.isDarkMode
+      ? 'Dark theme enabled'
+      : 'Light theme enabled';
     UIManager.announce(themeMessage);
     UIManager.showToast(themeMessage);
     await updateThemeAndReload();
@@ -128,8 +132,8 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   /** Traps focus within a modal for accessibility. */
   const trapFocus = (e, modal) => {
-    if (e.key !== "Tab") return;
-    const focusableElements = modal.querySelectorAll("button, [href]");
+    if (e.key !== 'Tab') return;
+    const focusableElements = modal.querySelectorAll('button, [href]');
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -154,12 +158,12 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   /** Helper to get human-readable shuffle type name */
   const getShuffleTypeName = (shuffleOptions) => {
-    if (shuffleOptions.all) return "All";
-    if (shuffleOptions.appearance) return "Appearance";
-    if (shuffleOptions.movement) return "Movement";
-    if (shuffleOptions.interaction) return "Interaction";
-    if (shuffleOptions.fx) return "Special FX";
-    return "Configuration";
+    if (shuffleOptions.all) return 'All';
+    if (shuffleOptions.appearance) return 'Appearance';
+    if (shuffleOptions.movement) return 'Movement';
+    if (shuffleOptions.interaction) return 'Interaction';
+    if (shuffleOptions.fx) return 'Special FX';
+    return 'Configuration';
   };
 
   /** Factory function to create a shuffle command object. */
@@ -213,16 +217,16 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
         }
 
         // Add subtle burst effect on shuffle
-        const container = document.getElementById("tsparticles");
+        const container = document.getElementById('tsparticles');
         if (container) {
-          container.style.filter = "brightness(1.3)";
+          container.style.filter = 'brightness(1.3)';
           setTimeout(() => {
-            container.style.filter = "";
+            container.style.filter = '';
           }, 150);
         }
 
         await loadParticles(newConfig);
-        UIManager.announce("New scene generated.");
+        UIManager.announce('New scene generated.');
       },
       async undo() {
         // Restore old UI states
@@ -250,11 +254,11 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
       AppState.ui[stateKey] = !AppState.ui[stateKey];
       await applyFn();
       const stateName = stateKey
-        .replace("is", "")
-        .replace("On", "")
-        .replace("Particle", "");
+        .replace('is', '')
+        .replace('On', '')
+        .replace('Particle', '');
       UIManager.announce(
-        `${stateName} ${AppState.ui[stateKey] ? "enabled" : "disabled"}`
+        `${stateName} ${AppState.ui[stateKey] ? 'enabled' : 'disabled'}`
       );
     },
     async undo() {
@@ -281,9 +285,9 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   const resetMenuInactivityTimer = () => {
     clearTimeout(menuInactivityTimer);
-    if (menuContainer.classList.contains("active")) {
+    if (menuContainer.classList.contains('active')) {
       menuInactivityTimer = setTimeout(() => {
-        if (menuContainer.classList.contains("active")) {
+        if (menuContainer.classList.contains('active')) {
           mainMenuBtn.click(); // Close the menu
         }
       }, AUTO_HIDE_DELAY);
@@ -291,17 +295,17 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
   };
 
   // Track menu interaction to reset inactivity timer
-  menuContainer.addEventListener("mouseenter", resetMenuInactivityTimer);
-  menuContainer.addEventListener("mousemove", resetMenuInactivityTimer);
-  menuContainer.addEventListener("click", resetMenuInactivityTimer);
-  menuContainer.addEventListener("touchstart", resetMenuInactivityTimer);
+  menuContainer.addEventListener('mouseenter', resetMenuInactivityTimer);
+  menuContainer.addEventListener('mousemove', resetMenuInactivityTimer);
+  menuContainer.addEventListener('click', resetMenuInactivityTimer);
+  menuContainer.addEventListener('touchstart', resetMenuInactivityTimer);
 
-  mainMenuBtn.addEventListener("click", () => {
-    const isActive = menuContainer.classList.toggle("active");
-    mainMenuBtn.setAttribute("aria-pressed", isActive);
+  mainMenuBtn.addEventListener('click', () => {
+    const isActive = menuContainer.classList.toggle('active');
+    mainMenuBtn.setAttribute('aria-pressed', isActive);
     mainMenuBtn.setAttribute(
-      "aria-label",
-      isActive ? "Close Settings Menu" : "Open Settings Menu"
+      'aria-label',
+      isActive ? 'Close Settings Menu' : 'Open Settings Menu'
     );
     if (isActive) {
       document.getElementById(BUTTON_IDS.SHUFFLE_ALL).focus();
@@ -313,8 +317,8 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
   });
 
   /** Main event listener for the control panel, using event delegation for performance. */
-  subMenu.addEventListener("click", (e) => {
-    const button = e.target.closest(".menu-button");
+  subMenu.addEventListener('click', (e) => {
+    const button = e.target.closest('.menu-button');
     if (!button) return;
 
     switch (button.id) {
@@ -344,34 +348,34 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
         break;
       case BUTTON_IDS.GRAVITY:
         CommandManager.execute(
-          createToggleCommand("isGravityOn", async () => {
+          createToggleCommand('isGravityOn', async () => {
             applyGravityMode();
             await loadParticles(AppState.particleState.currentConfig);
             UIManager.showToast(
-              `Gravity ${AppState.ui.isGravityOn ? "enabled" : "disabled"}`
+              `Gravity ${AppState.ui.isGravityOn ? 'enabled' : 'disabled'}`
             );
           })
         );
         break;
       case BUTTON_IDS.WALLS:
         CommandManager.execute(
-          createToggleCommand("areWallsOn", async () => {
+          createToggleCommand('areWallsOn', async () => {
             applyWallsMode();
             await loadParticles(AppState.particleState.currentConfig);
             UIManager.showToast(
-              `Walls ${AppState.ui.areWallsOn ? "enabled" : "disabled"}`
+              `Walls ${AppState.ui.areWallsOn ? 'enabled' : 'disabled'}`
             );
           })
         );
         break;
       case BUTTON_IDS.CURSOR:
         CommandManager.execute(
-          createToggleCommand("isCursorParticle", async () => {
+          createToggleCommand('isCursorParticle', async () => {
             applyCursorMode();
             await loadParticles(AppState.particleState.currentConfig);
             UIManager.showToast(
               `Cursor particle ${
-                AppState.ui.isCursorParticle ? "enabled" : "disabled"
+                AppState.ui.isCursorParticle ? 'enabled' : 'disabled'
               }`
             );
           })
@@ -382,8 +386,8 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
           const config = AppState.particleState.currentConfig;
           if (config && Object.keys(config).length > 0) {
             await loadParticles(config);
-            UIManager.showToast("Scene refreshed!");
-            UIManager.announce("Scene refreshed");
+            UIManager.showToast('Scene refreshed!');
+            UIManager.announce('Scene refreshed');
           }
         })();
         break;
@@ -391,44 +395,47 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
         (() => {
           const container = AppState.ui.particlesContainer;
           if (!container) {
-            UIManager.showToast("No particle animation loaded");
-            UIManager.announce("No particle animation loaded");
+            UIManager.showToast('No particle animation loaded');
+            UIManager.announce('No particle animation loaded');
             return;
           }
-          AppState.ui.isPaused = !AppState.ui.isPaused;
+          StateManager.dispatch(Actions.togglePause());
           if (AppState.ui.isPaused) container.pause();
           else container.play();
           UIManager.syncUI();
-          const pauseMessage = AppState.ui.isPaused ? "Animation paused" : "Animation resumed";
+          const pauseMessage = AppState.ui.isPaused
+            ? 'Animation paused'
+            : 'Animation resumed';
           UIManager.announce(pauseMessage);
           UIManager.showToast(pauseMessage);
         })();
         break;
       case BUTTON_IDS.SHARE:
         (async () => {
-          const sharableConfig = structuredClone(
-            AppState.particleState.currentConfig
-          );
-          sharableConfig.uiState = {
-            chaosLevel: AppState.particleState.chaosLevel,
-            isDarkMode: AppState.ui.isDarkMode,
-            isCursorParticle: AppState.ui.isCursorParticle,
-            isGravityOn: AppState.ui.isGravityOn,
-            areWallsOn: AppState.ui.areWallsOn,
-            originalOutModes: AppState.ui.areWallsOn
-              ? AppState.particleState.originalOutModes
-              : undefined,
-          };
-          try {
-            button.classList.add("disabled");
-            UIManager.showToast("⏳ Creating shareable link...");
-            UIManager.announce("Creating shareable link");
+          const handleShare = ErrorHandler.wrap(async () => {
+            const sharableConfig = structuredClone(
+              AppState.particleState.currentConfig
+            );
+            sharableConfig.uiState = {
+              chaosLevel: AppState.particleState.chaosLevel,
+              isDarkMode: AppState.ui.isDarkMode,
+              isCursorParticle: AppState.ui.isCursorParticle,
+              isGravityOn: AppState.ui.isGravityOn,
+              areWallsOn: AppState.ui.areWallsOn,
+              originalOutModes: AppState.ui.areWallsOn
+                ? AppState.particleState.originalOutModes
+                : undefined,
+            };
+
+            button.classList.add('disabled');
+            UIManager.showToast('⏳ Creating shareable link...');
+            UIManager.announce('Creating shareable link');
 
             const compressedConfig = LZString.compressToEncodedURIComponent(
               JSON.stringify(sharableConfig)
             );
             const fullUrl = `${
-              window.location.href.split("#")[0]
+              window.location.href.split('#')[0]
             }#config=${compressedConfig}`;
 
             // Try to create short URL, but don't block on failure
@@ -440,7 +447,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
               }
             } catch (shortenError) {
               console.warn(
-                "URL shortening failed, using full URL:",
+                'URL shortening failed, using full URL:',
                 shortenError
               );
             }
@@ -451,34 +458,22 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
             const isShortenedUrl = finalUrl !== fullUrl;
             if (isShortenedUrl) {
               UIManager.showToast(
-                `✓ Short link copied! ${finalUrl.split("/").pop()}`
+                `✓ Short link copied! ${finalUrl.split('/').pop()}`
               );
-              UIManager.announce("Short emoji link copied to clipboard");
+              UIManager.announce('Short emoji link copied to clipboard');
             } else {
-              UIManager.showToast("✓ Link copied to clipboard");
-              UIManager.announce("Full configuration link copied to clipboard");
+              UIManager.showToast('✓ Link copied to clipboard');
+              UIManager.announce('Full configuration link copied to clipboard');
             }
-          } catch (e) {
-            console.error("Share error:", e);
-            UIManager.showToast("❌ Failed to create share link");
-            UIManager.announce("Error creating share link");
+          }, ErrorType.SHARE_FAILED);
 
-            // Attempt to at least copy current URL as fallback
-            try {
-              await copyToClipboard(window.location.href);
-              UIManager.showToast("Current page URL copied as fallback");
-              UIManager.announce("Current page URL copied as fallback");
-            } catch (fallbackError) {
-              console.error("Even fallback failed:", fallbackError);
-            }
-          } finally {
-            button.classList.remove("disabled");
-          }
+          await handleShare();
+          button.classList.remove('disabled');
         })();
         break;
       case BUTTON_IDS.INFO:
         UIManager.populateInfoModal();
-        ModalManager.open("info", button);
+        ModalManager.open('info', button);
         break;
     }
   });
@@ -489,24 +484,24 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
   }, 300);
 
   const debouncedChaosSave = debounce((level) => {
-    localStorage.setItem("tsDiceChaos", level);
+    localStorage.setItem('tsDiceChaos', level);
   }, 500);
 
-  chaosSlider.addEventListener("input", (e) => {
+  chaosSlider.addEventListener('input', (e) => {
     const newValue = parseInt(e.target.value, 10);
     // Validate range
     if (newValue < 1 || newValue > 10 || isNaN(newValue)) {
-      console.warn("Invalid chaos level:", newValue);
+      console.warn('Invalid chaos level:', newValue);
       return;
     }
-    AppState.particleState.chaosLevel = newValue;
+    StateManager.dispatch(Actions.setChaosLevel(newValue));
     UIManager.syncUI();
     // Use debounced versions to prevent excessive calls
     debouncedChaosAnnounce(AppState.particleState.chaosLevel);
     debouncedChaosSave(AppState.particleState.chaosLevel);
   });
 
-  chaosSlider.addEventListener("change", () => {
+  chaosSlider.addEventListener('change', () => {
     // Show toast and announce on change (when user releases the slider)
     const chaosMessage = `Chaos level set to ${AppState.particleState.chaosLevel}`;
     UIManager.showToast(chaosMessage);
@@ -515,43 +510,43 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   /** Helper function to dismiss the welcome modal and set the timestamp. */
   const dismissWelcomeModal = () => {
-    const dontShowCheckbox = document.getElementById("dont-show-welcome");
-    ModalManager.close("welcome");
+    const dontShowCheckbox = document.getElementById('dont-show-welcome');
+    ModalManager.close('welcome');
 
     if (dontShowCheckbox && dontShowCheckbox.checked) {
       // Set a far future timestamp so it never shows again
       localStorage.setItem(
-        "tsDiceWelcomeTimestamp",
+        'tsDiceWelcomeTimestamp',
         Date.now() + 365 * 24 * 60 * 60 * 1000
       ); // 1 year in future
-      localStorage.setItem("tsDiceWelcomeDismissed", "true");
+      localStorage.setItem('tsDiceWelcomeDismissed', 'true');
     } else {
       // Set current timestamp for 24-hour reset
-      localStorage.setItem("tsDiceWelcomeTimestamp", Date.now());
+      localStorage.setItem('tsDiceWelcomeTimestamp', Date.now());
     }
   };
 
   /** Tab switcher for info modal */
   const setupInfoModalTabs = () => {
-    const tabButtons = infoModal.querySelectorAll(".modal-tab");
-    const tabContents = infoModal.querySelectorAll(".modal-tab-content");
-    const LAST_TAB_KEY = "tsDiceLastInfoTab";
+    const tabButtons = infoModal.querySelectorAll('.modal-tab');
+    const tabContents = infoModal.querySelectorAll('.modal-tab-content');
+    const LAST_TAB_KEY = 'tsDiceLastInfoTab';
 
     tabButtons.forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener('click', () => {
         const targetTab = button.dataset.tab;
 
         // Remove active class from all tabs and contents
         tabButtons.forEach((btn) => {
-          btn.classList.remove("active");
-          btn.setAttribute("aria-selected", "false");
+          btn.classList.remove('active');
+          btn.setAttribute('aria-selected', 'false');
         });
-        tabContents.forEach((content) => content.classList.remove("active"));
+        tabContents.forEach((content) => content.classList.remove('active'));
 
         // Add active class to clicked tab and corresponding content
-        button.classList.add("active");
-        button.setAttribute("aria-selected", "true");
-        document.getElementById(`tab-${targetTab}`).classList.add("active");
+        button.classList.add('active');
+        button.setAttribute('aria-selected', 'true');
+        document.getElementById(`tab-${targetTab}`).classList.add('active');
 
         // Remember the last viewed tab
         localStorage.setItem(LAST_TAB_KEY, targetTab);
@@ -560,7 +555,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
     // Restore last viewed tab when modal opens
     const restoreLastTab = () => {
-      const lastTab = localStorage.getItem(LAST_TAB_KEY) || "controls";
+      const lastTab = localStorage.getItem(LAST_TAB_KEY) || 'controls';
       const targetButton = Array.from(tabButtons).find(
         (btn) => btn.dataset.tab === lastTab
       );
@@ -571,7 +566,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
     };
 
     // Listen for modal open and restore last tab
-    btnInfo.addEventListener("click", () => {
+    btnInfo.addEventListener('click', () => {
       // Use setTimeout to ensure modal is open before restoring tab
       setTimeout(restoreLastTab, 0);
     });
@@ -579,13 +574,13 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
     // Add keyboard navigation for tabs (arrow keys)
     const tabButtonsArray = Array.from(tabButtons);
     tabButtons.forEach((button, index) => {
-      button.addEventListener("keydown", (e) => {
+      button.addEventListener('keydown', (e) => {
         let targetIndex = -1;
 
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
           e.preventDefault();
           targetIndex = (index + 1) % tabButtonsArray.length;
-        } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
           e.preventDefault();
           targetIndex =
             (index - 1 + tabButtonsArray.length) % tabButtonsArray.length;
@@ -601,19 +596,19 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   // Register all modals with the ModalManager
   ModalManager.register(
-    "welcome",
+    'welcome',
     welcomeModal,
     closeModalBtn,
     dismissWelcomeModal
   );
-  ModalManager.register("info", infoModal, closeInfoModalBtn);
+  ModalManager.register('info', infoModal, closeInfoModalBtn);
 
   // Setup tab functionality for info modal
   setupInfoModalTabs();
 
-  fullscreenBtn.addEventListener("click", toggleFullScreen);
+  fullscreenBtn.addEventListener('click', toggleFullScreen);
   document.addEventListener(
-    "fullscreenchange",
+    'fullscreenchange',
     UIManager.updateFullscreenIcons
   );
 
@@ -621,25 +616,25 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   // --- 6. ACCESSIBILITY - KEYBOARD ACTIVATION & SHORTCUTS ---
   document.querySelectorAll('[role="button"]').forEach((button) => {
-    button.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         button.click();
       }
     });
   });
 
-  chaosSlider.addEventListener("keydown", (e) => {
+  chaosSlider.addEventListener('keydown', (e) => {
     let value = parseInt(chaosSlider.value, 10);
-    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
       chaosSlider.value = Math.max(1, value - 1);
-    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
       chaosSlider.value = Math.min(10, value + 1);
     } else {
       return;
     }
     e.preventDefault();
-    chaosSlider.dispatchEvent(new Event("input", { bubbles: true }));
+    chaosSlider.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
   initKeyboardShortcuts(menuContainer);
@@ -647,20 +642,20 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
   // --- KONAMI CODE EASTER EGG ---
   /** Special particle configuration for Konami code (↑ ↑ ↓ ↓ ← → ← → B A) */
   const konamiCode = [
-    "ArrowUp",
-    "ArrowUp",
-    "ArrowDown",
-    "ArrowDown",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowLeft",
-    "ArrowRight",
-    "b",
-    "a",
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
   ];
   let konamiIndex = 0;
 
-  document.addEventListener("keydown", (e) => {
+  document.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
     const expectedKey = konamiCode[konamiIndex].toLowerCase();
 
@@ -671,23 +666,23 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
         // Trigger special "party mode" configuration
         const partyConfig = buildConfig({ all: true });
         partyConfig.particles.number.value = 300;
-        partyConfig.particles.color.value = "random";
+        partyConfig.particles.color.value = 'random';
         partyConfig.particles.move.speed = 10;
-        partyConfig.particles.shape.type = ["star", "circle", "triangle"];
+        partyConfig.particles.shape.type = ['star', 'circle', 'triangle'];
         partyConfig.particles.size.value = { min: 2, max: 8 };
-        partyConfig.particles.move.direction = "none";
+        partyConfig.particles.move.direction = 'none';
         partyConfig.particles.move.random = true;
-        partyConfig.particles.move.outModes = { default: "bounce" };
+        partyConfig.particles.move.outModes = { default: 'bounce' };
 
         CommandManager.execute({
           newConfig: partyConfig,
-          shuffleType: "🎉 Party Mode",
+          shuffleType: '🎉 Party Mode',
           async execute() {
             await loadParticles(partyConfig);
             AppState.particleState.currentConfig = partyConfig;
             UIManager.syncUI();
-            UIManager.showToast("🎉 Party Mode Activated! 🎊");
-            UIManager.announce("Party mode activated with Konami code");
+            UIManager.showToast('🎉 Party Mode Activated! 🎊');
+            UIManager.announce('Party mode activated with Konami code');
           },
           async undo() {
             const prevConfig = AppState.particleState.currentConfig;
@@ -703,33 +698,34 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   // --- 7. INITIALISATION ---
   /** This section sets up the initial state of the application on load. */
-  const savedTheme = localStorage.getItem("tsDiceTheme");
-  AppState.ui.isDarkMode = savedTheme ? savedTheme === "dark" : true;
+  const savedTheme = localStorage.getItem('tsDiceTheme');
+  StateManager.dispatch(
+    Actions.setTheme(savedTheme ? savedTheme === 'dark' : true)
+  );
 
-  const savedChaos = localStorage.getItem("tsDiceChaos");
-  AppState.particleState.chaosLevel = savedChaos ? parseInt(savedChaos, 10) : 5;
+  const savedChaos = localStorage.getItem('tsDiceChaos');
+  StateManager.dispatch(
+    Actions.setChaosLevel(savedChaos ? parseInt(savedChaos, 10) : 5)
+  );
 
   let initialConfigFromStorage = null;
   try {
-    const savedConfigString = localStorage.getItem("tsDiceLastConfig");
+    const savedConfigString = localStorage.getItem('tsDiceLastConfig');
     if (savedConfigString) {
       initialConfigFromStorage = JSON.parse(savedConfigString);
-      // Validate that the config has required structure
-      if (
-        !initialConfigFromStorage.particles ||
-        !initialConfigFromStorage.interactivity
-      ) {
-        console.warn("Saved config is malformed, ignoring.");
+      // Validate config using ErrorHandler
+      if (!ErrorHandler.validateConfig(initialConfigFromStorage)) {
+        console.warn('Saved config is malformed, ignoring.');
         initialConfigFromStorage = null;
-        localStorage.removeItem("tsDiceLastConfig");
+        localStorage.removeItem('tsDiceLastConfig');
       }
     }
   } catch (e) {
-    console.error("Could not parse saved config from localStorage.", e);
-    localStorage.removeItem("tsDiceLastConfig");
+    ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
+    localStorage.removeItem('tsDiceLastConfig');
   }
 
-  if (window.location.hash && window.location.hash.startsWith("#config=")) {
+  if (window.location.hash && window.location.hash.startsWith('#config=')) {
     try {
       const decodedString = LZString.decompressFromEncodedURIComponent(
         window.location.hash.substring(8)
@@ -737,32 +733,43 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
       if (decodedString) {
         const parsedConfig = JSON.parse(decodedString);
         // Validate config structure
-        if (!parsedConfig || typeof parsedConfig !== "object") {
-          throw new Error("Invalid config structure");
+        if (!parsedConfig || typeof parsedConfig !== 'object') {
+          throw new Error('Invalid config structure');
         }
 
         if (parsedConfig.uiState) {
-          AppState.particleState.chaosLevel =
-            parsedConfig.uiState.chaosLevel || 5;
-          AppState.ui.isDarkMode = parsedConfig.uiState.isDarkMode !== false;
-          AppState.ui.isCursorParticle =
-            !!parsedConfig.uiState.isCursorParticle;
-          AppState.ui.isGravityOn = !!parsedConfig.uiState.isGravityOn;
-          AppState.ui.areWallsOn = !!parsedConfig.uiState.areWallsOn;
-          if (AppState.ui.areWallsOn)
+          StateManager.dispatch(
+            Actions.setChaosLevel(parsedConfig.uiState.chaosLevel || 5)
+          );
+          StateManager.dispatch(
+            Actions.setTheme(parsedConfig.uiState.isDarkMode !== false)
+          );
+          if (parsedConfig.uiState.isCursorParticle) {
+            StateManager.dispatch(Actions.toggleCursor());
+          }
+          if (parsedConfig.uiState.isGravityOn) {
+            StateManager.dispatch(Actions.toggleGravity());
+          }
+          if (parsedConfig.uiState.areWallsOn) {
+            StateManager.dispatch(Actions.toggleWalls());
             AppState.particleState.originalOutModes =
               parsedConfig.uiState.originalOutModes;
+          }
           delete parsedConfig.uiState;
         }
-        AppState.particleState.initialConfigFromUrl = parsedConfig;
+
+        // Validate the particle config before using it
+        if (ErrorHandler.validateConfig(parsedConfig)) {
+          AppState.particleState.initialConfigFromUrl = parsedConfig;
+        } else {
+          throw new Error('Invalid particle configuration');
+        }
       } else {
-        throw new Error("Decompression failed");
+        throw new Error('Decompression failed');
       }
     } catch (e) {
-      console.error("Failed to parse config from URL:", e);
-      window.location.hash = "";
-      UIManager.showToast("Invalid shared configuration link");
-      UIManager.announce("Invalid shared configuration link");
+      ErrorHandler.handle(e, ErrorType.CONFIG_INVALID);
+      window.location.hash = '';
     }
   }
 
@@ -781,33 +788,33 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
 
   // Show the welcome modal on first visit or after 24 hours have passed
   // (unless permanently dismissed)
-  const welcomeTimestamp = localStorage.getItem("tsDiceWelcomeTimestamp");
-  const welcomeDismissed = localStorage.getItem("tsDiceWelcomeDismissed");
+  const welcomeTimestamp = localStorage.getItem('tsDiceWelcomeTimestamp');
+  const welcomeDismissed = localStorage.getItem('tsDiceWelcomeDismissed');
   const now = Date.now();
   const twentyFourHours = 24 * 60 * 60 * 1000; // Milliseconds in 24 hours
 
   if (
-    welcomeDismissed !== "true" &&
+    welcomeDismissed !== 'true' &&
     (!welcomeTimestamp ||
       now - parseInt(welcomeTimestamp, 10) > twentyFourHours)
   ) {
-    setTimeout(() => ModalManager.open("welcome"), 500);
+    setTimeout(() => ModalManager.open('welcome'), 500);
   }
 
   // --- 8. REDUCED MOTION HANDLING ---
-  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const handleReducedMotion = () => {
     const container = AppState.ui.particlesContainer;
     if (motionQuery.matches && container && !AppState.ui.isPaused) {
       container.pause();
-      AppState.ui.isPaused = true;
+      StateManager.dispatch(Actions.togglePause());
       UIManager.syncUI();
-      UIManager.announce("Animation paused due to reduced motion preference.");
-      UIManager.showToast("Animation paused due to reduced motion preference.");
+      UIManager.announce('Animation paused due to reduced motion preference.');
+      UIManager.showToast('Animation paused due to reduced motion preference.');
     }
   };
   handleReducedMotion();
-  motionQuery.addEventListener("change", handleReducedMotion);
+  motionQuery.addEventListener('change', handleReducedMotion);
 
   // --- 9. DEBOUNCED WINDOW RESIZE ---
   const handleResize = debounce(() => {
@@ -816,11 +823,11 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
       container.refresh();
     }
   }, 250);
-  window.addEventListener("resize", handleResize);
+  window.addEventListener('resize', handleResize);
 
   // --- 10. MEMORY LEAK PREVENTION ---
   /** Cleanup function to prevent memory leaks on page unload */
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener('beforeunload', () => {
     const container = AppState.ui.particlesContainer;
     if (container) {
       container.destroy();
