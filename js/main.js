@@ -21,23 +21,12 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
-  // Initialize tsParticles with error handling
-  const loadTsParticles = ErrorHandler.wrap(
-    async () => await loadAll(tsParticles),
-    ErrorType.LIBRARY_LOAD
-  );
-
-  const particlesLoaded = await loadTsParticles();
-  if (!particlesLoaded) {
-    document.body.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui; text-align: center; padding: 20px;">
-        <div>
-          <h1 style="color: #ff6b6b; margin-bottom: 16px;">⚠️ Failed to Load</h1>
-          <p style="color: #666; margin-bottom: 20px;">Unable to initialize the particle engine. Please check your internet connection and refresh the page.</p>
-          <button onclick="location.reload()" style="padding: 12px 24px; background: #4ecdc4; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">Reload Page</button>
-        </div>
-      </div>
-    `;
+  try {
+    // Initialize tsParticles with error handling
+    await loadAll(tsParticles);
+  } catch (error) {
+    console.error('Failed to load tsParticles library:', error);
+    ErrorHandler.createFatalErrorUI(ErrorType.LIBRARY_LOAD, error);
     return;
   }
 
