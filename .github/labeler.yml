@@ -1,0 +1,33 @@
+# Auto-labeling configuration for pull requests
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**/*']
+
+javascript:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.js', 'js/**/*']
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: ['tests/**/*', '**/*.test.js', '**/*.spec.js']
+
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file: ['.github/workflows/**', '.github/dependabot.yml']
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: ['package.json', 'package-lock.json']
+
+ui:
+  - changed-files:
+    - any-glob-to-any-file: ['index.html', '**/*.css']
+
+configuration:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - '**/*.config.js'
+      - '.eslintrc*'
+      - '.prettierrc*'
+      - 'vitest.config.js'

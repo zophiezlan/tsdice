@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/zophiezlan/tsdice#readme
+    about: Check out the comprehensive documentation
+  - name: 💬 Discussions
+    url: https://github.com/zophiezlan/tsdice/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🛡️ Security Issue
+    url: https://github.com/zophiezlan/tsdice/security/advisories/new
+    about: Report a security vulnerability privately
