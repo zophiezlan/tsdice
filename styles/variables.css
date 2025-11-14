@@ -1,0 +1,68 @@
+/* --- CSS Theming with Custom Properties (Variables) --- */
+:root {
+  /* Backgrounds */
+  --bg-primary: #111;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-bg-hover: rgba(255, 255, 255, 0.2);
+  --modal-bg: rgba(40, 40, 40, 0.8);
+  --toast-bg: rgba(30, 30, 30, 0.85);
+  --tooltip-bg: rgba(230, 230, 230, 0.25);
+  --slider-track-bg: rgba(255, 255, 255, 0.3);
+
+  /* Text */
+  --text-primary: white;
+  --text-secondary: #eee;
+  --text-strong: #fff;
+  --tooltip-text: #f0f0f0;
+  --tooltip-strong-text: #ffffff;
+
+  /* Borders & Dividers */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --divider-color: rgba(255, 255, 255, 0.4);
+  --modal-border: 1px solid rgba(255, 255, 255, 0.2);
+  --modal-header-border: 1px solid rgba(255, 255, 255, 0.3);
+  --toast-border: 1px solid rgba(255, 255, 255, 0.2);
+  --tooltip-border: 1px solid rgba(255, 255, 255, 0.3);
+
+  /* Interactive & Accent Colors */
+  --link-color: #87ceeb;
+  --link-color-hover: #9370db;
+  --button-active-bg: rgba(142, 45, 226, 0.8);
+  --button-active-bg-hover: rgba(142, 45, 226, 1);
+  --slider-thumb-border: #8e2de2;
+  --focus-outline-color: #87ceeb;
+}
+
+body.light-mode {
+  /* Backgrounds */
+  --bg-primary: #f0f0f0;
+  --glass-bg: rgba(0, 0, 0, 0.1);
+  --glass-bg-hover: rgba(0, 0, 0, 0.2);
+  --modal-bg: rgba(255, 255, 255, 0.8);
+  --toast-bg: rgba(245, 245, 245, 0.85);
+  --tooltip-bg: rgba(30, 30, 30, 0.25);
+  --slider-track-bg: rgba(0, 0, 0, 0.2);
+
+  /* Text */
+  --text-primary: #333;
+  --text-secondary: #333;
+  --text-strong: #000;
+  --tooltip-text: #222;
+  --tooltip-strong-text: #000000;
+
+  /* Borders & Dividers */
+  --glass-border: 1px solid rgba(0, 0, 0, 0.2);
+  --divider-color: rgba(0, 0, 0, 0.4);
+  --modal-border: 1px solid rgba(0, 0, 0, 0.2);
+  --modal-header-border: 1px solid rgba(0, 0, 0, 0.2);
+  --toast-border: 1px solid rgba(0, 0, 0, 0.1);
+  --tooltip-border: 1px solid rgba(0, 0, 0, 0.2);
+
+  /* Interactive & Accent Colors */
+  --link-color: #4361ee;
+  --link-color-hover: #7209b7;
+  --button-active-bg: rgba(67, 97, 238, 0.8);
+  --button-active-bg-hover: rgba(67, 97, 238, 1);
+  --slider-thumb-border: #4361ee;
+  --focus-outline-color: #4361ee;
+}
