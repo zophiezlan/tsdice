@@ -11,7 +11,7 @@
 │  tsDice: tsParticles Random Configuration Generator  │
 │  • 11 JavaScript modules                             │
 │  • 17 keyboard shortcuts                             │
-│  • 20-step undo history                              │
+│  • Infinite undo history                             │
 │  • Zero dependencies (except tsParticles)            │
 └──────────────────────────────────────────────────────┘
 ```
@@ -516,7 +516,7 @@ const debouncedFn = debounce((arg) => {
 
 ## ⚠️ Gotchas
 
-1. **History limit**: Only 20 steps
+1. **History**: Infinite undo/redo (memory permitting)
 2. **URL length**: Configs too large may fail to share
 3. **Browser support**: Requires ES6 modules
 4. **Chaos 10**: May be laggy on old devices

@@ -131,7 +131,7 @@ This single slider controls particle count, speed multipliers, and the probabili
 
 ### 💾 Smart Persistence
 
-- **History System**: 20-step undo/redo stack remembers your journey
+- **History System**: Infinite undo/redo stack remembers your journey
 - **Local Storage**: Your last configuration automatically saves
 - **URL Sharing**: Compress entire scenes into shareable emoji links 🐎🦄✨
 - **Theme Memory**: Preferences persist across sessions
@@ -421,7 +421,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. We welcome:
 - **Supported Particle Shapes**: 9 types
 - **Color Palettes**: 8 dark + 8 light mode colors
 - **Emoji Options**: 100+ for URL shortening
-- **History Depth**: 20 undo steps
+- **History Depth**: Infinite undo steps
 
 ---
 

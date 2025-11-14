@@ -89,7 +89,7 @@ Notice how each shuffle preserves the other aspects? That's **granular randomiza
 
 | Button | Name    | Shortcut | Purpose                         |
 | ------ | ------- | -------- | ------------------------------- |
-| ↶      | Back    | Alt+Z    | Undo last shuffle (20 steps)    |
+| ↶      | Back    | Alt+Z    | Undo last shuffle (infinite)    |
 | ↷      | Forward | Alt+Y    | Redo after undo                 |
 | 🔄     | Refresh | Alt+R    | Restart animation (same config) |
 | ⏸️     | Pause   | Space    | Freeze/resume animation         |
@@ -288,7 +288,7 @@ Try these combinations:
 1. Shuffle freely without worry
 2. Went too far? Click **Back** (↶) repeatedly
 3. Use **Forward** (↷) to re-explore alternatives
-4. 20-step history means you're safe!
+4. Infinite history means you're safe!
 
 ### Strategy 4: The Curator
 
@@ -690,12 +690,12 @@ https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 
 ### Problem: Can't undo anymore
 
-**Cause**: History stack only holds 20 steps
+**Cause**: This shouldn't happen anymore - history is now infinite!
 
-**Solution**: After 20 shuffles, earliest history is lost. Plan ahead:
+**Solution**: If you do encounter this issue, it may be a browser memory limitation:
 
-- Share important configs as you go
-- Don't shuffle more than 20 times without saving
+- Try refreshing the page
+- Share important configs regularly as a backup
 
 ### Problem: Modal won't close
 
@@ -747,7 +747,7 @@ https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 
 4. **Use Refresh, Not Shuffle**: Found the perfect config but want to restart the animation? Refresh, don't shuffle!
 
-5. **Undo Is Your Friend**: Never fear experimentation. You can always undo 20 steps back.
+5. **Undo Is Your Friend**: Never fear experimentation. You can undo as far back as you want!
 
 ### Performance Tips
 

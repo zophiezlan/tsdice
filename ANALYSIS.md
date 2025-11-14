@@ -111,7 +111,7 @@ interface Command {
 
 **Benefits**:
 
-- Complete undo/redo support (20 steps)
+- Complete undo/redo support (infinite history)
 - Command history deduplication
 - Encapsulated state changes
 - Testable without UI

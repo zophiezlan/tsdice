@@ -118,7 +118,7 @@ interface Command {
 
 This enables:
 
-- **Undo/Redo**: 20-step history stack
+- **Undo/Redo**: Infinite history stack
 - **Deduplication**: Identical consecutive configs are skipped
 - **Encapsulation**: Each command captures its own before/after state
 
@@ -223,7 +223,7 @@ export const particlesService = {
 
 ```javascript
 CommandManager = {
-  undoStack: Command[],  // Max 20 items
+  undoStack: Command[],  // Infinite history
   redoStack: Command[],
 
   execute(command): void,   // Run + add to undo stack

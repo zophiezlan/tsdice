@@ -29,7 +29,7 @@ export const CommandManager = {
 
     command.execute();
     this.undoStack.push(command);
-    if (this.undoStack.length > 20) this.undoStack.shift();
+    // No limit on history - infinite undo/redo
     this.redoStack = [];
     UIManager.syncUI();
   },
