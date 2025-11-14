@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Comprehensive CI/CD framework with GitHub Actions
   - Automated testing on Node.js 18, 20, and 22
   - ESLint and Prettier for code quality
@@ -25,12 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive CI/CD documentation
 
 ### Changed
+
 - README.md updated with CI/CD badges and documentation
 - Enhanced test workflow with more comprehensive checks
 
 ## [1.0.0] - Previous Release
 
 ### Features
+
 - Interactive particle animation randomizer
 - Granular control with category-specific shufflers
 - Chaos level slider (1-10)
