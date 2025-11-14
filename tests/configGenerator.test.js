@@ -52,9 +52,7 @@ describe('ConfigGenerator', () => {
       AppState.particleState.chaosLevel = 10;
       const highChaos = ConfigGenerator.generateAppearance();
 
-      expect(highChaos.size.value.max).toBeGreaterThan(
-        lowChaos.size.value.max
-      );
+      expect(highChaos.size.value.max).toBeGreaterThan(lowChaos.size.value.max);
     });
 
     it('should include polygon sides when shape is polygon', () => {

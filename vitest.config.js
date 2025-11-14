@@ -13,7 +13,7 @@ export default defineConfig({
         'js/main.js', // Integration/orchestration file
         'js/constants.js', // Data file
         'tests/setup.js', // Test setup file
-      ]
-    }
-  }
+      ],
+    },
+  },
 });

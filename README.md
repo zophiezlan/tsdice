@@ -336,7 +336,7 @@ The `reapplyToggleStates()` function ensures gravity, walls, and cursor modes su
 AppState.particleState.originalOutModes = config.particles.move.outModes;
 
 // Apply toggle
-config.particles.move.outModes = { default: "bounce" };
+config.particles.move.outModes = { default: 'bounce' };
 
 // Restore when toggled off
 config.particles.move.outModes = originalOutModes;
