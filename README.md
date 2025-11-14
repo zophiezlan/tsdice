@@ -20,9 +20,6 @@
 
 **👉 [Launch tsDice](https://tsdice.pages.dev/) 👈**
 
-**Desktop Wallpaper Version:**  
-🖥️ Turn your desktop into a living artwork with the [desktop branch](https://github.com/zophiezlan/tsdice/tree/desktop) + Lively Wallpaper integration!
-
 ### Run Locally
 
 ```bash
@@ -515,8 +512,39 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 ### For Fun
 
 - **Stress Relief**: Meditative, endlessly changing visuals
-- **Desktop Wallpaper**: Use the desktop branch for dynamic backgrounds
+- **Desktop Wallpaper**: Create dynamic backgrounds with Lively Wallpaper integration
 - **Party Visuals**: High chaos + fullscreen mode = instant ambiance
+
+---
+
+##  How to Set Up tsDice Desktop Wallpaper with Lively Wallpaper
+
+### Requirements:
+
+- The tsDice Desktop files (hosted version or local copy)
+- Lively Wallpaper for Windows
+
+### Step 1: Download the Files
+
+Download the `tsDice-Desktop` folder with the `index.html` file. For the hosted version, save the webpage locally or clone the repository.
+
+### Step 2: Install Lively Wallpaper
+
+Install Lively Wallpaper from GitHub or the Microsoft Store.
+
+### Step 3: Add the Wallpaper
+
+- Open Lively Wallpaper and click **"Add Wallpaper"** (+)
+- Click **"Browse..."** and go to your `tsDice-Desktop` folder
+- Select `index.html` and click **Open**
+
+### Step 4: Set as Background
+
+The wallpaper will appear in your Lively library. Click it to set as your background.
+
+### **Customisation:**
+
+Use the on-screen menu to customise your scene. Click **Save** to set it as your default startup scene.
 
 ---
 
