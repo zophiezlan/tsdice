@@ -517,7 +517,7 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 
 ---
 
-##  How to Set Up tsDice Desktop Wallpaper with Lively Wallpaper
+## How to Set Up tsDice Desktop Wallpaper with Lively Wallpaper
 
 ### Requirements:
 
