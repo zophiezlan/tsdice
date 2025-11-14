@@ -486,7 +486,7 @@ https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 2. Dark Theme
 3. Shuffle until green particles
 4. Shuffle Movement until "down" direction
-5. Enable Walls for perpetual rain
+5. Disable Walls for perpetual rain
 6. Shuffle until you get line shapes (or characters)
 ```
 
