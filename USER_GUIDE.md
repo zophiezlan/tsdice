@@ -29,6 +29,8 @@ Visit [tsdice.pages.dev](https://tsdice.pages.dev) and watch the particles dance
 
 Click the **⚙️ settings icon** in the bottom-left corner. The control panel slides out like magic.
 
+**Note**: The menu automatically hides after 10 seconds of inactivity. Move your mouse over the menu or interact with it to keep it open!
+
 ### Step 3: Your First Shuffle
 
 Click the **🎲 Shuffle All** button. Boom! A completely new particle scene. Do it again. And again. Each one is unique!
@@ -101,7 +103,9 @@ Notice how each shuffle preserves the other aspects? That's **granular randomiza
 | 🔲     | Walls   | Alt+W    | Bounce particles at edges |
 | 🖱️     | Cursor  | Alt+C    | Emit particles from mouse |
 | 🔗     | Share   | Alt+S    | Copy shareable URL        |
-| ℹ️     | Info    | Alt+?    | Show this guide           |
+| ℹ️     | Info    | Alt+?    | Show help modal with tabs |
+
+**Note**: The Info modal has three tabs (Controls, Shortcuts, Guide) that you can navigate with arrow keys. It remembers your last viewed tab!
 
 ### Visual Feedback
 
@@ -112,21 +116,93 @@ Notice how each shuffle preserves the other aspects? That's **granular randomiza
 - **Active**: Purple background (toggles only)
 - **Disabled**: Grayed out + no pointer events
 
+#### Shuffle Effects
+
+When you shuffle, the particle canvas briefly brightens (1.3x brightness for 150ms) to provide instant visual confirmation of the action.
+
 #### Toast Notifications
 
-Small messages appear at the bottom:
+Toast notifications appear at the bottom center of the screen and automatically disappear after 3 seconds. They provide visual feedback for your actions:
 
-- ✓ "Link copied to clipboard"
-- ↶ "Undid Appearance shuffle"
-- ⚙️ "Chaos level set to 8"
+**Shuffle Actions:**
+- "Undid [Type] shuffle" (e.g., "Undid Appearance shuffle")
+- "Redid [Type] shuffle" (e.g., "Redid Movement shuffle")
+
+**Theme & Display:**
+- "Dark theme enabled" / "Light theme enabled"
+- "Animation paused" / "Animation resumed"
+- "Scene refreshed!"
+
+**Toggle Controls:**
+- "Gravity enabled" / "Gravity disabled"
+- "Walls enabled" / "Walls disabled"
+- "Cursor particle enabled" / "Cursor particle disabled"
+
+**Chaos Level:**
+- "Chaos level set to [1-10]" (e.g., "Chaos level set to 8")
+
+**Sharing:**
+- "⏳ Creating shareable link..."
+- "✓ Link copied to clipboard"
+- "✓ Short link copied! [emoji-string]"
+- "Current page URL copied as fallback"
+- "❌ Failed to create share link"
+
+**Special Features:**
+- "🎉 Party Mode Activated! 🎊" (Konami code easter egg)
+
+**Error States:**
+- "Invalid shared configuration link"
+- "No particle animation loaded"
+- "Config error - restored previous state"
+- "Failed to load particles - please refresh"
+- "Failed to load particle configuration"
+
+**Accessibility:**
+- "Animation paused due to reduced motion preference."
 
 #### Screen Reader Announcements
 
-If you use a screen reader, tsDice announces:
+tsDice uses ARIA live regions to announce important state changes to screen readers. These announcements complement the visual toast notifications:
 
-- "New scene generated"
-- "Gravity enabled"
-- "Action undone"
+**Shuffle & History:**
+- "New scene generated."
+- "Action undone."
+- "Action redone."
+- "Undid [Type] shuffle"
+- "Redid [Type] shuffle"
+
+**Toggle States:**
+- "Gravity enabled" / "Gravity disabled"
+- "Walls enabled" / "Walls disabled"
+- "Cursor enabled" / "Cursor disabled"
+- "Theme enabled" / "Theme disabled"
+
+**Playback Controls:**
+- "Animation paused" / "Animation resumed"
+- "Scene refreshed"
+
+**Chaos Level:**
+- "Chaos level [1-10]" (announced during slider movement)
+- "Chaos level set to [1-10]" (announced on release)
+
+**Sharing:**
+- "Creating shareable link"
+- "Short emoji link copied to clipboard"
+- "Full configuration link copied to clipboard"
+- "Current page URL copied as fallback"
+- "Error creating share link"
+
+**Special Features:**
+- "Party mode activated with Konami code"
+
+**Error & Status Messages:**
+- "Invalid shared configuration link"
+- "No particle animation loaded"
+- "Config error - restored previous state"
+- "Failed to load particles - please refresh"
+- "Failed to load particle configuration"
+- "Animation paused due to reduced motion preference."
 
 ---
 
@@ -388,11 +464,16 @@ Perfect!
 
 When you click **Share**, tsDice:
 
-1. Captures your entire configuration + UI state
-2. Compresses it using LZMA algorithm (lz-string)
-3. Encodes as URL-safe Base64
-4. Attempts to shorten via emoji API
-5. Copies to clipboard
+1. Shows "⏳ Creating shareable link..." toast notification
+2. Captures your entire configuration + UI state
+3. Compresses it using LZMA algorithm (lz-string)
+4. Encodes as URL-safe Base64
+5. Attempts to shorten via emoji API (share.ket.horse)
+6. Copies to clipboard
+7. Shows success toast with either:
+   - "✓ Short link copied! [emoji-string]" (if shortening succeeded)
+   - "✓ Link copied to clipboard" (if using full URL)
+   - "Current page URL copied as fallback" (if an error occurred)
 
 ### Understanding Share URLs
 
