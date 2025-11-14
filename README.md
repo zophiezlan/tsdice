@@ -365,6 +365,29 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. We welcome:
 - ♿ Accessibility improvements
 - 🎨 UI/UX polish
 
+#### Running Tests
+
+tsDice now includes a professional-grade automated test suite:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+Current test coverage includes:
+- ✅ Command pattern (undo/redo)
+- ✅ Utility functions
+- ✅ State management
+- ✅ 48+ test cases
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
 ---
 
 ## 🌟 Use Cases
