@@ -4,7 +4,7 @@
 [![CI](https://github.com/zophiezlan/tsdice/workflows/CI/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/zophiezlan/tsdice/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml)
 [![Test Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen.svg)](PHASE1_IMPLEMENTATION.md)
-[![Tests](https://img.shields.io/badge/tests-74%20passing-brightgreen.svg)](PHASE1_IMPLEMENTATION.md)
+[![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen.svg)](PHASE3_IMPLEMENTATION.md)
 [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://tsdice.pages.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -32,7 +32,13 @@ git clone https://github.com/zophiezlan/tsdice.git
 # Enter the realm
 cd tsdice
 
-# Open index.html in your browser - that's it! No build steps, no dependencies to install.
+# Option 1: Direct browser (no build needed)
+# Open index.html in your browser
+
+# Option 2: Development server (recommended)
+npm install
+npm run dev
+# Visit http://localhost:3000
 ```
 
 **📖 First Time Here?** Check out the [**User Guide**](USER_GUIDE.md) — your complete journey from beginner to power user!
@@ -163,10 +169,18 @@ tsDice's codebase is a masterclass in modern JavaScript architecture:
 ```
 tsdice/
 ├── index.html              # Single-file app with embedded styles
+├── vite.config.js          # Vite build configuration
+├── package.json            # Dependencies & scripts
 └── js/
     ├── main.js             # Application orchestrator & event handling
     ├── state.js            # Centralized application state (single source of truth)
-    ├── constants.js        # Data arrays (colors, shapes, emojis, etc.)
+    ├── errorHandler.js     # Centralized error handling (Phase 2)
+    ├── stateManager.js     # State management with dispatch pattern (Phase 2)
+    ├── constants/          # Modular constants (Phase 2)
+    │   ├── ui.js           # UI-related constants
+    │   ├── particles.js    # Particle configuration constants
+    │   └── colors.js       # Color palettes and themes
+    ├── constants.js        # Barrel export for backward compatibility
     ├── configGenerator.js  # Particle configuration generators
     ├── particlesService.js # tsParticles interaction layer
     ├── uiManager.js        # DOM manipulation & UI feedback
@@ -179,7 +193,43 @@ tsdice/
 
 ### Key Architectural Patterns
 
-#### 1. **Command Pattern for Undo/Redo**
+#### 1. **Centralized Error Handling (Phase 2)**
+
+All error-prone operations use `ErrorHandler` for consistent user feedback:
+
+```javascript
+const safeLoadParticles = ErrorHandler.wrap(
+  loadParticles,
+  ErrorType.PARTICLES_LOAD
+);
+await safeLoadParticles(config);
+```
+
+**Features:**
+
+- 7 error types for classification
+- User-friendly toast notifications
+- Screen reader announcements
+- Automatic recovery for non-fatal errors
+
+#### 2. **State Management with Dispatch Pattern (Phase 2)**
+
+All state mutations go through `StateManager.dispatch()` for validation:
+
+```javascript
+// Dispatch an action to change theme
+StateManager.dispatch(Actions.setTheme(false));
+StateManager.persist(); // Auto-save to localStorage
+```
+
+**Benefits:**
+
+- Type-safe action creators
+- Centralized validation
+- Automatic UI synchronization
+- Easy debugging with action logging
+
+#### 3. **Command Pattern for Undo/Redo**
 
 Every action is encapsulated as a command object with `execute()` and `undo()` methods:
 
@@ -195,18 +245,21 @@ const command = {
 CommandManager.execute(command);
 ```
 
-#### 2. **State Management**
+#### 4. **State Management**
 
-The `AppState` object serves as the single source of truth:
+The `AppState` object serves as the single source of truth, modified through `StateManager`:
 
 ```javascript
 AppState = {
   ui: { isDarkMode, isCursorParticle, isGravityOn, areWallsOn, isPaused },
   particleState: { chaosLevel, currentConfig, originalInteractionModes },
 };
+
+// All mutations go through StateManager
+StateManager.dispatch(Actions.setChaosLevel(7));
 ```
 
-#### 3. **Factory Functions**
+#### 5. **Factory Functions**
 
 Generators create configurations deterministically based on chaos level:
 
@@ -217,7 +270,7 @@ ConfigGenerator.generateInteraction() → { hover, click, modes }
 ConfigGenerator.generateSpecialFX()  → { collisions, wobble, rotate, links }
 ```
 
-#### 4. **Service Layer**
+#### 6. **Service Layer**
 
 `particlesService.js` acts as an abstraction layer between tsDice and tsParticles:
 
@@ -233,6 +286,8 @@ User Action → Event Listener (main.js)
 Command Factory (createShuffleCommand)
            ↓
 Command Manager (execute with undo capability)
+           ↓
+StateManager.dispatch() (validate & apply state changes)
            ↓
 Config Generator (randomized settings)
            ↓
@@ -387,9 +442,24 @@ npm run test:coverage
 Current test coverage includes:
 
 - ✅ Command pattern (undo/redo)
+- ✅ Error handling (ErrorHandler)
+- ✅ State management (StateManager)
+- ✅ Configuration generation
 - ✅ Utility functions
-- ✅ State management
-- ✅ 48+ test cases
+- ✅ 111 test cases
+
+#### Development & Build
+
+```bash
+# Start development server with HMR
+npm run dev
+
+# Build for production (optimized, minified)
+npm run build
+
+# Preview production build
+npm run preview
+```
 
 See [tests/README.md](tests/README.md) for detailed testing documentation.
 
@@ -456,6 +526,8 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 
 - **[tsParticles](https://particles.js.org/)** v3.9.1 — Particle animation engine
 - **[lz-string](https://pieroxy.net/blog/pages/lz-string/index.html)** v1.5.0 — URL compression
+- **[Vite](https://vitejs.dev/)** v7.2.2 — Build tool & dev server (Phase 2)
+- **[Vitest](https://vitest.dev/)** v4.0.8 — Test framework with 111 tests (Phase 2)
 - **Vanilla JavaScript** — ES6 modules, no framework bloat
 - **CSS3** — Custom properties, grid, flexbox, backdrop-filter
 - **HTML5** — Semantic, accessible markup
@@ -475,14 +547,16 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~3,500 (including comments & docs)
-- **JavaScript Modules**: 11 files
+- **Lines of Code**: ~4,500 (including comments & docs)
+- **JavaScript Modules**: 15 files (11 core + 3 constants + 2 managers)
+- **Test Coverage**: 84% with 111 passing tests
 - **CSS Variables**: 25+ theme properties
 - **Keyboard Shortcuts**: 17 commands
 - **Supported Particle Shapes**: 9 types
 - **Color Palettes**: 8 dark + 8 light mode colors
 - **Emoji Options**: 100+ for URL shortening
 - **History Depth**: Infinite undo steps
+- **Production Bundle**: 46 KB (gzipped)
 
 ---
 

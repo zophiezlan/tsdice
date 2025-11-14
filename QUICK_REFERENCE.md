@@ -9,10 +9,11 @@
 ```
 ┌──────────────────────────────────────────────────────┐
 │  tsDice: tsParticles Random Configuration Generator  │
-│  • 11 JavaScript modules                             │
+│  • 15 JavaScript modules (11 core + modular)         │
 │  • 17 keyboard shortcuts                             │
+│  • 111 tests with 84% coverage                       │
 │  • Infinite undo history                             │
-│  • Zero dependencies (except tsParticles)            │
+│  • Production build: 46 KB (gzipped)                 │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -69,26 +70,36 @@
 
 ```
 tsdice/
-├── index.html                  # Main app (1447 lines)
+├── index.html                  # Main app
+├── vite.config.js              # Build configuration (Phase 2)
+├── package.json                # Dependencies & scripts
 ├── README.md                   # Project overview
 ├── CONTRIBUTING.md             # Contribution guide
 ├── CODE_OF_CONDUCT.md          # Community standards
 ├── LICENSE                     # MIT License
-├── ARCHITECTURE.md             # Technical deep dive (new!)
-├── USER_GUIDE.md               # User manual (new!)
-├── ANALYSIS.md                 # Complete analysis (new!)
+├── ARCHITECTURE.md             # Technical deep dive
+├── USER_GUIDE.md               # User manual
+├── ANALYSIS.md                 # Complete analysis
+├── PHASE2_IMPLEMENTATION.md    # Phase 2 report
+├── PHASE3_IMPLEMENTATION.md    # Phase 3 report
 └── js/
-    ├── main.js                 # Orchestrator (822 lines)
-    ├── state.js                # State container (20 lines)
-    ├── constants.js            # Data arrays (150 lines)
-    ├── utils.js                # Helpers (40 lines)
-    ├── configGenerator.js      # Randomization (180 lines)
-    ├── particlesService.js     # tsParticles facade (239 lines)
-    ├── uiManager.js            # DOM manipulation (200 lines)
-    ├── commandManager.js       # Undo/redo (60 lines)
-    ├── modalManager.js         # Modal lifecycle (80 lines)
-    ├── tooltipManager.js       # Tooltip behavior (120 lines)
-    └── keyboardShortcuts.js    # Keyboard events (60 lines)
+    ├── main.js                 # Orchestrator (830 lines)
+    ├── state.js                # State container
+    ├── errorHandler.js         # Error handling (Phase 2)
+    ├── stateManager.js         # State management (Phase 2)
+    ├── constants/              # Modular constants (Phase 2)
+    │   ├── ui.js              # UI constants
+    │   ├── particles.js       # Particle config
+    │   └── colors.js          # Color palettes
+    ├── constants.js            # Barrel export
+    ├── utils.js                # Helpers
+    ├── configGenerator.js      # Randomization
+    ├── particlesService.js     # tsParticles facade
+    ├── uiManager.js            # DOM manipulation
+    ├── commandManager.js       # Undo/redo
+    ├── modalManager.js         # Modal lifecycle
+    ├── tooltipManager.js       # Tooltip behavior
+    └── keyboardShortcuts.js    # Keyboard events
 ```
 
 ---
@@ -99,28 +110,28 @@ tsdice/
 
 ```javascript
 // Core dependencies
-import { tsParticles } from "cdn.jsdelivr.net/@tsparticles/engine@3.9.1/+esm";
-import { loadAll } from "cdn.jsdelivr.net/@tsparticles/all@3.9.1/+esm";
+import { tsParticles } from 'cdn.jsdelivr.net/@tsparticles/engine@3.9.1/+esm';
+import { loadAll } from 'cdn.jsdelivr.net/@tsparticles/all@3.9.1/+esm';
 
 // Internal modules
-import { AppState } from "./state.js";
-import { UIManager } from "./uiManager.js";
-import { ModalManager } from "./modalManager.js";
-import { ConfigGenerator } from "./configGenerator.js";
-import { CommandManager } from "./commandManager.js";
-import { copyToClipboard, getRandomItem, debounce } from "./utils.js";
+import { AppState } from './state.js';
+import { UIManager } from './uiManager.js';
+import { ModalManager } from './modalManager.js';
+import { ConfigGenerator } from './configGenerator.js';
+import { CommandManager } from './commandManager.js';
+import { copyToClipboard, getRandomItem, debounce } from './utils.js';
 import {
   darkColorPalette,
   lightColorPalette,
   BUTTON_IDS,
-} from "./constants.js";
+} from './constants.js';
 import {
   buildConfig,
   loadParticles,
   reapplyToggleStates,
-} from "./particlesService.js";
-import { initTooltipManager } from "./tooltipManager.js";
-import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
+} from './particlesService.js';
+import { initTooltipManager } from './tooltipManager.js';
+import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 ```
 
 ### API Quick Reference
@@ -298,14 +309,14 @@ Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
 
 ```javascript
 [
-  "#ff007b",
-  "#33ff57",
-  "#3357ff",
-  "#ffc300",
-  "#ffffff",
-  "#ad55ff",
-  "#00f5d4",
-  "#f15bb5",
+  '#ff007b',
+  '#33ff57',
+  '#3357ff',
+  '#ffc300',
+  '#ffffff',
+  '#ad55ff',
+  '#00f5d4',
+  '#f15bb5',
 ];
 ```
 
@@ -313,14 +324,14 @@ Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
 
 ```javascript
 [
-  "#f72585",
-  "#7209b7",
-  "#3a0ca3",
-  "#4361ee",
-  "#4cc9f0",
-  "#f94144",
-  "#f3722c",
-  "#f9c74f",
+  '#f72585',
+  '#7209b7',
+  '#3a0ca3',
+  '#4361ee',
+  '#4cc9f0',
+  '#f94144',
+  '#f3722c',
+  '#f9c74f',
 ];
 ```
 
@@ -330,15 +341,15 @@ Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
 
 ```javascript
 [
-  "circle",
-  "square",
-  "triangle",
-  "star",
-  "polygon",
-  "line",
-  "heart",
-  "rounded-rectangle",
-  "character",
+  'circle',
+  'square',
+  'triangle',
+  'star',
+  'polygon',
+  'line',
+  'heart',
+  'rounded-rectangle',
+  'character',
 ];
 ```
 
@@ -348,15 +359,15 @@ Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
 
 ```javascript
 [
-  "none",
-  "top",
-  "top-right",
-  "right",
-  "bottom-right",
-  "bottom",
-  "bottom-left",
-  "left",
-  "top-left",
+  'none',
+  'top',
+  'top-right',
+  'right',
+  'bottom-right',
+  'bottom',
+  'bottom-left',
+  'left',
+  'top-left',
 ];
 ```
 
@@ -367,13 +378,13 @@ Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
 ### Hover
 
 ```javascript
-["repulse", "grab", "bubble", "slow", "connect", "parallax", "attract"];
+['repulse', 'grab', 'bubble', 'slow', 'connect', 'parallax', 'attract'];
 ```
 
 ### Click
 
 ```javascript
-["push", "bubble", "remove", "trail", "absorb"];
+['push', 'bubble', 'remove', 'trail', 'absorb'];
 ```
 
 ---
