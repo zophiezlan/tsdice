@@ -517,34 +517,165 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 
 ---
 
-## How to Set Up tsDice Desktop Wallpaper with Lively Wallpaper
+## 🖥️ How to Set Up tsDice as an Animated Desktop Wallpaper
 
-### Requirements:
+Transform your desktop into a mesmerizing particle animation with Lively Wallpaper!
 
-- The tsDice Desktop files (hosted version or local copy)
-- Lively Wallpaper for Windows
+### Prerequisites
 
-### Step 1: Download the Files
+- **Windows 10/11** (64-bit)
+- **[Lively Wallpaper](https://www.rocksdanister.com/lively/)** — Free, open-source animated wallpaper engine
+  - Download from [Microsoft Store](https://apps.microsoft.com/detail/9NTM2QC6QWS7) (recommended)
+  - Or from [GitHub Releases](https://github.com/rocksdanister/lively/releases) (portable version available)
+- **tsDice files** — Either clone this repository or save the hosted version locally
 
-Download the `tsDice-Desktop` folder with the `index.html` file. For the hosted version, save the webpage locally or clone the repository.
+### Installation Guide
 
-### Step 2: Install Lively Wallpaper
+#### Step 1: Prepare tsDice Files
 
-Install Lively Wallpaper from GitHub or the Microsoft Store.
+Choose **one** of these options:
 
-### Step 3: Add the Wallpaper
+**Option A: Clone the Repository** (Recommended)
 
-- Open Lively Wallpaper and click **"Add Wallpaper"** (+)
-- Click **"Browse..."** and go to your `tsDice-Desktop` folder
-- Select `index.html` and click **Open**
+```bash
+git clone https://github.com/zophiezlan/tsdice.git
+cd tsdice
+```
 
-### Step 4: Set as Background
+**Option B: Download as ZIP**
 
-The wallpaper will appear in your Lively library. Click it to set as your background.
+1. Visit [tsDice Repository](https://github.com/zophiezlan/tsdice)
+2. Click **Code** → **Download ZIP**
+3. Extract to a permanent location (e.g., `C:\Wallpapers\tsDice`)
 
-### **Customisation:**
+**Option C: Save Live Version**
 
-Use the on-screen menu to customise your scene. Click **Save** to set it as your default startup scene.
+1. Visit [tsDice Live Demo](https://tsdice.pages.dev/)
+2. Press `Ctrl+S` to save the webpage
+3. Choose **"Webpage, Complete"** to include all assets
+4. Save to a permanent folder
+
+#### Step 2: Install Lively Wallpaper
+
+1. **Download Lively Wallpaper:**
+   - [Microsoft Store](https://apps.microsoft.com/detail/9NTM2QC6QWS7) — Auto-updates, easy install
+   - [GitHub](https://github.com/rocksdanister/lively/releases) — Portable version available
+
+2. **Launch Lively** and complete the first-run setup
+
+3. **Grant necessary permissions** if prompted (for wallpaper control)
+
+#### Step 3: Add tsDice to Lively
+
+1. Open **Lively Wallpaper**
+2. Click the **"+"** (Add Wallpaper) button in the top-right
+3. Select **"Choose File"** from the menu
+4. Navigate to your tsDice folder
+5. Select `index.html` and click **Open**
+6. Lively will process the file and add it to your library
+
+#### Step 4: Apply as Wallpaper
+
+1. Find **tsDice** in your Lively library (thumbnail preview will show)
+2. **Right-click** on the tsDice thumbnail
+3. Select **"Set as wallpaper"**
+   - For multi-monitor setups, choose **"Span across all displays"** or set individually
+
+#### Step 5: Customize Your Scene
+
+**Using tsDice Controls:**
+
+- The control menu appears at the bottom of your screen
+- **Shuffle buttons** — Randomize different aspects:
+  - `Shuffle All` — Complete scene regeneration
+  - `Appearance` — Change colors, shapes, sizes
+  - `Movement` — Adjust speed and physics
+  - `Special FX` — Toggle advanced effects
+- **Chaos Level slider** — Control complexity (1 = calm, 10 = wild)
+- **Toggle switches** — Enable/disable gravity, walls, cursor particles
+
+**Saving Your Favorite Scene:**
+
+1. Customize until you find a scene you love
+2. The configuration auto-saves to browser localStorage
+3. Your scene will persist as your default wallpaper
+
+**Creating Multiple Scenes:**
+
+1. Configure a scene you like
+2. Press `Alt+S` to generate a shareable URL
+3. Bookmark the URL or save it in a text file
+4. Later, open that URL and repeat Step 3 to add it as a new wallpaper variant
+
+### Performance Tips
+
+**For Optimal Experience:**
+
+- **Lower Chaos Levels (1-5)** — Minimal CPU/GPU usage, battery-friendly
+- **Disable Special FX** — Reduces particle calculations
+- **Pause when inactive** — Right-click tsDice thumbnail → **Settings** → Enable "Pause when not visible"
+
+**For High-End Systems:**
+
+- **Chaos Level 8-10** — Maximum visual impact
+- **Enable all Special FX** — Links, collisions, rotation, wobble
+- **4K/multi-monitor** — tsDice scales beautifully to any resolution
+
+### Troubleshooting
+
+**Issue: Wallpaper appears frozen or laggy**
+
+- Lower the Chaos Level slider to reduce particle count
+- Disable Special FX toggles
+- In Lively settings, try **"Video Player"** mode instead of **"Web Browser"**
+
+**Issue: Controls don't respond**
+
+- Ensure Lively is set to **"Web Browser"** mode (not Video Player)
+- Try reloading: Right-click wallpaper → **"Restart"**
+
+**Issue: Wallpaper resets after restart**
+
+- tsDice uses browser localStorage, which Lively may clear
+- Save your favorite URLs (with `Alt+S`) and re-apply them after restarts
+- Alternatively, edit `index.html` to set a default configuration
+
+**Issue: Multi-monitor wallpaper doesn't span correctly**
+
+- Right-click tsDice in Lively → **"Duplicate"** to create separate instances per monitor
+- Or use **"Span"** mode and adjust particle count for performance
+
+### Advanced Customization
+
+**Editing Default Settings:**
+
+1. Open `index.html` in a text editor (VS Code, Notepad++)
+2. Find the `AppState` initialization (around line 150)
+3. Modify `chaosLevel`, `isDarkMode`, or other defaults
+4. Save and re-add to Lively
+
+**Creating Theme Presets:**
+
+Use the Share URL feature to create bookmarkable presets:
+
+- **Zen Desktop**: Chaos 2, gravity on, circles only
+- **Cosmic Desktop**: Chaos 7, dark theme, star shapes
+- **Matrix Desktop**: Chaos 5, green particles, links enabled
+- **Confetti Desktop**: Chaos 10, bounce walls, maximum chaos
+
+### Recommended Settings by Use Case
+
+| Use Case           | Chaos Level | Special FX | Theme | Notes                       |
+| ------------------ | ----------- | ---------- | ----- | --------------------------- |
+| Work/Productivity  | 1-3         | Off        | Light | Minimal distraction         |
+| Ambient Background | 4-6         | Selective  | Dark  | Balanced visual interest    |
+| Gaming/Streaming   | 7-9         | On         | Dark  | High energy, matches RGB    |
+| Showpiece/Demo     | 10          | All On     | Dark  | Maximum visual impact       |
+| Battery Saving     | 1-2         | Off        | Light | Lowest resource consumption |
+
+---
+
+**Pro Tip:** Create multiple tsDice wallpapers with different configs in Lively's library, then use Lively's **playlist feature** to rotate between them on a schedule!
 
 ---
 
