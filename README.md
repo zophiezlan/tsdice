@@ -517,7 +517,10 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 
 ---
 
-## 🖥️ How to Set Up tsDice as an Animated Desktop Wallpaper
+<details>
+<summary><strong>🖥️ How to Set Up tsDice as an Animated Desktop Wallpaper</strong></summary>
+
+<br>
 
 Transform your desktop into a mesmerizing particle animation with Lively Wallpaper!
 
@@ -676,6 +679,8 @@ Use the Share URL feature to create bookmarkable presets:
 ---
 
 **Pro Tip:** Create multiple tsDice wallpapers with different configs in Lively's library, then use Lively's **playlist feature** to rotate between them on a schedule!
+
+</details>
 
 ---
 
