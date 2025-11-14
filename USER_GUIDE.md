@@ -789,14 +789,12 @@ https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 1. **Match Your Brand**: Shuffle until colors match your logo, then save that URL permanently
 
 2. **Seasonal Themes**:
-
    - Spring: Green/pink, chaos 4, gravity off
    - Summer: Bright colors, chaos 7
    - Fall: Orange/brown, gravity on
    - Winter: White, chaos 2, gravity on
 
 3. **Emotion Mapping**:
-
    - Joy: High chaos, warm colors
    - Calm: Low chaos, cool colors
    - Mystery: Dark theme, wobble FX

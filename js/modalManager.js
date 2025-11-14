@@ -1,4 +1,4 @@
-import { UIManager } from "./uiManager.js";
+import { UIManager } from './uiManager.js';
 
 /**
  * Unified Modal Manager - handles all modal operations consistently
@@ -10,12 +10,12 @@ export const ModalManager = {
   register(modalId, modal, closeButton, onDismiss = null) {
     const dismissFn = onDismiss || (() => this.close(modalId));
 
-    closeButton.addEventListener("click", dismissFn);
-    modal.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") dismissFn();
+    closeButton.addEventListener('click', dismissFn);
+    modal.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') dismissFn();
       else trapFocus(e, modal);
     });
-    modal.addEventListener("click", (e) => {
+    modal.addEventListener('click', (e) => {
       if (e.target === modal) dismissFn();
     });
 
@@ -47,7 +47,7 @@ export const ModalManager = {
   /** Check if a modal is currently open */
   isOpen(modalId) {
     const modalData = this.modals.get(modalId);
-    return modalData?.modal.classList.contains("visible") || false;
+    return modalData?.modal.classList.contains('visible') || false;
   },
 
   /** Close all open modals */
@@ -64,8 +64,8 @@ export const ModalManager = {
  * Trap focus within a modal for accessibility. Copied from existing logic.
  */
 function trapFocus(e, modal) {
-  if (e.key !== "Tab") return;
-  const focusableElements = modal.querySelectorAll("button, [href]");
+  if (e.key !== 'Tab') return;
+  const focusableElements = modal.querySelectorAll('button, [href]');
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 

@@ -1,22 +1,22 @@
-import { AppState } from "./state.js";
-import { CommandManager } from "./commandManager.js";
-import { BUTTON_IDS } from "./constants.js";
+import { AppState } from './state.js';
+import { CommandManager } from './commandManager.js';
+import { BUTTON_IDS } from './constants.js';
 
-const infoModal = document.getElementById("info-modal");
-const toastNotification = document.getElementById("toast-notification");
-const announcer = document.getElementById("announcer");
-const fullscreenBtn = document.getElementById("fullscreen-btn");
-const iconEnter = document.getElementById("icon-fullscreen-enter");
-const iconExit = document.getElementById("icon-fullscreen-exit");
-const iconSun = document.getElementById("theme-icon-sun");
-const iconMoon = document.getElementById("theme-icon-moon");
+const infoModal = document.getElementById('info-modal');
+const toastNotification = document.getElementById('toast-notification');
+const announcer = document.getElementById('announcer');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const iconEnter = document.getElementById('icon-fullscreen-enter');
+const iconExit = document.getElementById('icon-fullscreen-exit');
+const iconSun = document.getElementById('theme-icon-sun');
+const iconMoon = document.getElementById('theme-icon-moon');
 const btnBack = document.getElementById(BUTTON_IDS.BACK);
 const btnForward = document.getElementById(BUTTON_IDS.FORWARD);
 const btnPause = document.getElementById(BUTTON_IDS.PAUSE);
-const iconPause = document.getElementById("icon-pause");
-const iconPlay = document.getElementById("icon-play");
-const chaosSlider = document.getElementById("chaos-slider");
-const chaosDisplay = document.getElementById("chaos-display");
+const iconPause = document.getElementById('icon-pause');
+const iconPlay = document.getElementById('icon-play');
+const chaosSlider = document.getElementById('chaos-slider');
+const chaosDisplay = document.getElementById('chaos-display');
 
 /**
  * @description Manages all direct DOM manipulation, UI feedback, and accessibility concerns.
@@ -31,61 +31,61 @@ export const UIManager = {
   /** Shows a short-lived toast notification at the bottom of the screen. */
   showToast: (message) => {
     toastNotification.textContent = message;
-    toastNotification.classList.add("show");
+    toastNotification.classList.add('show');
     setTimeout(() => {
-      toastNotification.classList.remove("show");
+      toastNotification.classList.remove('show');
     }, 3000);
   },
 
   /** Updates the fullscreen button icons based on the document's fullscreen state. */
   updateFullscreenIcons: () => {
     const isFullscreen = !!document.fullscreenElement;
-    fullscreenBtn.setAttribute("aria-pressed", isFullscreen);
-    iconEnter.style.display = isFullscreen ? "none" : "block";
-    iconExit.style.display = isFullscreen ? "block" : "none";
+    fullscreenBtn.setAttribute('aria-pressed', isFullscreen);
+    iconEnter.style.display = isFullscreen ? 'none' : 'block';
+    iconExit.style.display = isFullscreen ? 'block' : 'none';
   },
 
   /** Dynamically builds the content of the "How It Works" info modal. */
   populateInfoModal: () => {
-    const infoList = infoModal.querySelector(".info-list");
-    infoList.innerHTML = "";
+    const infoList = infoModal.querySelector('.info-list');
+    infoList.innerHTML = '';
     const controls = document.querySelectorAll(
-      ".sub-menu .menu-button, .sub-menu .slider-container"
+      '.sub-menu .menu-button, .sub-menu .slider-container'
     );
 
     controls.forEach((control) => {
-      const title = control.getAttribute("data-title") || control.title;
+      const title = control.getAttribute('data-title') || control.title;
       if (!title) return;
 
-      const icon = control.querySelector("svg")?.cloneNode(true);
+      const icon = control.querySelector('svg')?.cloneNode(true);
 
       const shortcutMatch = title.match(/\(([^)]+)\)/);
-      const cleanTitle = title.replace(/\s*\(([^)]+)\)/, "");
-      const [name, description] = cleanTitle.split(": ");
+      const cleanTitle = title.replace(/\s*\(([^)]+)\)/, '');
+      const [name, description] = cleanTitle.split(': ');
 
-      const li = document.createElement("li");
-      const iconWrapper = document.createElement("div");
-      iconWrapper.className = "icon-wrapper";
+      const li = document.createElement('li');
+      const iconWrapper = document.createElement('div');
+      iconWrapper.className = 'icon-wrapper';
       if (icon) {
         iconWrapper.appendChild(icon);
-      } else if (control.classList.contains("slider-container")) {
+      } else if (control.classList.contains('slider-container')) {
         iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
       }
 
-      const textWrapper = document.createElement("div");
-      textWrapper.className = "info-text";
+      const textWrapper = document.createElement('div');
+      textWrapper.className = 'info-text';
 
-      const strong = document.createElement("strong");
-      strong.textContent = name + " ";
+      const strong = document.createElement('strong');
+      strong.textContent = name + ' ';
 
       if (shortcutMatch) {
-        const code = document.createElement("code");
+        const code = document.createElement('code');
         code.textContent = shortcutMatch[1];
         strong.appendChild(code);
       }
 
-      const span = document.createElement("span");
-      span.textContent = description || "";
+      const span = document.createElement('span');
+      span.textContent = description || '';
 
       textWrapper.appendChild(strong);
       textWrapper.appendChild(span);
@@ -99,30 +99,30 @@ export const UIManager = {
   /** Opens a modal and manages focus for accessibility. */
   openModal: (modal, opener) => {
     AppState.ui.lastFocusedElement = opener || document.activeElement;
-    modal.classList.add("visible");
-    const firstFocusableElement = modal.querySelector("button, [href]");
+    modal.classList.add('visible');
+    const firstFocusableElement = modal.querySelector('button, [href]');
     if (firstFocusableElement) firstFocusableElement.focus();
   },
 
   /** Closes a modal and returns focus to the element that opened it. */
   closeModal: (modal) => {
-    modal.classList.remove("visible");
+    modal.classList.remove('visible');
     if (AppState.ui.lastFocusedElement) AppState.ui.lastFocusedElement.focus();
   },
 
   /** Shows a subtle loading indicator (only for operations > 300ms) */
   showLoadingIndicator: () => {
-    const container = document.getElementById("tsparticles");
+    const container = document.getElementById('tsparticles');
     if (container) {
-      container.style.cursor = "wait";
+      container.style.cursor = 'wait';
     }
   },
 
   /** Hides the loading indicator */
   hideLoadingIndicator: () => {
-    const container = document.getElementById("tsparticles");
+    const container = document.getElementById('tsparticles');
     if (container) {
-      container.style.cursor = "";
+      container.style.cursor = '';
     }
   },
 
@@ -133,47 +133,47 @@ export const UIManager = {
   syncUI: () => {
     // Theme
     const themeBtn = document.getElementById(BUTTON_IDS.THEME);
-    document.body.classList.toggle("light-mode", !AppState.ui.isDarkMode);
-    themeBtn.setAttribute("aria-pressed", !AppState.ui.isDarkMode);
-    iconSun.style.display = AppState.ui.isDarkMode ? "block" : "none";
-    iconMoon.style.display = AppState.ui.isDarkMode ? "none" : "block";
+    document.body.classList.toggle('light-mode', !AppState.ui.isDarkMode);
+    themeBtn.setAttribute('aria-pressed', !AppState.ui.isDarkMode);
+    iconSun.style.display = AppState.ui.isDarkMode ? 'block' : 'none';
+    iconMoon.style.display = AppState.ui.isDarkMode ? 'none' : 'block';
 
     // Toggle Buttons
     document
       .getElementById(BUTTON_IDS.GRAVITY)
-      .classList.toggle("active", AppState.ui.isGravityOn);
+      .classList.toggle('active', AppState.ui.isGravityOn);
     document
       .getElementById(BUTTON_IDS.GRAVITY)
-      .setAttribute("aria-pressed", AppState.ui.isGravityOn);
+      .setAttribute('aria-pressed', AppState.ui.isGravityOn);
     document
       .getElementById(BUTTON_IDS.WALLS)
-      .classList.toggle("active", AppState.ui.areWallsOn);
+      .classList.toggle('active', AppState.ui.areWallsOn);
     document
       .getElementById(BUTTON_IDS.WALLS)
-      .setAttribute("aria-pressed", AppState.ui.areWallsOn);
+      .setAttribute('aria-pressed', AppState.ui.areWallsOn);
     document
       .getElementById(BUTTON_IDS.CURSOR)
-      .classList.toggle("active", AppState.ui.isCursorParticle);
+      .classList.toggle('active', AppState.ui.isCursorParticle);
     document
       .getElementById(BUTTON_IDS.CURSOR)
-      .setAttribute("aria-pressed", AppState.ui.isCursorParticle);
-    btnPause.classList.toggle("active", AppState.ui.isPaused);
-    btnPause.setAttribute("aria-pressed", AppState.ui.isPaused);
-    iconPause.style.display = AppState.ui.isPaused ? "none" : "block";
-    iconPlay.style.display = AppState.ui.isPaused ? "block" : "none";
+      .setAttribute('aria-pressed', AppState.ui.isCursorParticle);
+    btnPause.classList.toggle('active', AppState.ui.isPaused);
+    btnPause.setAttribute('aria-pressed', AppState.ui.isPaused);
+    iconPause.style.display = AppState.ui.isPaused ? 'none' : 'block';
+    iconPlay.style.display = AppState.ui.isPaused ? 'block' : 'none';
 
     // Slider
     chaosSlider.value = AppState.particleState.chaosLevel;
     chaosSlider.setAttribute(
-      "aria-valuenow",
+      'aria-valuenow',
       AppState.particleState.chaosLevel
     );
     chaosDisplay.textContent = AppState.particleState.chaosLevel;
 
     // History Buttons
-    btnBack.classList.toggle("disabled", CommandManager.undoStack.length === 0);
+    btnBack.classList.toggle('disabled', CommandManager.undoStack.length === 0);
     btnForward.classList.toggle(
-      "disabled",
+      'disabled',
       CommandManager.redoStack.length === 0
     );
   },

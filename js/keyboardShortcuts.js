@@ -1,5 +1,5 @@
-import { BUTTON_IDS } from "./constants.js";
-import { ModalManager } from "./modalManager.js";
+import { BUTTON_IDS } from './constants.js';
+import { ModalManager } from './modalManager.js';
 
 /**
  * Initialise global keyboard shortcuts.
@@ -9,9 +9,9 @@ import { ModalManager } from "./modalManager.js";
  * @param {HTMLElement} menuContainer - the menu container to check open/closed state
  */
 export function initKeyboardShortcuts(menuContainer) {
-  document.addEventListener("keydown", (e) => {
+  document.addEventListener('keydown', (e) => {
     // Always allow Escape to close modals
-    if (e.key === "Escape") {
+    if (e.key === 'Escape') {
       ModalManager.closeAll();
       return;
     }
@@ -19,15 +19,15 @@ export function initKeyboardShortcuts(menuContainer) {
     // Check if user is typing in an input field
     const activeEl = document.activeElement;
     const isTyping =
-      activeEl.tagName === "INPUT" ||
-      activeEl.tagName === "TEXTAREA" ||
+      activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
       activeEl.isContentEditable;
 
     // Spacebar to pause/play (only when not typing and menu is closed)
     if (
-      e.key === " " &&
+      e.key === ' ' &&
       !isTyping &&
-      !menuContainer.classList.contains("active")
+      !menuContainer.classList.contains('active')
     ) {
       e.preventDefault();
       document.getElementById(BUTTON_IDS.PAUSE)?.click();
@@ -49,7 +49,7 @@ export function initKeyboardShortcuts(menuContainer) {
         t: BUTTON_IDS.THEME,
         c: BUTTON_IDS.CURSOR,
         s: BUTTON_IDS.SHARE,
-        "?": BUTTON_IDS.INFO,
+        '?': BUTTON_IDS.INFO,
         r: BUTTON_IDS.REFRESH,
         z: BUTTON_IDS.BACK,
         y: BUTTON_IDS.FORWARD,
@@ -59,9 +59,9 @@ export function initKeyboardShortcuts(menuContainer) {
         const button = document.getElementById(btnId);
         if (button) {
           // Add visual feedback for keyboard activation
-          button.style.transform = "scale(0.95)";
+          button.style.transform = 'scale(0.95)';
           setTimeout(() => {
-            button.style.transform = "";
+            button.style.transform = '';
           }, 150);
           button.click();
         }

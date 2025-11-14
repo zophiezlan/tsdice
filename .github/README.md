@@ -93,16 +93,16 @@ git push origin v1.x.x
 
 ### Active Workflows (8)
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| **CI** | Push/PR | Lint, test, security audit |
-| **CodeQL** | Push/PR/Weekly | Security analysis |
-| **Deploy** | Push to main | GitHub Pages deployment |
-| **PR Validation** | PR events | Comprehensive PR checks |
-| **Release** | Version tags | Automated releases |
-| **Performance** | Push/PR to main | Bundle size tracking |
-| **Stale** | Daily | Issue/PR cleanup |
-| **Auto Labeler** | PR events | Smart categorization |
+| Workflow          | Trigger         | Purpose                    |
+| ----------------- | --------------- | -------------------------- |
+| **CI**            | Push/PR         | Lint, test, security audit |
+| **CodeQL**        | Push/PR/Weekly  | Security analysis          |
+| **Deploy**        | Push to main    | GitHub Pages deployment    |
+| **PR Validation** | PR events       | Comprehensive PR checks    |
+| **Release**       | Version tags    | Automated releases         |
+| **Performance**   | Push/PR to main | Bundle size tracking       |
+| **Stale**         | Daily           | Issue/PR cleanup           |
+| **Auto Labeler**  | PR events       | Smart categorization       |
 
 ### Workflow Details
 
@@ -163,12 +163,12 @@ git push origin v1.x.x
 
 **By File Type:**
 
-- `documentation` - *.md files
-- `javascript` - *.js files
-- `tests` - tests/* files
-- `ci/cd` - .github/workflows/*
+- `documentation` - \*.md files
+- `javascript` - \*.js files
+- `tests` - tests/\* files
+- `ci/cd` - .github/workflows/\*
 - `dependencies` - package.json
-- `ui` - index.html, *.css
+- `ui` - index.html, \*.css
 
 **By PR Size:**
 
@@ -190,12 +190,12 @@ git push origin v1.x.x
 
 ### Performance Targets
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Test Pass Rate | 100% | ✅ 100% |
-| Build Time | <5 min | ✅ ~2 min |
-| Deploy Time | <3 min | ✅ ~1 min |
-| Security Alerts | 0 | ✅ 0 |
+| Metric          | Target | Current   |
+| --------------- | ------ | --------- |
+| Test Pass Rate  | 100%   | ✅ 100%   |
+| Build Time      | <5 min | ✅ ~2 min |
+| Deploy Time     | <3 min | ✅ ~1 min |
+| Security Alerts | 0      | ✅ 0      |
 
 ## 🤝 Contributing to CI/CD
 

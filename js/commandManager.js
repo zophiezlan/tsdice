@@ -1,4 +1,4 @@
-import { UIManager } from "./uiManager.js";
+import { UIManager } from './uiManager.js';
 
 /**
  * @description Manages the application's undo/redo history using command objects.
@@ -41,7 +41,7 @@ export const CommandManager = {
     command.undo();
     this.redoStack.push(command);
     UIManager.syncUI();
-    UIManager.announce("Action undone.");
+    UIManager.announce('Action undone.');
   },
 
   /** Redoes the most recently undone command. */
@@ -51,6 +51,6 @@ export const CommandManager = {
     command.execute();
     this.undoStack.push(command);
     UIManager.syncUI();
-    UIManager.announce("Action redone.");
+    UIManager.announce('Action redone.');
   },
 };

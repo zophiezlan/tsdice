@@ -363,14 +363,14 @@ Pull Requests
 
 ## Key Performance Indicators
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Test Pass Rate | 100% | ✅ 100% (48/48) |
-| Code Coverage | >80% | ✅ Tracked |
-| Security Alerts | 0 | ✅ 0 |
-| Build Time | <5 min | ✅ ~2 min |
-| Deploy Time | <3 min | ✅ ~1 min |
-| PR Turnaround | <24h | ✅ Automated |
+| Metric          | Target | Current         |
+| --------------- | ------ | --------------- |
+| Test Pass Rate  | 100%   | ✅ 100% (48/48) |
+| Code Coverage   | >80%   | ✅ Tracked      |
+| Security Alerts | 0      | ✅ 0            |
+| Build Time      | <5 min | ✅ ~2 min       |
+| Deploy Time     | <3 min | ✅ ~1 min       |
+| PR Turnaround   | <24h   | ✅ Automated    |
 
 ---
 

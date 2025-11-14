@@ -5,8 +5,8 @@ import { CommandManager } from '../js/commandManager.js';
 vi.mock('../js/uiManager.js', () => ({
   UIManager: {
     syncUI: vi.fn(),
-    announce: vi.fn()
-  }
+    announce: vi.fn(),
+  },
 }));
 
 describe('CommandManager', () => {
@@ -20,7 +20,7 @@ describe('CommandManager', () => {
     it('should execute a command and add it to undo stack', () => {
       const command = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
 
       CommandManager.execute(command);
@@ -33,11 +33,11 @@ describe('CommandManager', () => {
     it('should clear redo stack when executing a new command', () => {
       const command1 = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
       const command2 = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
 
       CommandManager.execute(command1);
@@ -54,7 +54,7 @@ describe('CommandManager', () => {
         const command = {
           id: i,
           execute: vi.fn(),
-          undo: vi.fn()
+          undo: vi.fn(),
         };
         CommandManager.execute(command);
       }
@@ -66,17 +66,17 @@ describe('CommandManager', () => {
 
     it('should deduplicate consecutive identical configs', () => {
       const config = { particles: { number: { value: 50 } } };
-      
+
       const command1 = {
         execute: vi.fn(),
         undo: vi.fn(),
-        newConfig: config
+        newConfig: config,
       };
-      
+
       const command2 = {
         execute: vi.fn(),
         undo: vi.fn(),
-        newConfig: config
+        newConfig: config,
       };
 
       CommandManager.execute(command1);
@@ -90,17 +90,17 @@ describe('CommandManager', () => {
     it('should not deduplicate different configs', () => {
       const config1 = { particles: { number: { value: 50 } } };
       const config2 = { particles: { number: { value: 100 } } };
-      
+
       const command1 = {
         execute: vi.fn(),
         undo: vi.fn(),
-        newConfig: config1
+        newConfig: config1,
       };
-      
+
       const command2 = {
         execute: vi.fn(),
         undo: vi.fn(),
-        newConfig: config2
+        newConfig: config2,
       };
 
       CommandManager.execute(command1);
@@ -115,7 +115,7 @@ describe('CommandManager', () => {
     it('should undo the last command', () => {
       const command = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
 
       CommandManager.execute(command);
@@ -139,7 +139,7 @@ describe('CommandManager', () => {
         const command = {
           id: i,
           execute: vi.fn(),
-          undo: vi.fn()
+          undo: vi.fn(),
         };
         commands.push(command);
         CommandManager.execute(command);
@@ -161,7 +161,7 @@ describe('CommandManager', () => {
     it('should redo the last undone command', () => {
       const command = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
 
       CommandManager.execute(command);
@@ -186,7 +186,7 @@ describe('CommandManager', () => {
         const command = {
           id: i,
           execute: vi.fn(),
-          undo: vi.fn()
+          undo: vi.fn(),
         };
         commands.push(command);
         CommandManager.execute(command);
@@ -211,13 +211,13 @@ describe('CommandManager', () => {
   describe('undo/redo workflow', () => {
     it('should support complete undo/redo workflow', () => {
       const commands = [];
-      
+
       // Execute 3 commands
       for (let i = 0; i < 3; i++) {
         const command = {
           id: i,
           execute: vi.fn(),
-          undo: vi.fn()
+          undo: vi.fn(),
         };
         commands.push(command);
         CommandManager.execute(command);
@@ -245,26 +245,26 @@ describe('CommandManager', () => {
     it('should clear redo stack when executing after undo', () => {
       const command1 = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
       const command2 = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
       const command3 = {
         execute: vi.fn(),
-        undo: vi.fn()
+        undo: vi.fn(),
       };
 
       CommandManager.execute(command1);
       CommandManager.execute(command2);
       CommandManager.undo();
-      
+
       expect(CommandManager.redoStack).toHaveLength(1);
-      
+
       // Execute a new command - should clear redo stack
       CommandManager.execute(command3);
-      
+
       expect(CommandManager.redoStack).toHaveLength(0);
       expect(CommandManager.undoStack).toHaveLength(2);
     });

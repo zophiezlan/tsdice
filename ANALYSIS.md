@@ -76,8 +76,8 @@ Every JavaScript file is an ES6 module with explicit imports/exports:
 
 ```javascript
 // Explicit dependency declaration
-import { AppState } from "./state.js";
-import { ConfigGenerator } from "./configGenerator.js";
+import { AppState } from './state.js';
+import { ConfigGenerator } from './configGenerator.js';
 
 // Explicit export
 export const particlesService = {
@@ -167,7 +167,7 @@ export const AppState = {
 };
 
 // All modules import the same instance
-import { AppState } from "./state.js";
+import { AppState } from './state.js';
 ```
 
 **Benefits**:
@@ -296,7 +296,7 @@ AppState = {
 AppState.ui.isGravityOn = true;
 
 // ✅ GOOD: Through command
-CommandManager.execute(createToggleCommand("isGravityOn", applyGravity));
+CommandManager.execute(createToggleCommand('isGravityOn', applyGravity));
 ```
 
 **Rule 2**: Always call `UIManager.syncUI()` after state change
@@ -406,7 +406,7 @@ newConfig = ConfigGenerator.generateMovement();
 // AFTER shuffle: Reapply toggle overrides
 function reapplyToggleStates(config) {
   if (AppState.ui.areWallsOn) {
-    config.particles.move.outModes = { default: "bounce" };
+    config.particles.move.outModes = { default: 'bounce' };
   } else if (AppState.particleState.originalOutModes) {
     config.particles.move.outModes = originalOutModes;
   }
@@ -416,7 +416,7 @@ function reapplyToggleStates(config) {
   }
 
   if (AppState.ui.isCursorParticle) {
-    config.interactivity.events.onHover.mode = "trail";
+    config.interactivity.events.onHover.mode = 'trail';
   }
 }
 ```
@@ -451,7 +451,7 @@ const shortUrl = await createEmojiShortUrl(fullUrl);
 // https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 
 // DECOMPRESSION (Page load)
-if (window.location.hash.startsWith("#config=")) {
+if (window.location.hash.startsWith('#config=')) {
   const compressed = window.location.hash.substring(8);
 
   // Stage 1: Decompress
@@ -462,7 +462,7 @@ if (window.location.hash.startsWith("#config=")) {
 
   // Stage 3: Validate
   if (!config.particles || !config.interactivity) {
-    throw new Error("Invalid config");
+    throw new Error('Invalid config');
   }
 
   // Stage 4: Apply
@@ -568,7 +568,7 @@ if (window.location.hash.startsWith("#config=")) {
 ```javascript
 // When modal opens
 AppState.ui.lastFocusedElement = document.activeElement;
-modal.querySelector("button").focus();
+modal.querySelector('button').focus();
 
 // When modal closes
 lastFocusedElement.focus(); // Return focus
@@ -602,7 +602,7 @@ lastFocusedElement.focus(); // Return focus
 ```javascript
 const newValue = parseInt(e.target.value, 10);
 if (newValue < 1 || newValue > 10 || isNaN(newValue)) {
-  console.warn("Invalid chaos level:", newValue);
+  console.warn('Invalid chaos level:', newValue);
   return; // Reject invalid input
 }
 ```
@@ -614,21 +614,21 @@ try {
   const config = JSON.parse(decompressedString);
 
   // Structural validation
-  if (!config || typeof config !== "object") {
-    throw new Error("Invalid structure");
+  if (!config || typeof config !== 'object') {
+    throw new Error('Invalid structure');
   }
 
   // Required fields
   if (!config.particles || !config.interactivity) {
-    throw new Error("Missing required fields");
+    throw new Error('Missing required fields');
   }
 
   // Safe to use
   await loadParticles(config);
 } catch (e) {
   // Clear malicious URL
-  window.location.hash = "";
-  UIManager.showToast("Invalid configuration link");
+  window.location.hash = '';
+  UIManager.showToast('Invalid configuration link');
 }
 ```
 
@@ -680,22 +680,22 @@ try {
 
 ```javascript
 // utils.test.js
-test("getChaosProbability scales correctly", () => {
+test('getChaosProbability scales correctly', () => {
   expect(getChaosProbability(0.5, 1)).toBe(0.1);
   expect(getChaosProbability(0.5, 5)).toBe(0.5);
   expect(getChaosProbability(0.5, 10)).toBe(1.0);
 });
 
 // configGenerator.test.js
-test("generateAppearance returns valid structure", () => {
+test('generateAppearance returns valid structure', () => {
   const appearance = ConfigGenerator.generateAppearance();
-  expect(appearance).toHaveProperty("color");
-  expect(appearance).toHaveProperty("shape");
-  expect(appearance).toHaveProperty("size");
+  expect(appearance).toHaveProperty('color');
+  expect(appearance).toHaveProperty('shape');
+  expect(appearance).toHaveProperty('size');
 });
 
 // commandManager.test.js
-test("execute adds command to undo stack", () => {
+test('execute adds command to undo stack', () => {
   const command = { execute: jest.fn(), undo: jest.fn() };
   CommandManager.execute(command);
   expect(CommandManager.undoStack).toContain(command);
@@ -705,21 +705,21 @@ test("execute adds command to undo stack", () => {
 ### Integration Tests (Proposed)
 
 ```javascript
-test("shuffle button generates new config", async () => {
+test('shuffle button generates new config', async () => {
   const initialConfig = AppState.particleState.currentConfig;
-  document.getElementById("btn-shuffle-all").click();
+  document.getElementById('btn-shuffle-all').click();
   await waitFor(() => {
     expect(AppState.particleState.currentConfig).not.toEqual(initialConfig);
   });
 });
 
-test("undo restores previous config", async () => {
+test('undo restores previous config', async () => {
   const initialConfig = structuredClone(AppState.particleState.currentConfig);
-  document.getElementById("btn-shuffle-all").click();
+  document.getElementById('btn-shuffle-all').click();
   await waitFor(() => {
     expect(AppState.particleState.currentConfig).not.toEqual(initialConfig);
   });
-  document.getElementById("btn-back").click();
+  document.getElementById('btn-back').click();
   await waitFor(() => {
     expect(AppState.particleState.currentConfig).toEqual(initialConfig);
   });
@@ -731,8 +731,8 @@ test("undo restores previous config", async () => {
 Using Playwright or Puppeteer:
 
 ```javascript
-test("modal renders correctly", async () => {
-  await page.click("#btn-info");
+test('modal renders correctly', async () => {
+  await page.click('#btn-info');
   const screenshot = await page.screenshot();
   expect(screenshot).toMatchImageSnapshot();
 });
@@ -743,7 +743,7 @@ test("modal renders correctly", async () => {
 Using axe-core:
 
 ```javascript
-test("page has no accessibility violations", async () => {
+test('page has no accessibility violations', async () => {
   const results = await runAxe(page);
   expect(results.violations).toHaveLength(0);
 });
@@ -829,8 +829,8 @@ ui: {
 
 ```javascript
 // constants.js
-export const retroColorPalette = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#f9ca24"];
-export const neonColorPalette = ["#00ff00", "#ff00ff", "#00ffff", "#ffff00"];
+export const retroColorPalette = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'];
+export const neonColorPalette = ['#00ff00', '#ff00ff', '#00ffff', '#ffff00'];
 
 // configGenerator.js
 const palette = getRandomItem([

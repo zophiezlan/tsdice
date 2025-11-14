@@ -9,22 +9,22 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 ✅ **Security** - Multiple layers of security scanning  
 ✅ **Automation** - Reduced manual work with intelligent automation  
 ✅ **Documentation** - Complete guides and templates  
-✅ **Developer Experience** - Streamlined contribution workflow  
+✅ **Developer Experience** - Streamlined contribution workflow
 
 ## 📊 Framework Overview
 
 ### Workflows (8 Total)
 
-| Workflow | Purpose | Trigger | Status |
-|----------|---------|---------|--------|
-| **CI** | Test, lint, security audit | Push/PR to main/develop | ✅ Active |
-| **CodeQL** | Security analysis | Push/PR + Weekly | ✅ Active |
-| **Deploy** | GitHub Pages deployment | Push to main | ✅ Active |
-| **PR Validation** | Comprehensive PR checks | PR opened/updated | ✅ Active |
-| **Release** | Automated releases | Version tags | ✅ Active |
-| **Performance** | Bundle size & Lighthouse | Push/PR to main | ✅ Active |
-| **Stale** | Issue/PR cleanup | Daily | ✅ Active |
-| **Auto Labeler** | Smart categorization | PR opened/updated | ✅ Active |
+| Workflow          | Purpose                    | Trigger                 | Status    |
+| ----------------- | -------------------------- | ----------------------- | --------- |
+| **CI**            | Test, lint, security audit | Push/PR to main/develop | ✅ Active |
+| **CodeQL**        | Security analysis          | Push/PR + Weekly        | ✅ Active |
+| **Deploy**        | GitHub Pages deployment    | Push to main            | ✅ Active |
+| **PR Validation** | Comprehensive PR checks    | PR opened/updated       | ✅ Active |
+| **Release**       | Automated releases         | Version tags            | ✅ Active |
+| **Performance**   | Bundle size & Lighthouse   | Push/PR to main         | ✅ Active |
+| **Stale**         | Issue/PR cleanup           | Daily                   | ✅ Active |
+| **Auto Labeler**  | Smart categorization       | PR opened/updated       | ✅ Active |
 
 ### Code Quality Tools
 

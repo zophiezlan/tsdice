@@ -64,7 +64,9 @@ describe('AppState', () => {
 
     it('should have originalInteractionModes property with default empty object', () => {
       expect(AppState.particleState).toHaveProperty('originalInteractionModes');
-      expect(typeof AppState.particleState.originalInteractionModes).toBe('object');
+      expect(typeof AppState.particleState.originalInteractionModes).toBe(
+        'object'
+      );
     });
 
     it('should have originalOutModes property with default empty object', () => {

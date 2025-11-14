@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
-  getRandomInRange, 
-  getRandomBool, 
-  getRandomItem, 
-  getChaosProbability, 
-  debounce 
+import {
+  getRandomInRange,
+  getRandomBool,
+  getRandomItem,
+  getChaosProbability,
+  debounce,
 } from '../js/utils.js';
 
 describe('utils', () => {
@@ -40,11 +40,11 @@ describe('utils', () => {
     it('should return true more often with higher probability', () => {
       let trueCount = 0;
       const iterations = 10000;
-      
+
       for (let i = 0; i < iterations; i++) {
         if (getRandomBool(0.8)) trueCount++;
       }
-      
+
       // With probability 0.8, we expect roughly 80% true values
       // Allow some variance (70% to 90%)
       const ratio = trueCount / iterations;
@@ -55,11 +55,11 @@ describe('utils', () => {
     it('should return false more often with lower probability', () => {
       let trueCount = 0;
       const iterations = 10000;
-      
+
       for (let i = 0; i < iterations; i++) {
         if (getRandomBool(0.2)) trueCount++;
       }
-      
+
       // With probability 0.2, we expect roughly 20% true values
       // Allow some variance (10% to 30%)
       const ratio = trueCount / iterations;
@@ -70,11 +70,11 @@ describe('utils', () => {
     it('should default to 50% probability', () => {
       let trueCount = 0;
       const iterations = 10000;
-      
+
       for (let i = 0; i < iterations; i++) {
         if (getRandomBool()) trueCount++;
       }
-      
+
       // With default 0.5 probability, expect roughly 50% true values
       // Allow variance (40% to 60%)
       const ratio = trueCount / iterations;
@@ -105,12 +105,12 @@ describe('utils', () => {
     it('should cover all items given enough iterations', () => {
       const arr = [1, 2, 3, 4, 5];
       const found = new Set();
-      
+
       // Run enough times to statistically cover all items
       for (let i = 0; i < 100; i++) {
         found.add(getRandomItem(arr));
       }
-      
+
       expect(found.size).toBe(5);
     });
   });
@@ -119,10 +119,10 @@ describe('utils', () => {
     it('should scale probability based on chaos level', () => {
       // At chaos level 5, probability should equal base probability
       expect(getChaosProbability(0.5, 5)).toBe(0.5);
-      
+
       // At chaos level 10, probability should be doubled (but capped at 1)
       expect(getChaosProbability(0.5, 10)).toBe(1);
-      
+
       // At chaos level 1, probability should be 1/5 of base
       expect(getChaosProbability(0.5, 1)).toBe(0.1);
     });
@@ -140,12 +140,12 @@ describe('utils', () => {
 
     it('should increase linearly with chaos level', () => {
       const baseProb = 0.5;
-      
+
       const prob1 = getChaosProbability(baseProb, 1);
       const prob2 = getChaosProbability(baseProb, 2);
       const prob5 = getChaosProbability(baseProb, 5);
       const prob8 = getChaosProbability(baseProb, 8);
-      
+
       expect(prob2).toBeGreaterThan(prob1);
       expect(prob5).toBeGreaterThan(prob2);
       expect(prob8).toBeGreaterThan(prob5);

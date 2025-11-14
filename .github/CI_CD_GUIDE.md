@@ -241,7 +241,7 @@ To fully enable all features, configure these secrets in GitHub repository setti
    ```bash
    # Update version in package.json
    npm version patch|minor|major
-   
+
    # Push with tags
    git push origin main --tags
    ```
