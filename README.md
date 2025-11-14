@@ -3,8 +3,8 @@
 [![Project Status: Maintained](https://img.shields.io/badge/project%20status-maintained-brightgreen.svg)](https://gist.github.com/zophiezlan/9733473a25de35dd924294d1354353c9)
 [![CI](https://github.com/zophiezlan/tsdice/workflows/CI/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/zophiezlan/tsdice/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml)
-[![Test Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen.svg)](PHASE1_IMPLEMENTATION.md)
-[![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen.svg)](PHASE3_IMPLEMENTATION.md)
+[![Test Coverage](https://img.shields.io/badge/coverage-76%25-brightgreen.svg)](tests/README.md)
+[![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen.svg)](tests/README.md)
 [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://zophiezlan.github.io/tsdice/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -151,6 +151,12 @@ This single slider controls particle count, speed multipliers, and the probabili
 - Reduced motion support (auto-pauses for users with motion sensitivities)
 - Custom tooltips with keyboard shortcuts
 
+### 🧭 Guided Onboarding
+
+- First-time visitors see a welcome modal with quick-start tips; once dismissed it snoozes for 24 hours or indefinitely if you tick "Don't show again".
+- The control panel auto-hides after 10 seconds of inactivity to keep the canvas clean—any pointer movement or a tap on the main menu button brings it back instantly.
+- The Info modal is tabbed (Controls, Shortcuts, Guide) and remembers the last tab you viewed, so power users can jump straight to their favorite reference panel.
+
 ### 🎭 Easter Eggs
 
 Try the **Konami Code** (↑ ↑ ↓ ↓ ← → ← → B A) for a surprise party mode! 🎉
@@ -168,6 +174,8 @@ tsdice/
 ├── index.html              # Single-file app with embedded styles
 ├── vite.config.js          # Vite build configuration
 ├── package.json            # Dependencies & scripts
+├── styles/                 # Shared CSS variables + component styling
+├── tests/                  # Vitest suite + coverage artifacts
 └── js/
     ├── main.js             # Application orchestrator & event handling
     ├── state.js            # Centralized application state (single source of truth)
@@ -184,7 +192,7 @@ tsdice/
     ├── modalManager.js     # Modal lifecycle management
     ├── commandManager.js   # Command pattern for undo/redo
     ├── tooltipManager.js   # Tooltip behavior & positioning
-    ├── keyboardShortcuts.js# Global keyboard event handling
+    ├── keyboardShortcuts.js # Global keyboard event handling
     └── utils.js            # Helper functions (random, debounce, clipboard)
 ```
 
@@ -711,9 +719,10 @@ Use the Share URL feature to create bookmarkable presets:
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~4,500 (including comments & docs)
-- **JavaScript Modules**: 15 files (11 core + 3 constants + 2 managers)
-- **Test Coverage**: 84% with 111 passing tests
+- **Tracked Lines**: 21,339 across 65 Git-tracked files (code + docs)
+- **JavaScript Modules**: 16 files (13 core + 3 constant modules)
+- **Automated Tests**: 111 Vitest specs covering command/state/config layers
+- **Test Coverage**: 76% statements / 71% branches (v8, `npm run test:coverage`)
 - **CSS Variables**: 25+ theme properties
 - **Keyboard Shortcuts**: 17 commands
 - **Supported Particle Shapes**: 9 types

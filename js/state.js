@@ -2,6 +2,11 @@
  * @description The single source of truth for the entire application.
  * Divided into namespaces for clarity and organization.
  */
+export const DEFAULT_ADVANCED_SETTINGS = {
+  autoPauseHidden: false,
+  batterySaverMode: false,
+};
+
 export const AppState = {
   ui: {
     isDarkMode: true,
@@ -19,4 +24,5 @@ export const AppState = {
     originalOutModes: {},
     initialConfigFromUrl: null,
   },
+  advanced: { ...DEFAULT_ADVANCED_SETTINGS },
 };

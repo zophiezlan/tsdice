@@ -553,6 +553,67 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
     });
   };
 
+  /** Wire up the advanced settings toggles within the info modal. */
+  const setupAdvancedSettingsPanel = () => {
+    const toggleInputs = document.querySelectorAll('[data-advanced-setting]');
+    const resetBtn = document.getElementById('advanced-reset-btn');
+
+    if (!toggleInputs.length) return;
+
+    const messages = {
+      autoPauseHidden: {
+        enabled: 'Auto pause when hidden enabled',
+        disabled: 'Auto pause when hidden disabled',
+      },
+      batterySaverMode: {
+        enabled: 'Battery saver mode enabled',
+        disabled: 'Battery saver mode disabled',
+      },
+    };
+
+    const syncToggleStates = () => {
+      toggleInputs.forEach((input) => {
+        const key = input.dataset.advancedSetting;
+        if (!key) return;
+        input.checked = Boolean(AppState.advanced[key]);
+      });
+    };
+
+    const reloadIfReady = async () => {
+      const config = AppState.particleState.currentConfig;
+      if (config && Object.keys(config).length > 0) {
+        await loadParticles(config);
+      }
+    };
+
+    toggleInputs.forEach((input) => {
+      const key = input.dataset.advancedSetting;
+      if (!key) return;
+      input.checked = Boolean(AppState.advanced[key]);
+
+      input.addEventListener('change', async () => {
+        StateManager.dispatch(Actions.setAdvancedSetting(key, input.checked));
+        const status = input.checked ? 'enabled' : 'disabled';
+        const message = messages[key] ? messages[key][status] : null;
+        if (message) {
+          UIManager.showToast(message);
+          UIManager.announce(message);
+        }
+        await reloadIfReady();
+      });
+    });
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', async () => {
+        StateManager.dispatch(Actions.resetAdvancedSettings());
+        syncToggleStates();
+        UIManager.showToast('Advanced settings restored');
+        UIManager.announce('Advanced settings restored');
+        await reloadIfReady();
+      });
+    }
+  };
+
   // Register all modals with the ModalManager
   ModalManager.register(
     'welcome',
@@ -564,6 +625,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
   // Setup tab functionality for info modal
   setupInfoModalTabs();
+  setupAdvancedSettingsPanel();
 
   fullscreenBtn.addEventListener('click', toggleFullScreen);
   document.addEventListener(

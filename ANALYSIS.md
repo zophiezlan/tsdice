@@ -1,6 +1,6 @@
 # 📊 tsDice Codebase Analysis: Complete Technical Overview
 
-> **Analysis Date**: November 14, 2025  
+> **Analysis Date**: November 15, 2025  
 > **Analyzer**: AI Coding Agent  
 > **Scope**: Complete fresh analysis of all files and their relationships
 
@@ -12,9 +12,10 @@
 
 ### Key Metrics
 
-- **Total Files**: 16 (5 documentation, 1 HTML, 10 JavaScript modules)
-- **Lines of Code**: ~3,500 (highly commented, clean)
+- **Total Files**: 65 Git-tracked files (docs, HTML, JS, CSS, tests)
+- **Tracked Lines**: 21,339 across source + documentation
 - **External Dependencies**: 2 (tsParticles, lz-string)
+- **Automated Tests**: 111 Vitest specs (76% statements / 71% branches via v8)
 - **Supported Browsers**: Modern browsers with ES6 module support
 - **Performance**: 60fps with up to 220 particles on modern hardware
 - **Accessibility Score**: ★★★★★ (WCAG 2.1 AA compliant)
@@ -674,80 +675,28 @@ try {
 
 ---
 
-## Testing Strategy (Recommendations)
+## Testing Strategy
 
-### Unit Tests (Proposed)
+### Automated Coverage (Vitest)
 
-```javascript
-// utils.test.js
-test('getChaosProbability scales correctly', () => {
-  expect(getChaosProbability(0.5, 1)).toBe(0.1);
-  expect(getChaosProbability(0.5, 5)).toBe(0.5);
-  expect(getChaosProbability(0.5, 10)).toBe(1.0);
-});
+- **Framework**: Vitest v4 with the `happy-dom` environment replicates DOM + clipboard APIs. Run via `npm test` or `npm run test:coverage`.
+- **Test Suites** (111 total specs):
+  - `commandManager.test.js` — Undo/redo stack semantics & deduplication
+  - `state.test.js` — `AppState` contract and invariants
+  - `stateManager.test.js` — Action creators, persistence, validation
+  - `configGenerator.test.js` — Chaos scaling, shape factories, FX toggles
+  - `utils.test.js` — RNG helpers, debounce, clipboard fallbacks
+  - `errorHandler.test.js` — Typed error messaging, `wrap`, validation
+- **Coverage**: 76% statements / 71% branches (v8) with gaps primarily in `particlesService.js` (tsParticles integration) and `main.js` (DOM wiring). These files are intentionally excluded or partially covered due to reliance on the actual canvas runtime.
 
-// configGenerator.test.js
-test('generateAppearance returns valid structure', () => {
-  const appearance = ConfigGenerator.generateAppearance();
-  expect(appearance).toHaveProperty('color');
-  expect(appearance).toHaveProperty('shape');
-  expect(appearance).toHaveProperty('size');
-});
+### Manual + Future Enhancements
 
-// commandManager.test.js
-test('execute adds command to undo stack', () => {
-  const command = { execute: jest.fn(), undo: jest.fn() };
-  CommandManager.execute(command);
-  expect(CommandManager.undoStack).toContain(command);
-});
-```
-
-### Integration Tests (Proposed)
-
-```javascript
-test('shuffle button generates new config', async () => {
-  const initialConfig = AppState.particleState.currentConfig;
-  document.getElementById('btn-shuffle-all').click();
-  await waitFor(() => {
-    expect(AppState.particleState.currentConfig).not.toEqual(initialConfig);
-  });
-});
-
-test('undo restores previous config', async () => {
-  const initialConfig = structuredClone(AppState.particleState.currentConfig);
-  document.getElementById('btn-shuffle-all').click();
-  await waitFor(() => {
-    expect(AppState.particleState.currentConfig).not.toEqual(initialConfig);
-  });
-  document.getElementById('btn-back').click();
-  await waitFor(() => {
-    expect(AppState.particleState.currentConfig).toEqual(initialConfig);
-  });
-});
-```
-
-### Visual Regression Tests (Proposed)
-
-Using Playwright or Puppeteer:
-
-```javascript
-test('modal renders correctly', async () => {
-  await page.click('#btn-info');
-  const screenshot = await page.screenshot();
-  expect(screenshot).toMatchImageSnapshot();
-});
-```
-
-### Accessibility Tests (Proposed)
-
-Using axe-core:
-
-```javascript
-test('page has no accessibility violations', async () => {
-  const results = await runAxe(page);
-  expect(results.violations).toHaveLength(0);
-});
-```
+- **Manual Regression**: Continue using the checklist (shuffle buttons, toggle persistence, share URLs, keyboard navigation, reduced-motion auto-pause, modal focus trap, mobile touch interactions).
+- **Next Steps**:
+  - Add Playwright smoke tests for modals, share flow, and keyboard shortcuts
+  - Capture canvas snapshots for visual regression when shuffling deterministic seeds
+  - Run axe-core against the rendered page to guard accessibility regressions
+  - Benchmark `buildConfig` under chaos levels 1/5/10 to monitor performance envelope
 
 ---
 
@@ -906,13 +855,14 @@ const palette = getRandomItem([
 4. **Performance**: Optimized DOM operations, CSS animations, debouncing
 5. **Maintainability**: Well-commented, modular, consistent naming
 6. **Documentation**: Comprehensive README, contributing guidelines, code of conduct
+7. **Automated Tests**: 111-spec Vitest suite guarding core logic with 76% coverage
 
 ### Areas for Improvement
 
-1. **Testing**: No automated tests (acceptable for a hobby project, but recommended)
-2. **Build Process**: No bundling/minification (not critical for single-file app)
-3. **TypeScript**: Pure JavaScript (could benefit from types for larger team)
-4. **Error Boundaries**: Some error cases could be handled more gracefully
+1. **Test Depth**: Add integration/E2E coverage (tsParticles canvas, share flow) to complement the existing Vitest unit suites.
+2. **Observability**: Instrument performance (FPS, chaos-level impact) and error telemetry for production diagnostics.
+3. **TypeScript**: Consider gradual typing (JSDoc or TS) for config objects to catch regressions earlier.
+4. **Error Boundaries**: Broaden `ErrorHandler` surface to capture clipboard failures, fullscreen toggles, and external API hiccups with richer UI guidance.
 
 ### Overall Assessment
 

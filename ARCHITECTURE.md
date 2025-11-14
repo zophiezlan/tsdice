@@ -972,14 +972,16 @@ const btnId = {
 - [ ] Screen reader announces state changes
 - [ ] Focus trap works in modals
 
-### Automated Testing (Future)
+### Automated Testing (Current + Next)
 
-Could add:
+- **Vitest suite (111 specs)** — Exercises `commandManager`, `state.js`, `stateManager`, `configGenerator`, `utils`, and `errorHandler` with happy-path and edge-case coverage. Run with `npm run test` or `npm run test:coverage` (current coverage: 76% statements / 71% branches via v8).
+- **Happy DOM environment** — Browser APIs such as `document`, `localStorage`, and `navigator.clipboard` are shimmed for deterministic runs.
 
-- Unit tests for `utils.js` pure functions
-- Integration tests for command execution
-- Visual regression tests for UI states
-- Performance benchmarks for config generation
+Future additions on the roadmap:
+
+- Playwright visual regression smoke tests for UI states
+- Integration tests that spin up tsParticles to validate real canvas mutations
+- Performance benchmarking for config generation under different chaos levels
 
 ---
 

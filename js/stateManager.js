@@ -2,13 +2,14 @@
  * @fileoverview State management with dispatch pattern and validation
  */
 
-import { AppState } from './state.js';
+import { AppState, DEFAULT_ADVANCED_SETTINGS } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 
 /**
  * Action types for state mutations
  */
+const ADVANCED_STORAGE_KEY = 'tsDiceAdvancedSettings';
 export const ActionType = {
   SET_THEME: 'SET_THEME',
   SET_CHAOS_LEVEL: 'SET_CHAOS_LEVEL',
@@ -19,6 +20,8 @@ export const ActionType = {
   SET_CONFIG: 'SET_CONFIG',
   SET_ORIGINAL_MODES: 'SET_ORIGINAL_MODES',
   INIT_FROM_STORAGE: 'INIT_FROM_STORAGE',
+  SET_ADVANCED_SETTING: 'SET_ADVANCED_SETTING',
+  RESET_ADVANCED_SETTINGS: 'RESET_ADVANCED_SETTINGS',
 };
 
 /**
@@ -71,6 +74,14 @@ export const StateManager = {
           this._initFromStorage();
           break;
 
+        case ActionType.SET_ADVANCED_SETTING:
+          this._setAdvancedSetting(payload);
+          break;
+
+        case ActionType.RESET_ADVANCED_SETTINGS:
+          this._resetAdvancedSettings();
+          break;
+
         default:
           console.warn(`Unknown action type: ${type}`);
           return false;
@@ -120,6 +131,11 @@ export const StateManager = {
           JSON.stringify(AppState.particleState.currentConfig)
         );
       }
+
+      localStorage.setItem(
+        ADVANCED_STORAGE_KEY,
+        JSON.stringify(AppState.advanced)
+      );
     } catch (error) {
       ErrorHandler.handle(error, ErrorType.STORAGE_ERROR);
     }
@@ -142,6 +158,13 @@ export const StateManager = {
     if (
       AppState.particleState.chaosLevel < 1 ||
       AppState.particleState.chaosLevel > 10
+    )
+      return false;
+
+    if (
+      Object.entries(AppState.advanced).some(
+        ([, value]) => typeof value !== 'boolean'
+      )
     )
       return false;
 
@@ -225,9 +248,38 @@ export const StateManager = {
           localStorage.removeItem('tsDiceLastConfig');
         }
       }
+
+      const savedAdvanced = localStorage.getItem(ADVANCED_STORAGE_KEY);
+      if (savedAdvanced) {
+        try {
+          const parsed = JSON.parse(savedAdvanced);
+          Object.keys(DEFAULT_ADVANCED_SETTINGS).forEach((key) => {
+            if (typeof parsed[key] === 'boolean') {
+              AppState.advanced[key] = parsed[key];
+            }
+          });
+        } catch (parseError) {
+          console.warn('Could not parse advanced settings', parseError);
+          localStorage.removeItem(ADVANCED_STORAGE_KEY);
+        }
+      }
     } catch (error) {
       ErrorHandler.handle(error, ErrorType.STORAGE_ERROR);
     }
+  },
+
+  _setAdvancedSetting({ key, value }) {
+    if (!(key in AppState.advanced)) {
+      console.warn(`Unknown advanced setting: ${key}`);
+      return;
+    }
+    AppState.advanced[key] = Boolean(value);
+    this.persist();
+  },
+
+  _resetAdvancedSettings() {
+    AppState.advanced = { ...DEFAULT_ADVANCED_SETTINGS };
+    this.persist();
   },
 };
 
@@ -250,4 +302,9 @@ export const Actions = {
     payload: modes,
   }),
   initFromStorage: () => ({ type: ActionType.INIT_FROM_STORAGE }),
+  setAdvancedSetting: (key, value) => ({
+    type: ActionType.SET_ADVANCED_SETTING,
+    payload: { key, value },
+  }),
+  resetAdvancedSettings: () => ({ type: ActionType.RESET_ADVANCED_SETTINGS }),
 };

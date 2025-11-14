@@ -37,6 +37,8 @@ describe('StateManager', () => {
     AppState.particleState.currentConfig = {};
     AppState.particleState.originalInteractionModes = {};
     AppState.particleState.originalOutModes = {};
+    AppState.advanced.autoPauseHidden = false;
+    AppState.advanced.batterySaverMode = false;
 
     // Clear mocks
     vi.clearAllMocks();
@@ -125,6 +127,30 @@ describe('StateManager', () => {
         'Unknown action type: UNKNOWN_ACTION'
       );
       consoleSpy.mockRestore();
+    });
+
+    it('should dispatch SET_ADVANCED_SETTING action', () => {
+      const action = Actions.setAdvancedSetting('autoPauseHidden', true);
+      const result = StateManager.dispatch(action);
+
+      expect(result).toBe(true);
+      expect(AppState.advanced.autoPauseHidden).toBe(true);
+      expect(localStorage.setItem).toHaveBeenCalledWith(
+        'tsDiceAdvancedSettings',
+        expect.any(String)
+      );
+    });
+
+    it('should dispatch RESET_ADVANCED_SETTINGS action', () => {
+      AppState.advanced.autoPauseHidden = true;
+      AppState.advanced.batterySaverMode = true;
+
+      const action = Actions.resetAdvancedSettings();
+      const result = StateManager.dispatch(action);
+
+      expect(result).toBe(true);
+      expect(AppState.advanced.autoPauseHidden).toBe(false);
+      expect(AppState.advanced.batterySaverMode).toBe(false);
     });
   });
 
@@ -238,6 +264,19 @@ describe('StateManager', () => {
       expect(action).toEqual({
         type: ActionType.SET_CONFIG,
         payload: config,
+      });
+    });
+
+    it('should create advanced setting actions', () => {
+      const setAction = Actions.setAdvancedSetting('batterySaverMode', true);
+      expect(setAction).toEqual({
+        type: ActionType.SET_ADVANCED_SETTING,
+        payload: { key: 'batterySaverMode', value: true },
+      });
+
+      const resetAction = Actions.resetAdvancedSettings();
+      expect(resetAction).toEqual({
+        type: ActionType.RESET_ADVANCED_SETTINGS,
       });
     });
   });

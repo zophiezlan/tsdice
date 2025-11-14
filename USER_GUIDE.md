@@ -25,6 +25,8 @@
 
 Visit [zophiezlan.github.io/tsdice](https://zophiezlan.github.io/tsdice) and watch the particles dance! 🎉
 
+On your first visit (or every 24 hours), you'll see a quick welcome modal with helpful tips. Dismiss it to jump right in, or tick **"Don't show again"** if you prefer to skip it permanently.
+
 ### Step 2: Open the Menu
 
 Click the **⚙️ settings icon** in the bottom-left corner. The control panel slides out like magic.
@@ -106,6 +108,8 @@ Notice how each shuffle preserves the other aspects? That's **granular randomiza
 | ℹ️     | Info    | Alt+?    | Show help modal with tabs |
 
 **Note**: The Info modal has three tabs (Controls, Shortcuts, Guide) that you can navigate with arrow keys. It remembers your last viewed tab!
+
+When you reopen it later, tsDice restores the tab you last used, so you can treat it as a personalized cheat sheet.
 
 ### Visual Feedback
 

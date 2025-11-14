@@ -7,6 +7,65 @@ import { darkColorPalette, lightColorPalette } from './constants.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
 import { THEME_BACKGROUNDS } from './constants/colors.js';
 
+/** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
+export const applyAdvancedPreferences = (options) => {
+  if (!options) return;
+
+  if (AppState.advanced.autoPauseHidden) {
+    options.pauseOnBlur = true;
+    options.pauseOnOutsideViewport = true;
+  } else {
+    options.pauseOnBlur = false;
+    options.pauseOnOutsideViewport = false;
+  }
+
+  if (!options.fpsLimit) {
+    options.fpsLimit = PARTICLE_CONFIG.FPS_LIMIT;
+  }
+
+  if (AppState.advanced.batterySaverMode) {
+    options.fpsLimit = Math.min(
+      options.fpsLimit,
+      PARTICLE_CONFIG.BATTERY_SAVER_FPS_LIMIT
+    );
+
+    if (
+      options.particles &&
+      options.particles.number &&
+      typeof options.particles.number.value === 'number'
+    ) {
+      options.particles.number.value = Math.min(
+        options.particles.number.value,
+        PARTICLE_CONFIG.BATTERY_SAVER_PARTICLE_CAP
+      );
+    }
+
+    if (options.particles && options.particles.move) {
+      const cap = PARTICLE_CONFIG.BATTERY_SAVER_MAX_SPEED;
+      if (typeof options.particles.move.speed === 'number') {
+        options.particles.move.speed = Math.min(
+          options.particles.move.speed,
+          cap
+        );
+      } else {
+        options.particles.move.speed = cap;
+      }
+
+      if (options.particles.move.trail) {
+        options.particles.move.trail.enable = false;
+      }
+    }
+
+    if (options.particles && options.particles.links) {
+      const opacity =
+        typeof options.particles.links.opacity === 'number'
+          ? options.particles.links.opacity
+          : 0.4;
+      options.particles.links.opacity = Math.min(opacity, 0.4);
+    }
+  }
+};
+
 /**
  * Reapplies UI toggle states (walls, cursor, gravity) to a configuration.
  * Ensures toggle states persist across shuffles and undo/redo operations.
@@ -128,9 +187,12 @@ export const loadParticles = async (config) => {
       containerEl.style.opacity = '0.3';
     }
 
+    const optionsWithAdvanced = JSON.parse(JSON.stringify(config));
+    applyAdvancedPreferences(optionsWithAdvanced);
+
     AppState.ui.particlesContainer = await tsParticles.load({
       id: 'tsparticles',
-      options: JSON.parse(JSON.stringify(config)),
+      options: optionsWithAdvanced,
     });
 
     if (containerEl) {

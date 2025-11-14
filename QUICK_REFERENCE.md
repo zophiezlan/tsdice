@@ -9,9 +9,9 @@
 ```
 ┌──────────────────────────────────────────────────────┐
 │  tsDice: tsParticles Random Configuration Generator  │
-│  • 15 JavaScript modules (11 core + modular)         │
+│  • 16 JavaScript modules (13 core + constants)       │
 │  • 17 keyboard shortcuts                             │
-│  • 111 tests with 84% coverage                       │
+│  • 111 Vitest specs with 76% coverage                │
 │  • Infinite undo history                             │
 │  • Production build: 46 KB (gzipped)                 │
 └──────────────────────────────────────────────────────┘
@@ -70,24 +70,22 @@
 
 ```
 tsdice/
-├── index.html                  # Main app
-├── vite.config.js              # Build configuration (Phase 2)
+├── index.html                  # Main app + inline styles
 ├── package.json                # Dependencies & scripts
-├── README.md                   # Project overview
-├── CONTRIBUTING.md             # Contribution guide
-├── CODE_OF_CONDUCT.md          # Community standards
-├── LICENSE                     # MIT License
+├── README.md / ANALYSIS.md     # High-level + deep-dive docs
 ├── ARCHITECTURE.md             # Technical deep dive
-├── USER_GUIDE.md               # User manual
-├── ANALYSIS.md                 # Complete analysis
-├── PHASE2_IMPLEMENTATION.md    # Phase 2 report
-├── PHASE3_IMPLEMENTATION.md    # Phase 3 report
+├── USER_GUIDE.md / QUICK_REFERENCE.md
+├── CHANGELOG.md / CONTRIBUTING.md / CODE_OF_CONDUCT.md / SECURITY.md
+├── vite.config.js / vitest.config.js
+├── styles/                     # variables.css + components.css
+├── tests/                      # Vitest specs + setup + README
+├── coverage/                   # HTML reports from `npm run test:coverage`
 └── js/
     ├── main.js                 # Orchestrator (830 lines)
     ├── state.js                # State container
-    ├── errorHandler.js         # Error handling (Phase 2)
-    ├── stateManager.js         # State management (Phase 2)
-    ├── constants/              # Modular constants (Phase 2)
+  ├── errorHandler.js         # Typed, centralized error handling
+  ├── stateManager.js         # Dispatch-based state management
+  ├── constants/              # Modular constants (UI, colors, particles)
     │   ├── ui.js              # UI constants
     │   ├── particles.js       # Particle config
     │   └── colors.js          # Color palettes
