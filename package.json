@@ -13,7 +13,8 @@
     "lint": "eslint js/ tests/ --ext .js",
     "lint:fix": "eslint js/ tests/ --ext .js --fix",
     "format": "prettier --write \"**/*.{js,json,md,html,css}\"",
-    "format:check": "prettier --check \"**/*.{js,json,md,html,css}\""
+    "format:check": "prettier --check \"**/*.{js,json,md,html,css}\"",
+    "prepare": "husky"
   },
   "keywords": [
     "tsparticles",
@@ -23,6 +24,15 @@
   ],
   "author": "zophiezlan",
   "license": "MIT",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,html,css}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^7.2.1",
     "@vitest/coverage-v8": "^4.0.8",
@@ -30,7 +40,9 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "happy-dom": "^20.0.10",
+    "husky": "^9.1.7",
     "jsdom": "^27.2.0",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "vite": "^7.2.2",
     "vite-plugin-html": "^3.2.2",
