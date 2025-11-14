@@ -796,6 +796,7 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
       AppState.ui.isPaused = true;
       UIManager.syncUI();
       UIManager.announce("Animation paused due to reduced motion preference.");
+      UIManager.showToast("Animation paused due to reduced motion preference.");
     }
   };
   handleReducedMotion();
