@@ -6,7 +6,11 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint js/ tests/ --ext .js",
+    "lint:fix": "eslint js/ tests/ --ext .js --fix",
+    "format": "prettier --write \"**/*.{js,json,md,html,css}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md,html,css}\""
   },
   "keywords": [
     "tsparticles",
@@ -18,7 +22,11 @@
   "license": "MIT",
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.8",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "happy-dom": "^20.0.10",
+    "prettier": "^3.6.2",
     "vitest": "^4.0.8"
   }
 }

@@ -1,6 +1,8 @@
 # ✨ tsDice | The Ultimate tsParticles Scene Randomizer ✨
 
 [![Project Status: Maintained](https://img.shields.io/badge/project%20status-maintained-brightgreen.svg)](https://gist.github.com/zophiezlan/9733473a25de35dd924294d1354353c9)
+[![CI](https://github.com/zophiezlan/tsdice/workflows/CI/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/zophiezlan/tsdice/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml)
 [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://tsdice.pages.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -387,6 +389,39 @@ Current test coverage includes:
 - ✅ 48+ test cases
 
 See [tests/README.md](tests/README.md) for detailed testing documentation.
+
+#### Code Quality Tools
+
+The project uses ESLint and Prettier for code quality and consistency:
+
+```bash
+# Lint code
+npm run lint
+
+# Auto-fix linting issues
+npm run lint:fix
+
+# Format code
+npm run format
+
+# Check formatting
+npm run format:check
+```
+
+#### CI/CD Pipeline
+
+tsDice has a comprehensive CI/CD framework powered by GitHub Actions:
+
+- ✅ **Automated Testing** - Runs on Node.js 18, 20, and 22
+- ✅ **Code Quality Checks** - ESLint and Prettier validation
+- ✅ **Security Scanning** - CodeQL analysis and npm audit
+- ✅ **Automated Deployment** - GitHub Pages deployment on main branch
+- ✅ **Dependency Updates** - Automated Dependabot PRs
+- ✅ **Performance Monitoring** - Bundle size and Lighthouse CI
+- ✅ **PR Validation** - Comprehensive checks on every pull request
+- ✅ **Release Automation** - Automatic releases with changelogs
+
+See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD documentation.
 
 ---
 
