@@ -1,3 +1,5 @@
+# tsDice Pull Request Template
+
 ## Description
 
 <!-- Provide a brief description of the changes in this PR -->
@@ -27,9 +29,9 @@ Fixes #(issue number)
 
 <!-- List the specific changes made in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 
@@ -43,9 +45,9 @@ Fixes #(issue number)
 
 ### Test Configuration
 
-- **Browser(s)**: 
-- **OS**: 
-- **Node version**: 
+- **Browser(s)**:
+- **OS**:
+- **Node version**:
 
 ## Screenshots
 

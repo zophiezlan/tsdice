@@ -4,7 +4,7 @@ Welcome to the tsDice CI/CD framework! This directory contains all automation, w
 
 ## 📁 Directory Structure
 
-```
+```text
 .github/
 ├── workflows/              # GitHub Actions workflows (8 files)
 │   ├── ci.yml             # Main CI pipeline
@@ -37,6 +37,7 @@ Welcome to the tsDice CI/CD framework! This directory contains all automation, w
 ### For Contributors
 
 **Before creating a PR:**
+
 ```bash
 npm run lint          # Check code style
 npm run format        # Format code
@@ -44,6 +45,7 @@ npm test              # Run tests
 ```
 
 **Create your PR:**
+
 1. Use the [PR template](pull_request_template.md)
 2. Follow conventional commits format
 3. Wait for automated checks
@@ -52,6 +54,7 @@ npm test              # Run tests
 ### For Maintainers
 
 **Managing releases:**
+
 ```bash
 git tag v1.x.x
 git push origin v1.x.x
@@ -59,6 +62,7 @@ git push origin v1.x.x
 ```
 
 **Reviewing Dependabot PRs:**
+
 1. Check CI results
 2. Review changelog
 3. Merge if tests pass
@@ -103,18 +107,21 @@ git push origin v1.x.x
 ### Workflow Details
 
 #### CI Workflow (ci.yml)
+
 - **Duration**: ~2-3 minutes
 - **Node versions**: 18.x, 20.x, 22.x
 - **Jobs**: Lint, Test, Security
 - **Artifacts**: Coverage reports
 
 #### CodeQL (codeql.yml)
+
 - **Schedule**: Weekly (Monday 00:00)
 - **Language**: JavaScript
 - **Queries**: security-extended, security-and-quality
 - **Reports**: GitHub Security tab
 
 #### Deploy (deploy.yml)
+
 - **Target**: GitHub Pages
 - **Trigger**: Push to main
 - **Process**: Build → Test → Deploy
@@ -145,6 +152,7 @@ git push origin v1.x.x
    - Response timeline
 
 ### Current Status
+
 - ✅ CodeQL: 0 alerts
 - ✅ npm audit: Clean
 - ✅ Dependencies: Up to date
@@ -154,6 +162,7 @@ git push origin v1.x.x
 ### Automatic Labels
 
 **By File Type:**
+
 - `documentation` - *.md files
 - `javascript` - *.js files
 - `tests` - tests/* files
@@ -162,6 +171,7 @@ git push origin v1.x.x
 - `ui` - index.html, *.css
 
 **By PR Size:**
+
 - `size/XS` - <10 changes
 - `size/S` - <50 changes
 - `size/M` - <200 changes
@@ -171,6 +181,7 @@ git push origin v1.x.x
 ## 📊 Metrics
 
 ### Current Statistics
+
 - **Workflows**: 8 active
 - **Test Coverage**: 48 tests (100% passing)
 - **Node Versions**: 3 (18, 20, 22)
@@ -178,6 +189,7 @@ git push origin v1.x.x
 - **Documentation**: 800+ lines
 
 ### Performance Targets
+
 | Metric | Target | Current |
 |--------|--------|---------|
 | Test Pass Rate | 100% | ✅ 100% |
@@ -205,6 +217,7 @@ git push origin v1.x.x
 ### Reporting Issues
 
 Found a problem with CI/CD?
+
 1. Check [CI_CD_GUIDE.md](CI_CD_GUIDE.md) troubleshooting
 2. Search existing issues
 3. Create new issue with:
@@ -252,12 +265,14 @@ Found a problem with CI/CD?
 ## 🎓 Learning Path
 
 **For New Contributors:**
+
 1. Read [CONTRIBUTING.md](../CONTRIBUTING.md)
 2. Review [CI_CD_SUMMARY.md](CI_CD_SUMMARY.md)
 3. Check [CI_CD_GUIDE.md](CI_CD_GUIDE.md)
 4. Make your first contribution!
 
 **For Maintainers:**
+
 1. Review [CI_CD_ARCHITECTURE.md](CI_CD_ARCHITECTURE.md)
 2. Understand [CI_CD_GUIDE.md](CI_CD_GUIDE.md)
 3. Monitor workflows regularly
@@ -283,6 +298,7 @@ A: See [SECURITY.md](../SECURITY.md) for responsible disclosure.
 ## 🎉 Success Stories
 
 This CI/CD framework provides:
+
 - ✅ 100% test automation
 - ✅ Multi-version compatibility testing
 - ✅ Automated security scanning

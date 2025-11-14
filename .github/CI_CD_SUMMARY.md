@@ -50,6 +50,7 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 ## 📁 Files Added/Modified
 
 ### Configuration Files (5)
+
 - `.eslintrc.json` → `eslint.config.js` (ESLint v9 flat config)
 - `.prettierrc.json` (Code formatting rules)
 - `.prettierignore` (Format exclusions)
@@ -57,6 +58,7 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 - `.github/labeler.yml` (Auto-labeling rules)
 
 ### Workflow Files (8)
+
 - `.github/workflows/ci.yml` (Main CI pipeline)
 - `.github/workflows/codeql.yml` (Security scanning)
 - `.github/workflows/deploy.yml` (GitHub Pages)
@@ -67,24 +69,28 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 - `.github/workflows/labeler.yml` (PR labeling)
 
 ### Templates (4)
+
 - `.github/ISSUE_TEMPLATE/bug_report.yml`
 - `.github/ISSUE_TEMPLATE/feature_request.yml`
 - `.github/ISSUE_TEMPLATE/config.yml`
 - `.github/pull_request_template.md`
 
 ### Documentation (4)
+
 - `.github/CI_CD_GUIDE.md` (Comprehensive CI/CD guide)
 - `SECURITY.md` (Security policy)
 - `CHANGELOG.md` (Version history)
 - `README.md` (Updated with badges and CI/CD section)
 
 ### Package Changes
+
 - `package.json` - Added lint/format scripts
 - `package-lock.json` - New dependencies installed
 
 ## 🚀 Quick Start for Developers
 
 ### Local Development
+
 ```bash
 # Install dependencies
 npm ci
@@ -103,6 +109,7 @@ npm run lint && npm run format:check && npm test
 ```
 
 ### Before Creating a PR
+
 1. ✅ Run `npm run lint` - Fix any errors
 2. ✅ Run `npm run format` - Format code
 3. ✅ Run `npm test` - Ensure tests pass
@@ -110,6 +117,7 @@ npm run lint && npm run format:check && npm test
 5. ✅ Fill out PR template completely
 
 ### PR Title Format
+
 ```
 type: description
 
@@ -122,32 +130,38 @@ docs: update CI/CD documentation
 ## 📈 Metrics & Monitoring
 
 ### Test Coverage
+
 - **Current**: 48 tests passing
 - **Coverage**: Tracked via Vitest
 - **Nodes**: 18.x, 20.x, 22.x tested
 
 ### Code Quality
+
 - **Linting**: ESLint checks on every commit
 - **Formatting**: Prettier enforced
 - **Type Safety**: Modern ES2021+ syntax
 
 ### Security
+
 - **CodeQL**: Weekly scans + PR checks
 - **npm audit**: Continuous monitoring
 - **Dependabot**: Auto-updates for vulnerabilities
 
 ### Performance
+
 - **Bundle Size**: Tracked on every PR
 - **Lighthouse**: Performance audits (when configured)
 
 ## 🎓 Learning Resources
 
 ### For Contributors
+
 - [CI/CD Guide](.github/CI_CD_GUIDE.md) - Complete documentation
 - [Contributing Guidelines](../CONTRIBUTING.md) - How to contribute
 - [Security Policy](../SECURITY.md) - Report vulnerabilities
 
 ### For Maintainers
+
 - [Release Process](.github/CI_CD_GUIDE.md#release-process)
 - [Workflow Management](.github/CI_CD_GUIDE.md#monitoring)
 - [Dependabot Configuration](.github/CI_CD_GUIDE.md#dependabot-configuration)
@@ -155,26 +169,32 @@ docs: update CI/CD documentation
 ## 🔧 Customization Points
 
 ### Adjusting Workflows
+
 All workflows are in `.github/workflows/` and can be modified:
+
 - Node versions in `ci.yml`
 - CodeQL queries in `codeql.yml`
 - Stale thresholds in `stale.yml`
 - Label rules in `labeler.yml`
 
 ### Adding New Checks
+
 To add new CI checks:
+
 1. Create workflow in `.github/workflows/`
 2. Add appropriate triggers
 3. Document in CI_CD_GUIDE.md
 4. Update README badges if needed
 
 ### Secrets Required
+
 - `CODECOV_TOKEN` (optional) - For coverage reports
 - `GITHUB_TOKEN` (automatic) - Provided by GitHub
 
 ## ✅ Validation Results
 
 ### Pre-Implementation
+
 - ❌ No linting
 - ❌ No security scanning
 - ❌ No deployment automation
@@ -182,6 +202,7 @@ To add new CI checks:
 - ✅ Basic testing
 
 ### Post-Implementation
+
 - ✅ Comprehensive linting (ESLint + Prettier)
 - ✅ Multi-layer security (CodeQL + npm audit)
 - ✅ Automated deployment (GitHub Pages)
@@ -194,18 +215,21 @@ To add new CI checks:
 ## 🎉 Benefits
 
 ### For Contributors
+
 - Clear templates guide contribution process
 - Instant feedback via automated checks
 - Consistent code style enforced
 - Easy local testing setup
 
 ### For Maintainers
+
 - Reduced manual review time
 - Automated security monitoring
 - Automatic dependency updates
 - Streamlined release process
 
 ### For Users
+
 - More stable releases
 - Faster bug fixes
 - Better security
@@ -214,6 +238,7 @@ To add new CI checks:
 ## 🔮 Future Enhancements
 
 Potential additions (not included in this implementation):
+
 - Visual regression testing
 - E2E tests with Playwright
 - Performance budgets
@@ -224,6 +249,7 @@ Potential additions (not included in this implementation):
 ## 📞 Support
 
 Questions about the CI/CD framework?
+
 - Open a [Discussion](https://github.com/zophiezlan/tsdice/discussions)
 - Create an [Issue](https://github.com/zophiezlan/tsdice/issues)
 - Check the [CI/CD Guide](.github/CI_CD_GUIDE.md)

@@ -14,7 +14,7 @@
 
 ## 🚀 Quick Start
 
-### Try It Now!
+### Try It Now
 
 **👉 [Launch tsDice](https://tsdice.pages.dev/) 👈**
 
@@ -41,7 +41,7 @@ cd tsdice
 
 **New to tsDice?** We've created comprehensive guides to help you master every aspect:
 
-### 🎯 [**User Guide**](USER_GUIDE.md) ⭐ START HERE!
+### 🎯 [**User Guide**](USER_GUIDE.md) ⭐ START HERE
 
 Your complete journey from first click to power user. Includes:
 
@@ -383,6 +383,7 @@ npm run test:coverage
 ```
 
 Current test coverage includes:
+
 - ✅ Command pattern (undo/redo)
 - ✅ Utility functions
 - ✅ State management

@@ -125,23 +125,28 @@ When you shuffle, the particle canvas briefly brightens (1.3x brightness for 150
 Toast notifications appear at the bottom center of the screen and automatically disappear after 3 seconds. They provide visual feedback for your actions:
 
 **Shuffle Actions:**
+
 - "Undid [Type] shuffle" (e.g., "Undid Appearance shuffle")
 - "Redid [Type] shuffle" (e.g., "Redid Movement shuffle")
 
 **Theme & Display:**
+
 - "Dark theme enabled" / "Light theme enabled"
 - "Animation paused" / "Animation resumed"
 - "Scene refreshed!"
 
 **Toggle Controls:**
+
 - "Gravity enabled" / "Gravity disabled"
 - "Walls enabled" / "Walls disabled"
 - "Cursor particle enabled" / "Cursor particle disabled"
 
 **Chaos Level:**
+
 - "Chaos level set to [1-10]" (e.g., "Chaos level set to 8")
 
 **Sharing:**
+
 - "⏳ Creating shareable link..."
 - "✓ Link copied to clipboard"
 - "✓ Short link copied! [emoji-string]"
@@ -149,9 +154,11 @@ Toast notifications appear at the bottom center of the screen and automatically 
 - "❌ Failed to create share link"
 
 **Special Features:**
+
 - "🎉 Party Mode Activated! 🎊" (Konami code easter egg)
 
 **Error States:**
+
 - "Invalid shared configuration link"
 - "No particle animation loaded"
 - "Config error - restored previous state"
@@ -159,6 +166,7 @@ Toast notifications appear at the bottom center of the screen and automatically 
 - "Failed to load particle configuration"
 
 **Accessibility:**
+
 - "Animation paused due to reduced motion preference."
 
 #### Screen Reader Announcements
@@ -166,6 +174,7 @@ Toast notifications appear at the bottom center of the screen and automatically 
 tsDice uses ARIA live regions to announce important state changes to screen readers. These announcements complement the visual toast notifications:
 
 **Shuffle & History:**
+
 - "New scene generated."
 - "Action undone."
 - "Action redone."
@@ -173,20 +182,24 @@ tsDice uses ARIA live regions to announce important state changes to screen read
 - "Redid [Type] shuffle"
 
 **Toggle States:**
+
 - "Gravity enabled" / "Gravity disabled"
 - "Walls enabled" / "Walls disabled"
 - "Cursor enabled" / "Cursor disabled"
 - "Theme enabled" / "Theme disabled"
 
 **Playback Controls:**
+
 - "Animation paused" / "Animation resumed"
 - "Scene refreshed"
 
 **Chaos Level:**
+
 - "Chaos level [1-10]" (announced during slider movement)
 - "Chaos level set to [1-10]" (announced on release)
 
 **Sharing:**
+
 - "Creating shareable link"
 - "Short emoji link copied to clipboard"
 - "Full configuration link copied to clipboard"
@@ -194,9 +207,11 @@ tsDice uses ARIA live regions to announce important state changes to screen read
 - "Error creating share link"
 
 **Special Features:**
+
 - "Party mode activated with Konami code"
 
 **Error & Status Messages:**
+
 - "Invalid shared configuration link"
 - "No particle animation loaded"
 - "Config error - restored previous state"
@@ -642,7 +657,7 @@ https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 
 ## Troubleshooting
 
-### Problem: Particles disappeared!
+### Problem: Particles disappeared
 
 **Causes**:
 

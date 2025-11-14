@@ -13,6 +13,7 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 **Triggers:** Push to `main` or `develop`, Pull Requests to `main` or `develop`
 
 **Jobs:**
+
 - **Lint:** Runs ESLint and Prettier format checks
 - **Test:** Runs test suite on Node.js 18.x, 20.x, and 22.x
   - Generates code coverage reports
@@ -24,12 +25,14 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 
 ### 2. CodeQL Security Analysis (`.github/workflows/codeql.yml`)
 
-**Triggers:** 
+**Triggers:**
+
 - Push to `main` or `develop`
 - Pull Requests to `main` or `develop`
 - Weekly schedule (Mondays at 00:00 UTC)
 
 **Jobs:**
+
 - Analyzes JavaScript code for security vulnerabilities
 - Uses security-extended and security-and-quality queries
 - Reports findings to GitHub Security tab
@@ -38,17 +41,20 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 
 ### 3. Deploy to GitHub Pages (`.github/workflows/deploy.yml`)
 
-**Triggers:** 
+**Triggers:**
+
 - Push to `main` branch
 - Manual workflow dispatch
 
 **Jobs:**
+
 - **Build:** Runs tests and prepares artifact
 - **Deploy:** Deploys to GitHub Pages
 
 **Purpose:** Automatically deploys the application to GitHub Pages on every main branch update.
 
 **Note:** To enable GitHub Pages deployment:
+
 1. Go to repository Settings → Pages
 2. Set Source to "GitHub Actions"
 
@@ -57,6 +63,7 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 **Triggers:** Pull request opened, synchronized, or reopened
 
 **Jobs:**
+
 - Runs full CI suite (linting, formatting, tests, coverage)
 - Validates PR title follows conventional commits
 - Checks for large files
@@ -67,10 +74,12 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 ### 5. Release (`.github/workflows/release.yml`)
 
 **Triggers:**
+
 - Push of version tags (e.g., `v1.0.0`)
 - Manual workflow dispatch
 
 **Jobs:**
+
 - Runs tests and linting
 - Generates changelog from commits
 - Creates release archives (zip and tar.gz)
@@ -80,6 +89,7 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 **Purpose:** Automates the release process with proper versioning and artifacts.
 
 **Usage:**
+
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
@@ -90,6 +100,7 @@ git push origin v1.0.0
 **Triggers:** Push to `main`, Pull Requests to `main`
 
 **Jobs:**
+
 - **Lighthouse CI:** Runs Lighthouse performance audits
 - **Bundle Size:** Calculates and reports file sizes
   - Comments size report on PRs
@@ -101,6 +112,7 @@ git push origin v1.0.0
 **Triggers:** Daily schedule (00:00 UTC), Manual dispatch
 
 **Jobs:**
+
 - Marks inactive issues stale after 60 days
 - Closes stale issues after 7 additional days
 - Marks inactive PRs stale after 30 days
@@ -113,6 +125,7 @@ git push origin v1.0.0
 **Triggers:** Pull request opened or synchronized
 
 **Jobs:**
+
 - Automatically labels PRs based on changed files
 - Adds size labels (XS, S, M, L, XL) based on changes
 
@@ -123,6 +136,7 @@ git push origin v1.0.0
 **File:** `.github/dependabot.yml`
 
 **Features:**
+
 - Weekly npm dependency updates (Mondays at 09:00)
 - Weekly GitHub Actions updates (Mondays at 09:00)
 - Auto-labels dependencies PRs
@@ -141,6 +155,7 @@ git push origin v1.0.0
 - Integrated with Prettier to avoid conflicts
 
 **Commands:**
+
 ```bash
 npm run lint          # Run linting
 npm run lint:fix      # Auto-fix linting issues
@@ -154,6 +169,7 @@ npm run lint:fix      # Auto-fix linting issues
 - Single quotes, 2-space indentation, semicolons
 
 **Commands:**
+
 ```bash
 npm run format        # Format all files
 npm run format:check  # Check formatting
@@ -164,6 +180,7 @@ npm run format:check  # Check formatting
 **Framework:** Vitest with happy-dom
 
 **Commands:**
+
 ```bash
 npm test              # Run tests once
 npm run test:watch    # Run tests in watch mode
@@ -171,6 +188,7 @@ npm run test:coverage # Generate coverage report
 ```
 
 **Coverage:** Configured in `vitest.config.js`
+
 - Excludes: `node_modules`, `js/main.js`, `js/constants.js`
 - Reporters: text, html
 
@@ -191,7 +209,7 @@ To fully enable all features, configure these secrets in GitHub repository setti
 
 1. **CODECOV_TOKEN** (Optional)
    - For uploading coverage reports to Codecov
-   - Get from: https://codecov.io
+   - Get from: <https://codecov.io>
 
 2. **GITHUB_TOKEN** (Automatic)
    - Automatically provided by GitHub Actions
@@ -219,6 +237,7 @@ To fully enable all features, configure these secrets in GitHub repository setti
 ### For Maintainers
 
 1. **Release Process:**
+
    ```bash
    # Update version in package.json
    npm version patch|minor|major
@@ -247,19 +266,23 @@ To fully enable all features, configure these secrets in GitHub repository setti
 ### Troubleshooting
 
 **Tests failing in CI but passing locally:**
+
 - Check Node.js version matches CI matrix
 - Ensure dependencies are up-to-date: `npm ci`
 - Check for environment-specific issues
 
 **Linting failures:**
+
 - Run `npm run lint:fix` locally
 - Commit the changes
 
 **Deployment failures:**
+
 - Verify GitHub Pages is enabled in repository settings
 - Check workflow permissions
 
 **CodeQL alerts:**
+
 - Review in Security tab
 - Address vulnerabilities in code
 - Update dependencies if needed
@@ -267,6 +290,7 @@ To fully enable all features, configure these secrets in GitHub repository setti
 ## Continuous Improvement
 
 The CI/CD framework is designed to be:
+
 - **Comprehensive:** Covers testing, security, quality, and deployment
 - **Efficient:** Parallel jobs and caching reduce execution time
 - **Maintainable:** Clear configuration and documentation
