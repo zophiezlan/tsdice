@@ -1,8 +1,21 @@
 import { TOOLTIP_DELAY, TOOLTIP_AUTO_HIDE } from "./constants.js";
 
 /**
+ * Detect if the device is primarily touch-based
+ * @returns {boolean} True if touch device
+ */
+function isTouchDevice() {
+  return (
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0
+  );
+}
+
+/**
  * Initialise tooltip behavior for menu controls.
  * Creates a single tooltip element and wires mouse and touch handlers.
+ * On touch devices, tooltips are disabled by default to prevent annoying popups.
  *
  * @param {HTMLElement} subMenuEl - The sub-menu root containing controls
  */
@@ -15,6 +28,25 @@ export function initTooltipManager(subMenuEl) {
     tooltip = document.createElement("div");
     tooltip.id = "custom-tooltip";
     document.body.appendChild(tooltip);
+  }
+
+  // Check if this is a touch device
+  const isTouch = isTouchDevice();
+  
+  // Get user preference for tooltips (defaults to disabled on touch devices)
+  const tooltipPreference = localStorage.getItem("tsDiceTooltipsEnabled");
+  const tooltipsEnabled =
+    tooltipPreference !== null
+      ? tooltipPreference === "true"
+      : !isTouch; // Disabled by default on touch devices
+
+  // If tooltips are disabled and it's a touch device, skip setup
+  if (!tooltipsEnabled && isTouch) {
+    // Store preference if not set
+    if (tooltipPreference === null) {
+      localStorage.setItem("tsDiceTooltipsEnabled", "false");
+    }
+    return;
   }
 
   let tooltipTimeout;

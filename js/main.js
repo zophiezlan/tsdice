@@ -4,6 +4,7 @@ import { AppState } from "./state.js";
 import { UIManager } from "./uiManager.js";
 import { ModalManager } from "./modalManager.js";
 import { initTooltipManager } from "./tooltipManager.js";
+import { initLegendManager } from "./legendManager.js";
 import { ConfigGenerator } from "./configGenerator.js";
 import { CommandManager } from "./commandManager.js";
 import { copyToClipboard, getRandomItem, debounce } from "./utils.js";
@@ -56,8 +57,9 @@ import { initKeyboardShortcuts } from "./keyboardShortcuts.js";
   const btnInfo = document.getElementById(BUTTON_IDS.INFO);
   const fullscreenBtn = document.getElementById("fullscreen-btn");
 
-  // --- 2. TOOLTIP SETUP ---
+  // --- 2. TOOLTIP AND LEGEND SETUP ---
   initTooltipManager(subMenu);
+  initLegendManager(subMenu);
 
   // --- 3. CORE LOGIC FUNCTIONS ---
 
