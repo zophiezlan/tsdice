@@ -438,7 +438,7 @@ CommandManager.redoStack = [];
 
 ## 🔗 Useful Links
 
-- **Live Demo**: [tsdice.pages.dev](https://tsdice.pages.dev)
+- **Live Demo**: [zophiezlan.github.io/tsdice](https://zophiezlan.github.io/tsdice)
 - **GitHub**: [github.com/zophiezlan/tsdice](https://github.com/zophiezlan/tsdice)
 - **Desktop Version**: [desktop branch](https://github.com/zophiezlan/tsdice/tree/desktop)
 - **tsParticles Docs**: [particles.js.org](https://particles.js.org)

@@ -444,7 +444,7 @@ const jsonString = JSON.stringify(config);
 const compressed = LZString.compressToEncodedURIComponent(jsonString);
 
 // Stage 3: Build full URL
-const fullUrl = `https://tsdice.pages.dev/#config=${compressed}`;
+const fullUrl = `https://zophiezlan.github.io/tsdice/#config=${compressed}`;
 
 // Stage 4: Optional shortening via API (~40 chars)
 const shortUrl = await createEmojiShortUrl(fullUrl);

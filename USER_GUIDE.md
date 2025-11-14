@@ -23,7 +23,7 @@
 
 ### Step 1: Open tsDice
 
-Visit [tsdice.pages.dev](https://tsdice.pages.dev) and watch the particles dance! 🎉
+Visit [zophiezlan.github.io/tsdice](https://zophiezlan.github.io/tsdice) and watch the particles dance! 🎉
 
 ### Step 2: Open the Menu
 
@@ -495,7 +495,7 @@ When you click **Share**, tsDice:
 #### Full URL (Unshortened)
 
 ```
-https://tsdice.pages.dev/#config=N4IgdghgtgpiBc...
+https://zophiezlan.github.io/tsdice/#config=N4IgdghgtgpiBc...
                                  ↑
                           Compressed config data
 ```
@@ -924,6 +924,6 @@ Share your creations!
 
 ---
 
-**Ready to create magic? [Launch tsDice →](https://tsdice.pages.dev/)**
+**Ready to create magic? [Launch tsDice →](https://zophiezlan.github.io/tsdice/)**
 
 _Happy shuffling!_ 🎲✨🎨

@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/zophiezlan/tsdice/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml)
 [![Test Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen.svg)](PHASE1_IMPLEMENTATION.md)
 [![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen.svg)](PHASE3_IMPLEMENTATION.md)
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://tsdice.pages.dev/)
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://zophiezlan.github.io/tsdice/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 🎲 **Roll the dice on particle animations!** A mesmerizing, interactive playground for discovering infinite visual possibilities.
@@ -18,7 +18,7 @@
 
 ### Try It Now
 
-**👉 [Launch tsDice](https://tsdice.pages.dev/) 👈**
+**👉 [Launch tsDice](https://zophiezlan.github.io/tsdice/) 👈**
 
 ### Run Locally
 
@@ -553,7 +553,7 @@ cd tsdice
 
 **Option C: Save Live Version**
 
-1. Visit [tsDice Live Demo](https://tsdice.pages.dev/)
+1. Visit [tsDice Live Demo](https://zophiezlan.github.io/tsdice/)
 2. Press `Ctrl+S` to save the webpage
 3. Choose **"Webpage, Complete"** to include all assets
 4. Save to a permanent folder
