@@ -9,6 +9,8 @@ import { copyToClipboard, getRandomItem, debounce } from './utils.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { StateManager, Actions } from './stateManager.js';
 import { emojiOptions, BUTTON_IDS, AUTO_HIDE_DELAY } from './constants.js';
+import { SafeStorage } from './storage.js';
+import { Telemetry } from './telemetry.js';
 import {
   buildConfig,
   loadParticles,
@@ -67,13 +69,17 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
    * @returns {Promise<string|null>} The shortened URL or null if shortening fails
    */
   async function createEmojiShortUrl(longUrl) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
     try {
+      Telemetry.log('share:shorten:start', { urlLength: longUrl.length });
       const response = await fetch('https://share.ket.horse/emoji', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
         },
+        signal: controller.signal,
         body: new URLSearchParams({
           url: longUrl,
           emojies: generateRandomEmojiString(8),
@@ -81,10 +87,18 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
       });
       if (!response.ok)
         throw new Error(`API request failed with status ${response.status}`);
-      return (await response.json()).short_url;
+      const payload = await response.json();
+      Telemetry.log('share:shorten:success', {
+        hasUrl: Boolean(payload.short_url),
+      });
+      return payload.short_url;
     } catch (error) {
+      const aborted = error && error.name === 'AbortError';
+      Telemetry.logError('share:shorten', error, { aborted });
       console.error('Failed to create emoji short URL:', error);
       return null;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -371,6 +385,11 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         break;
       case BUTTON_IDS.SHARE:
         (async () => {
+          Telemetry.log('share:start', {
+            hasConfig:
+              AppState.particleState.currentConfig &&
+              Object.keys(AppState.particleState.currentConfig).length > 0,
+          });
           const handleShare = ErrorHandler.wrap(async () => {
             const sharableConfig = structuredClone(
               AppState.particleState.currentConfig
@@ -389,6 +408,9 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
             button.classList.add('disabled');
             UIManager.showToast('⏳ Creating shareable link...');
             UIManager.announce('Creating shareable link');
+            Telemetry.log('share:compress:start', {
+              chaos: AppState.particleState.chaosLevel,
+            });
 
             const compressedConfig = LZString.compressToEncodedURIComponent(
               JSON.stringify(sharableConfig)
@@ -396,6 +418,9 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
             const fullUrl = `${
               window.location.href.split('#')[0]
             }#config=${compressedConfig}`;
+            Telemetry.log('share:compress:complete', {
+              size: compressedConfig.length,
+            });
 
             // Try to create short URL, but don't block on failure
             let finalUrl = fullUrl;
@@ -409,6 +434,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
                 'URL shortening failed, using full URL:',
                 shortenError
               );
+              Telemetry.logError('share:shorten:unexpected', shortenError);
             }
 
             await copyToClipboard(finalUrl);
@@ -424,9 +450,20 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
               UIManager.showToast('✓ Link copied to clipboard');
               UIManager.announce('Full configuration link copied to clipboard');
             }
+
+            Telemetry.log('share:copied', {
+              shortened: isShortenedUrl,
+              urlLength: finalUrl.length,
+            });
+
+            return { shortened: isShortenedUrl };
           }, ErrorType.SHARE_FAILED);
 
-          await handleShare();
+          const shareResult = await handleShare();
+          Telemetry.log('share:complete', {
+            status: shareResult ? 'success' : 'failed',
+            shortened: Boolean(shareResult && shareResult.shortened),
+          });
           button.classList.remove('disabled');
         })();
         break;
@@ -443,7 +480,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
   }, 300);
 
   const debouncedChaosSave = debounce((level) => {
-    localStorage.setItem('tsDiceChaos', level);
+    SafeStorage.setItem('tsDiceChaos', String(level));
   }, 500);
 
   chaosSlider.addEventListener('input', (e) => {
@@ -473,15 +510,14 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
     ModalManager.close('welcome');
 
     if (dontShowCheckbox && dontShowCheckbox.checked) {
-      // Set a far future timestamp so it never shows again
-      localStorage.setItem(
-        'tsDiceWelcomeTimestamp',
-        Date.now() + 365 * 24 * 60 * 60 * 1000
-      ); // 1 year in future
-      localStorage.setItem('tsDiceWelcomeDismissed', 'true');
+      // Set a far future timestamp so it never shows again (1 year ahead)
+      const farFuture = Date.now() + 365 * 24 * 60 * 60 * 1000;
+      SafeStorage.setItem('tsDiceWelcomeTimestamp', String(farFuture));
+      SafeStorage.setItem('tsDiceWelcomeDismissed', 'true');
     } else {
       // Set current timestamp for 24-hour reset
-      localStorage.setItem('tsDiceWelcomeTimestamp', Date.now());
+      SafeStorage.setItem('tsDiceWelcomeTimestamp', String(Date.now()));
+      SafeStorage.removeItem('tsDiceWelcomeDismissed');
     }
   };
 
@@ -508,13 +544,13 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         document.getElementById(`tab-${targetTab}`).classList.add('active');
 
         // Remember the last viewed tab
-        localStorage.setItem(LAST_TAB_KEY, targetTab);
+        SafeStorage.setItem(LAST_TAB_KEY, targetTab);
       });
     });
 
     // Restore last viewed tab when modal opens
     const restoreLastTab = () => {
-      const lastTab = localStorage.getItem(LAST_TAB_KEY) || 'controls';
+      const lastTab = SafeStorage.getItem(LAST_TAB_KEY) || 'controls';
       const targetButton = Array.from(tabButtons).find(
         (btn) => btn.dataset.tab === lastTab
       );
@@ -557,6 +593,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
   const setupAdvancedSettingsPanel = () => {
     const toggleInputs = document.querySelectorAll('[data-advanced-setting]');
     const resetBtn = document.getElementById('advanced-reset-btn');
+    const copyBtn = document.getElementById('copy-diagnostics-btn');
 
     if (!toggleInputs.length) return;
 
@@ -599,6 +636,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
           UIManager.showToast(message);
           UIManager.announce(message);
         }
+        Telemetry.log('advanced_setting', { key, value: input.checked });
         await reloadIfReady();
       });
     });
@@ -609,7 +647,25 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         syncToggleStates();
         UIManager.showToast('Advanced settings restored');
         UIManager.announce('Advanced settings restored');
+        Telemetry.log('advanced_setting_reset');
         await reloadIfReady();
+      });
+    }
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await Telemetry.copyToClipboard();
+          UIManager.showToast('Diagnostics log copied');
+          UIManager.announce('Diagnostics log copied');
+          Telemetry.log('observability:log-exported', {
+            entries: Telemetry.getEvents().length,
+          });
+        } catch (error) {
+          ErrorHandler.handle(error, ErrorType.UNKNOWN, {
+            feature: 'copy-diagnostics',
+          });
+        }
       });
     }
   };
@@ -719,31 +775,31 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
   // --- 7. INITIALISATION ---
   /** This section sets up the initial state of the application on load. */
-  const savedTheme = localStorage.getItem('tsDiceTheme');
+  const savedTheme = SafeStorage.getItem('tsDiceTheme');
   StateManager.dispatch(
     Actions.setTheme(savedTheme ? savedTheme === 'dark' : true)
   );
 
-  const savedChaos = localStorage.getItem('tsDiceChaos');
+  const savedChaos = SafeStorage.getItem('tsDiceChaos');
   StateManager.dispatch(
     Actions.setChaosLevel(savedChaos ? parseInt(savedChaos, 10) : 5)
   );
 
   let initialConfigFromStorage = null;
   try {
-    const savedConfigString = localStorage.getItem('tsDiceLastConfig');
+    const savedConfigString = SafeStorage.getItem('tsDiceLastConfig');
     if (savedConfigString) {
       initialConfigFromStorage = JSON.parse(savedConfigString);
       // Validate config using ErrorHandler
       if (!ErrorHandler.validateConfig(initialConfigFromStorage)) {
         console.warn('Saved config is malformed, ignoring.');
         initialConfigFromStorage = null;
-        localStorage.removeItem('tsDiceLastConfig');
+        SafeStorage.removeItem('tsDiceLastConfig');
       }
     }
   } catch (e) {
     ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
-    localStorage.removeItem('tsDiceLastConfig');
+    SafeStorage.removeItem('tsDiceLastConfig');
   }
 
   if (window.location.hash && window.location.hash.startsWith('#config=')) {
@@ -809,8 +865,8 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
   // Show the welcome modal on first visit or after 24 hours have passed
   // (unless permanently dismissed)
-  const welcomeTimestamp = localStorage.getItem('tsDiceWelcomeTimestamp');
-  const welcomeDismissed = localStorage.getItem('tsDiceWelcomeDismissed');
+  const welcomeTimestamp = SafeStorage.getItem('tsDiceWelcomeTimestamp');
+  const welcomeDismissed = SafeStorage.getItem('tsDiceWelcomeDismissed');
   const now = Date.now();
   const twentyFourHours = 24 * 60 * 60 * 1000; // Milliseconds in 24 hours
 

@@ -614,9 +614,15 @@
         transform: translateX(22px);
       }
 
-      .advanced-reset-btn {
+      .advanced-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
         margin-top: 15px;
-        align-self: flex-start;
+      }
+
+      .advanced-reset-btn,
+      .advanced-secondary-btn {
         padding: 10px 18px;
         border-radius: 999px;
         border: none;
@@ -626,7 +632,13 @@
         transition: background 0.3s ease;
       }
 
-      .advanced-reset-btn:hover {
+      .advanced-secondary-btn {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: transparent;
+      }
+
+      .advanced-reset-btn:hover,
+      .advanced-secondary-btn:hover {
         background: rgba(255, 255, 255, 0.2);
       }
 
@@ -1133,9 +1145,14 @@
             </div>
           </div>
 
-          <button class="advanced-reset-btn" id="advanced-reset-btn">
-            Reset advanced defaults
-          </button>
+          <div class="advanced-actions">
+            <button class="advanced-reset-btn" id="advanced-reset-btn">
+              Reset advanced defaults
+            </button>
+            <button class="advanced-secondary-btn" id="copy-diagnostics-btn">
+              Copy diagnostics log
+            </button>
+          </div>
           <p class="advanced-note">
             Tip: enable both toggles when screen sharing or running on battery.
           </p>

@@ -3,6 +3,7 @@
  */
 
 import { UIManager } from './uiManager.js';
+import { Telemetry } from './telemetry.js';
 
 /**
  * Error types for categorization
@@ -73,6 +74,7 @@ export const ErrorHandler = {
   handle(error, type = ErrorType.UNKNOWN, context = {}) {
     // Log to console for debugging
     console.error(`[${type}]`, error, context);
+    Telemetry.logError(type, error, context);
 
     // Get user-friendly message
     const errorInfo = ERROR_MESSAGES[type] || ERROR_MESSAGES[ErrorType.UNKNOWN];

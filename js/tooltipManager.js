@@ -1,4 +1,5 @@
 import { TOOLTIP_DELAY, TOOLTIP_AUTO_HIDE } from './constants.js';
+import { SafeStorage } from './storage.js';
 
 /**
  * Detect if the device is primarily touch-based
@@ -34,7 +35,7 @@ export function initTooltipManager(subMenuEl) {
   const isTouch = isTouchDevice();
 
   // Get user preference for tooltips (defaults to disabled on touch devices)
-  const tooltipPreference = localStorage.getItem('tsDiceTooltipsEnabled');
+  const tooltipPreference = SafeStorage.getItem('tsDiceTooltipsEnabled');
   const tooltipsEnabled =
     tooltipPreference !== null ? tooltipPreference === 'true' : !isTouch; // Disabled by default on touch devices
 
@@ -42,7 +43,7 @@ export function initTooltipManager(subMenuEl) {
   if (!tooltipsEnabled && isTouch) {
     // Store preference if not set
     if (tooltipPreference === null) {
-      localStorage.setItem('tsDiceTooltipsEnabled', 'false');
+      SafeStorage.setItem('tsDiceTooltipsEnabled', 'false');
     }
     return;
   }

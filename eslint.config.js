@@ -26,6 +26,8 @@ export default [
         URLSearchParams: 'readonly',
         Event: 'readonly',
         LZString: 'readonly',
+        AbortController: 'readonly',
+        performance: 'readonly',
         // Node globals for tests
         process: 'readonly',
         // Test globals

@@ -3,6 +3,7 @@
  */
 
 import { AppState, DEFAULT_ADVANCED_SETTINGS } from './state.js';
+import { SafeStorage } from './storage.js';
 import { UIManager } from './uiManager.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 
@@ -110,13 +111,13 @@ export const StateManager = {
   persist() {
     try {
       // Persist theme
-      localStorage.setItem(
+      SafeStorage.setItem(
         'tsDiceTheme',
         AppState.ui.isDarkMode ? 'dark' : 'light'
       );
 
       // Persist chaos level
-      localStorage.setItem(
+      SafeStorage.setItem(
         'tsDiceChaos',
         String(AppState.particleState.chaosLevel)
       );
@@ -126,13 +127,13 @@ export const StateManager = {
         AppState.particleState.currentConfig &&
         Object.keys(AppState.particleState.currentConfig).length > 0
       ) {
-        localStorage.setItem(
+        SafeStorage.setItem(
           'tsDiceLastConfig',
           JSON.stringify(AppState.particleState.currentConfig)
         );
       }
 
-      localStorage.setItem(
+      SafeStorage.setItem(
         ADVANCED_STORAGE_KEY,
         JSON.stringify(AppState.advanced)
       );
@@ -221,13 +222,13 @@ export const StateManager = {
   _initFromStorage() {
     try {
       // Load theme
-      const savedTheme = localStorage.getItem('tsDiceTheme');
+      const savedTheme = SafeStorage.getItem('tsDiceTheme');
       if (savedTheme) {
         AppState.ui.isDarkMode = savedTheme === 'dark';
       }
 
       // Load chaos level
-      const savedChaos = localStorage.getItem('tsDiceChaos');
+      const savedChaos = SafeStorage.getItem('tsDiceChaos');
       if (savedChaos) {
         const chaos = parseInt(savedChaos, 10);
         if (!isNaN(chaos) && chaos >= 1 && chaos <= 10) {
@@ -236,7 +237,7 @@ export const StateManager = {
       }
 
       // Load last config
-      const savedConfig = localStorage.getItem('tsDiceLastConfig');
+      const savedConfig = SafeStorage.getItem('tsDiceLastConfig');
       if (savedConfig) {
         try {
           const config = JSON.parse(savedConfig);
@@ -245,11 +246,11 @@ export const StateManager = {
           }
         } catch (parseError) {
           console.warn('Could not parse saved config', parseError);
-          localStorage.removeItem('tsDiceLastConfig');
+          SafeStorage.removeItem('tsDiceLastConfig');
         }
       }
 
-      const savedAdvanced = localStorage.getItem(ADVANCED_STORAGE_KEY);
+      const savedAdvanced = SafeStorage.getItem(ADVANCED_STORAGE_KEY);
       if (savedAdvanced) {
         try {
           const parsed = JSON.parse(savedAdvanced);
@@ -260,7 +261,7 @@ export const StateManager = {
           });
         } catch (parseError) {
           console.warn('Could not parse advanced settings', parseError);
-          localStorage.removeItem(ADVANCED_STORAGE_KEY);
+          SafeStorage.removeItem(ADVANCED_STORAGE_KEY);
         }
       }
     } catch (error) {

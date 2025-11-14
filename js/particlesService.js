@@ -6,6 +6,8 @@ import { getRandomItem } from './utils.js';
 import { darkColorPalette, lightColorPalette } from './constants.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
 import { THEME_BACKGROUNDS } from './constants/colors.js';
+import { SafeStorage } from './storage.js';
+import { Telemetry } from './telemetry.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
 export const applyAdvancedPreferences = (options) => {
@@ -172,6 +174,16 @@ export const buildConfig = (shuffleOptions) => {
 /** Loads a given configuration into the tsParticles instance. */
 export const loadParticles = async (config) => {
   const previousConfig = AppState.particleState.currentConfig;
+  const loadStart =
+    typeof performance !== 'undefined' ? performance.now() : Date.now();
+  const metrics = {
+    particleCount:
+      config && config.particles && config.particles.number
+        ? config.particles.number.value || 0
+        : 0,
+    chaos: AppState.particleState.chaosLevel,
+  };
+  Telemetry.log('particles:load:start', metrics);
 
   try {
     const loadingTimeout = setTimeout(() => {
@@ -179,7 +191,7 @@ export const loadParticles = async (config) => {
     }, 300);
 
     AppState.particleState.currentConfig = config;
-    localStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
+    SafeStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
 
     const containerEl = document.getElementById('tsparticles');
     if (containerEl && AppState.ui.particlesContainer) {
@@ -206,9 +218,17 @@ export const loadParticles = async (config) => {
 
     clearTimeout(loadingTimeout);
     UIManager.hideLoadingIndicator();
+    const endTime =
+      typeof performance !== 'undefined' ? performance.now() : Date.now();
+    Telemetry.log('particles:load:success', {
+      ...metrics,
+      durationMs: Math.round(endTime - loadStart),
+      batterySaver: AppState.advanced.batterySaverMode,
+    });
   } catch (error) {
     console.error('Failed to load particles:', error);
     UIManager.hideLoadingIndicator();
+    Telemetry.logError('particles:load', error, metrics);
 
     if (previousConfig && Object.keys(previousConfig).length > 0) {
       AppState.particleState.currentConfig = previousConfig;
@@ -219,10 +239,12 @@ export const loadParticles = async (config) => {
         });
         UIManager.showToast('Config error - restored previous state');
         UIManager.announce('Config error - restored previous state');
+        Telemetry.log('particles:load:recovered');
       } catch (recoveryError) {
         console.error('Recovery also failed:', recoveryError);
         UIManager.showToast('Failed to load particles - please refresh');
         UIManager.announce('Failed to load particles - please refresh');
+        Telemetry.logError('particles:load:recovery', recoveryError);
       }
     } else {
       UIManager.showToast('Failed to load particle configuration');
