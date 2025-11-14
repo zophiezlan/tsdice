@@ -1,0 +1,24 @@
+{
+  "name": "tsdice",
+  "version": "1.0.0",
+  "description": "tsDice - The Ultimate tsParticles Scene Randomizer",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "tsparticles",
+    "particles",
+    "animation",
+    "randomizer"
+  ],
+  "author": "zophiezlan",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.8",
+    "happy-dom": "^20.0.10",
+    "vitest": "^4.0.8"
+  }
+}

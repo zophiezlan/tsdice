@@ -131,7 +131,7 @@ This single slider controls particle count, speed multipliers, and the probabili
 
 ### 💾 Smart Persistence
 
-- **History System**: 20-step undo/redo stack remembers your journey
+- **History System**: Infinite undo/redo stack remembers your journey
 - **Local Storage**: Your last configuration automatically saves
 - **URL Sharing**: Compress entire scenes into shareable emoji links 🐎🦄✨
 - **Theme Memory**: Preferences persist across sessions
@@ -365,6 +365,29 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. We welcome:
 - ♿ Accessibility improvements
 - 🎨 UI/UX polish
 
+#### Running Tests
+
+tsDice now includes a professional-grade automated test suite:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+Current test coverage includes:
+- ✅ Command pattern (undo/redo)
+- ✅ Utility functions
+- ✅ State management
+- ✅ 48+ test cases
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
 ---
 
 ## 🌟 Use Cases
@@ -421,7 +444,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. We welcome:
 - **Supported Particle Shapes**: 9 types
 - **Color Palettes**: 8 dark + 8 light mode colors
 - **Emoji Options**: 100+ for URL shortening
-- **History Depth**: 20 undo steps
+- **History Depth**: Infinite undo steps
 
 ---
 
