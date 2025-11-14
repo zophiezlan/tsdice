@@ -190,7 +190,6 @@ export const BUTTON_IDS = {
   PAUSE: "btn-pause",
   SHARE: "btn-share",
   INFO: "btn-info",
-  LEGEND: "btn-legend",
   MAIN_MENU: "main-menu-btn",
 };
 
