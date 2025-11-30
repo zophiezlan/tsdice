@@ -73,7 +73,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
     const timeoutId = setTimeout(() => controller.abort(), 4000);
     try {
       Telemetry.log('share:shorten:start', { urlLength: longUrl.length });
-      const response = await fetch('https://share.ket.horse/emoji', {
+      const response = await fetch('https://my.ket.horse/api/tsdice/share', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
