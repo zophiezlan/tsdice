@@ -45,19 +45,32 @@ import {
     return emojiString;
   };
 
-  /** Creates a short URL using the spoo.me API hosted on share.ket.horse */
+  /** Creates a short URL using the my.ket.horse API with smart emoji selection */
   async function createEmojiShortUrl(longUrl) {
     try {
-      const response = await fetch("https://share.ket.horse/emoji", {
+      // Prepare config data for smart emoji selection
+      const configData = {
+        particles: AppState.particleState.currentConfig?.particles?.number?.value || 0,
+        isDarkMode: AppState.ui.isDarkMode,
+        isGravityOn: AppState.ui.isGravityOn,
+        areWallsOn: AppState.ui.areWallsOn,
+        isCursorParticle: AppState.ui.isCursorParticle,
+        chaosLevel: AppState.particleState.chaosLevel,
+        // Include color info if available
+        color: AppState.particleState.currentConfig?.particles?.color?.value,
+        // Include shape info if available
+        shape: AppState.particleState.currentConfig?.particles?.shape?.type,
+      };
+
+      const response = await fetch("https://my.ket.horse/api/tsdice/share", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        // Call the function with 8 and remove .substring()
         body: new URLSearchParams({
           url: longUrl,
-          emojies: generateRandomEmojiString(8),
+          config: JSON.stringify(configData),
         }),
       });
       if (!response.ok)
