@@ -48,18 +48,48 @@ import {
   /** Creates a short URL using the my.ket.horse API with smart emoji selection */
   async function createEmojiShortUrl(longUrl) {
     try {
-      // Prepare config data for smart emoji selection
+      const config = AppState.particleState.currentConfig;
+
+      // Prepare comprehensive config data for intelligent emoji selection
       const configData = {
-        particles: AppState.particleState.currentConfig?.particles?.number?.value || 0,
-        isDarkMode: AppState.ui.isDarkMode,
-        isGravityOn: AppState.ui.isGravityOn,
-        areWallsOn: AppState.ui.areWallsOn,
-        isCursorParticle: AppState.ui.isCursorParticle,
+        // UI State
+        theme: AppState.ui.isDarkMode ? "dark" : "light",
+        gravity: AppState.ui.isGravityOn,
+        walls: AppState.ui.areWallsOn,
+        cursorParticle: AppState.ui.isCursorParticle,
         chaosLevel: AppState.particleState.chaosLevel,
-        // Include color info if available
-        color: AppState.particleState.currentConfig?.particles?.color?.value,
-        // Include shape info if available
-        shape: AppState.particleState.currentConfig?.particles?.shape?.type,
+
+        // Particle Properties
+        particleCount: config?.particles?.number?.value || 0,
+        shape: config?.particles?.shape?.type || "circle",
+        color: config?.particles?.color?.value || "random",
+        hasStroke: (config?.particles?.stroke?.width || 0) > 0,
+
+        // Movement & Animation
+        speed: config?.particles?.move?.speed || 0,
+        direction: config?.particles?.move?.direction || "none",
+        trail: config?.particles?.move?.trail?.enable || false,
+        attract: config?.particles?.move?.attract?.enable || false,
+
+        // Special Effects
+        links: config?.particles?.links?.enable || false,
+        linksTriangles: config?.particles?.links?.triangles?.enable || false,
+        collisions: config?.particles?.collisions?.enable || false,
+        collisionMode: config?.particles?.collisions?.mode || "none",
+        wobble: config?.particles?.wobble?.enable || false,
+        rotate: config?.particles?.rotate?.animation?.enable || false,
+        twinkle: config?.particles?.twinkle?.particles?.enable || false,
+
+        // Interaction Modes
+        hoverMode: config?.interactivity?.events?.onHover?.mode || "none",
+        clickMode: config?.interactivity?.events?.onClick?.mode || "none",
+
+        // Character/Emoji particles
+        isCharacter: config?.particles?.shape?.type === "character",
+        characterValue: config?.particles?.shape?.options?.character?.value,
+
+        // Polygon sides (for polygon shapes)
+        polygonSides: config?.particles?.shape?.options?.polygon?.sides,
       };
 
       const response = await fetch("https://my.ket.horse/api/tsdice/share", {
@@ -73,9 +103,19 @@ import {
           config: JSON.stringify(configData),
         }),
       });
-      if (!response.ok)
+
+      if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
-      return (await response.json()).short_url;
+      }
+
+      const data = await response.json();
+
+      // Validate response structure
+      if (!data.short_url) {
+        throw new Error("Invalid API response: missing short_url");
+      }
+
+      return data.short_url;
     } catch (error) {
       console.error("Failed to create emoji short URL:", error);
       return null;
