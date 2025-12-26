@@ -1,318 +1,870 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-AU">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⚡ Quick Reference - tsDice</title>
-  <meta name="description" content="Quick reference guide for tsDice features">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⚡ Quick Reference - tsDice</title>
+    <meta
+      name="description"
+      content="Quick reference guide for tsDice features"
+    />
 
-  <style>
-    /* --- CSS Theming matching tsDice --- */
-    :root {
-      /* Backgrounds */
-      --bg-primary: #111;
-      --bg-content: rgba(255, 255, 255, 0.05);
-      --bg-code: rgba(0, 0, 0, 0.3);
-      --bg-code-block: rgba(0, 0, 0, 0.5);
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>"
+    />
 
-      /* Text */
-      --text-primary: white;
-      --text-secondary: #eee;
-      --text-strong: #fff;
-      --text-muted: #aaa;
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="⚡ Quick Reference - tsDice" />
+    <meta
+      property="og:description"
+      content="Quick reference guide for tsDice features"
+    />
+    <meta property="og:site_name" content="tsDice Documentation" />
 
-      /* Borders */
-      --border-color: rgba(255, 255, 255, 0.2);
-      --border-accent: rgba(255, 255, 255, 0.3);
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="⚡ Quick Reference - tsDice" />
+    <meta
+      name="twitter:description"
+      content="Quick reference guide for tsDice features"
+    />
 
-      /* Interactive */
-      --link-color: #87ceeb;
-      --link-color-hover: #9370db;
-      --focus-outline: #87ceeb;
-    }
+    <style>
+      /* --- CSS Theming matching tsDice --- */
+      :root {
+        /* Backgrounds */
+        --bg-primary: #111;
+        --bg-content: rgba(255, 255, 255, 0.05);
+        --bg-code: rgba(0, 0, 0, 0.3);
+        --bg-code-block: rgba(0, 0, 0, 0.5);
+        --bg-sidebar: rgba(255, 255, 255, 0.03);
 
-    body.light-mode {
-      /* Backgrounds */
-      --bg-primary: #f0f0f0;
-      --bg-content: rgba(0, 0, 0, 0.03);
-      --bg-code: rgba(0, 0, 0, 0.05);
-      --bg-code-block: rgba(0, 0, 0, 0.08);
+        /* Text */
+        --text-primary: white;
+        --text-secondary: #eee;
+        --text-strong: #fff;
+        --text-muted: #aaa;
 
-      /* Text */
-      --text-primary: #333;
-      --text-secondary: #444;
-      --text-strong: #000;
-      --text-muted: #666;
+        /* Borders */
+        --border-color: rgba(255, 255, 255, 0.2);
+        --border-accent: rgba(255, 255, 255, 0.3);
 
-      /* Borders */
-      --border-color: rgba(0, 0, 0, 0.2);
-      --border-accent: rgba(0, 0, 0, 0.3);
+        /* Interactive */
+        --link-color: #87ceeb;
+        --link-color-hover: #9370db;
+        --focus-outline: #87ceeb;
+        --active-nav: rgba(135, 206, 235, 0.2);
+      }
 
-      /* Interactive */
-      --link-color: #4361ee;
-      --link-color-hover: #7209b7;
-      --focus-outline: #4361ee;
-    }
+      body.light-mode {
+        /* Backgrounds */
+        --bg-primary: #f0f0f0;
+        --bg-content: rgba(0, 0, 0, 0.03);
+        --bg-code: rgba(0, 0, 0, 0.05);
+        --bg-code-block: rgba(0, 0, 0, 0.08);
+        --bg-sidebar: rgba(0, 0, 0, 0.02);
 
-    /* --- Base Styles --- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        /* Text */
+        --text-primary: #333;
+        --text-secondary: #444;
+        --text-strong: #000;
+        --text-muted: #666;
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+        /* Borders */
+        --border-color: rgba(0, 0, 0, 0.2);
+        --border-accent: rgba(0, 0, 0, 0.3);
 
-    /* --- Header --- */
-    header {
-      background: rgba(255, 255, 255, 0.1);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      backdrop-filter: blur(10px);
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        /* Interactive */
+        --link-color: #4361ee;
+        --link-color-hover: #7209b7;
+        --focus-outline: #4361ee;
+        --active-nav: rgba(67, 97, 238, 0.15);
+      }
 
-    .header-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
+      /* --- Reduced Motion --- */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
 
-    .header-nav {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
+      /* --- Base Styles --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    .nav-link {
-      color: var(--link-color);
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px;
+      }
 
-    .nav-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--link-color-hover);
-    }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.6;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
 
-    .theme-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.2s ease;
-    }
+      /* --- Skip to Content (Accessibility) --- */
+      .skip-to-content {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: var(--link-color);
+        color: #000;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        z-index: 1000;
+        font-weight: 600;
+      }
 
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+      .skip-to-content:focus {
+        top: 0;
+      }
 
-    /* --- Main Content --- */
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+      /* --- Progress Bar --- */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--link-color),
+          var(--link-color-hover)
+        );
+        z-index: 1001;
+        transition: width 0.1s ease;
+      }
 
-    .content {
-      background: var(--bg-content);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 2rem;
-    }
-
-    /* --- Typography --- */
-    h1, h2, h3, h4, h5, h6 {
-      color: var(--text-strong);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      line-height: 1.3;
-    }
-
-    h1 { font-size: 2.5rem; margin-top: 0; }
-    h2 { font-size: 2rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-    h3 { font-size: 1.5rem; }
-    h4 { font-size: 1.25rem; }
-    h5 { font-size: 1.1rem; }
-    h6 { font-size: 1rem; }
-
-    p {
-      margin: 1rem 0;
-      color: var(--text-secondary);
-    }
-
-    a {
-      color: var(--link-color);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    a:hover {
-      color: var(--link-color-hover);
-      text-decoration: underline;
-    }
-
-    /* --- Lists --- */
-    ul, ol {
-      margin: 1rem 0;
-      padding-left: 2rem;
-      color: var(--text-secondary);
-    }
-
-    li {
-      margin: 0.5rem 0;
-    }
-
-    /* --- Code --- */
-    code {
-      background: var(--bg-code);
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.9em;
-      color: var(--text-primary);
-    }
-
-    pre {
-      background: var(--bg-code-block);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 1rem;
-      overflow-x: auto;
-      margin: 1rem 0;
-    }
-
-    pre code {
-      background: none;
-      padding: 0;
-      color: var(--text-secondary);
-    }
-
-    /* --- Blockquotes --- */
-    blockquote {
-      border-left: 4px solid var(--link-color);
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
-      background: var(--bg-code);
-      color: var(--text-secondary);
-      font-style: italic;
-    }
-
-    blockquote p {
-      margin: 0.5rem 0;
-    }
-
-    /* --- Tables --- */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      overflow: hidden;
-      border-radius: 4px;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem;
-      text-align: left;
-    }
-
-    th {
-      background: rgba(255, 255, 255, 0.1);
-      font-weight: 600;
-      color: var(--text-strong);
-    }
-
-    tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    /* --- Horizontal Rule --- */
-    hr {
-      border: none;
-      border-top: 1px solid var(--border-color);
-      margin: 2rem 0;
-    }
-
-    /* --- Images --- */
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 4px;
-      margin: 1rem 0;
-    }
-
-    /* --- Footer --- */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border-color);
-      margin-top: 4rem;
-    }
-
-    /* --- Responsive --- */
-    @media (max-width: 768px) {
+      /* --- Header --- */
       header {
-        flex-direction: column;
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 100;
+      }
+
+      .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 1rem;
       }
 
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .home-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 1.5rem;
+        transition: transform 0.2s ease;
+        display: inline-block;
+        line-height: 1;
+      }
+
+      .home-link:hover {
+        transform: scale(1.1);
+      }
+
+      .home-link:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 4px;
+        border-radius: 4px;
+      }
+
+      .header-nav {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        color: var(--link-color);
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.95rem;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--link-color-hover);
+      }
+
+      .nav-link:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      .nav-link.active {
+        background: var(--active-nav);
+        font-weight: 600;
+        position: relative;
+      }
+
+      .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--link-color);
+      }
+
+      .theme-toggle {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: background 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .theme-toggle:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      /* Mobile Menu */
+      .mobile-menu-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      .mobile-menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* --- Layout Container --- */
+      .layout-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      /* --- Table of Contents Sidebar --- */
+      .toc {
+        position: sticky;
+        top: 100px;
+        flex: 0 0 250px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: var(--bg-sidebar);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        align-self: flex-start;
+      }
+
+      .toc-header {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: var(--text-strong);
+      }
+
+      .toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .toc-list li {
+        margin: 0;
+      }
+
+      .toc-list a {
+        display: block;
+        padding: 0.4rem 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+      }
+
+      .toc-list a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--link-color);
+        padding-left: 0.75rem;
+      }
+
+      .toc-indent {
+        padding-left: 1rem;
+      }
+
+      /* --- Main Content --- */
       main {
-        padding: 1rem;
+        flex: 1;
+        min-width: 0;
       }
 
       .content {
-        padding: 1rem;
+        background: var(--bg-content);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 2.5rem;
       }
 
-      h1 { font-size: 2rem; }
-      h2 { font-size: 1.75rem; }
-      h3 { font-size: 1.5rem; }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="header-title">⚡ Quick Reference</div>
-    <nav class="header-nav">
-      <a href="../index.html" class="nav-link">← Back to tsDice</a>
-      <a href="user-guide.html" class="nav-link">User Guide</a>
-      <a href="architecture.html" class="nav-link">Architecture</a>
-      <a href="analysis.html" class="nav-link">Analysis</a>
-      <a href="quick-reference.html" class="nav-link">Quick Ref</a>
-      <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
-    </nav>
-  </header>
+      /* --- Typography --- */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: var(--text-strong);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        position: relative;
+      }
 
-  <main>
-    <article class="content">
-      <h1>⚡ tsDice Quick Reference</h1>
-<blockquote>
-<p>Fast lookup for developers and power users</p>
-</blockquote>
-<hr>
-<h2>🎯 At a Glance</h2>
-<pre><code>┌──────────────────────────────────────────────────────┐
+      h1 {
+        font-size: 2.5rem;
+        margin-top: 0;
+      }
+
+      h2 {
+        font-size: 2rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid var(--border-color);
+        scroll-margin-top: 80px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        scroll-margin-top: 80px;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+      }
+      h5 {
+        font-size: 1.1rem;
+      }
+      h6 {
+        font-size: 1rem;
+      }
+
+      /* Heading anchor links */
+      h2:hover .header-anchor,
+      h3:hover .header-anchor {
+        opacity: 1;
+      }
+
+      p {
+        margin: 1rem 0;
+        color: var(--text-secondary);
+      }
+
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      a:hover {
+        color: var(--link-color-hover);
+        text-decoration: underline;
+      }
+
+      a:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      /* --- Lists --- */
+      ul,
+      ol {
+        margin: 1rem 0;
+        padding-left: 2rem;
+        color: var(--text-secondary);
+      }
+
+      li {
+        margin: 0.5rem 0;
+      }
+
+      /* --- Code --- */
+      code {
+        background: var(--bg-code);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family:
+          'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New',
+          monospace;
+        font-size: 0.9em;
+        color: var(--text-primary);
+      }
+
+      pre {
+        background: var(--bg-code-block);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      pre code {
+        background: none;
+        padding: 0;
+        color: var(--text-secondary);
+      }
+
+      /* Copy button for code blocks */
+      .code-block-wrapper {
+        position: relative;
+      }
+
+      .copy-code-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        opacity: 0;
+        transition:
+          opacity 0.2s ease,
+          background 0.2s ease;
+      }
+
+      .code-block-wrapper:hover .copy-code-btn {
+        opacity: 1;
+      }
+
+      .copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .copy-code-btn.copied {
+        background: var(--link-color);
+        color: #000;
+      }
+
+      /* --- Blockquotes --- */
+      blockquote {
+        border-left: 4px solid var(--link-color);
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background: var(--bg-code);
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      blockquote p {
+        margin: 0.5rem 0;
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        overflow: hidden;
+        border-radius: 4px;
+        display: block;
+        overflow-x: auto;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: left;
+      }
+
+      th {
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        color: var(--text-strong);
+        position: sticky;
+        top: 0;
+      }
+
+      tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      /* --- Horizontal Rule --- */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 2rem 0;
+      }
+
+      /* --- Images --- */
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+
+      /* --- Scroll to Top Button --- */
+      .scroll-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.3s ease,
+          transform 0.2s ease,
+          background 0.2s ease;
+        z-index: 99;
+      }
+
+      .scroll-to-top.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .scroll-to-top:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-4px);
+      }
+
+      .scroll-to-top:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      /* --- Footer --- */
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 4rem;
+      }
+
+      footer a {
+        color: var(--link-color);
+        margin: 0 0.5rem;
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 1024px) {
+        .toc {
+          display: none;
+        }
+
+        .layout-container {
+          padding: 1.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header-container {
+          flex-wrap: wrap;
+        }
+
+        .header-nav {
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: rgba(17, 17, 17, 0.98);
+          backdrop-filter: blur(10px);
+          flex-direction: column;
+          padding: 1rem;
+          gap: 0.5rem;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          border-bottom: 1px solid var(--border-color);
+          z-index: 99;
+        }
+
+        body.light-mode .header-nav {
+          background: rgba(240, 240, 240, 0.98);
+        }
+
+        .header-nav.mobile-open {
+          max-height: 400px;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .nav-link,
+        .theme-toggle {
+          width: 100%;
+          text-align: center;
+        }
+
+        .layout-container {
+          padding: 1rem;
+          gap: 0;
+        }
+
+        .content {
+          padding: 1.5rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.75rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+
+        .scroll-to-top {
+          bottom: 1rem;
+          right: 1rem;
+          width: 44px;
+          height: 44px;
+        }
+
+        table {
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header-title {
+          font-size: 1.2rem;
+        }
+
+        .content {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 1.75rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        h3 {
+          font-size: 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-to-content">Skip to content</a>
+    <div
+      class="progress-bar"
+      id="progress-bar"
+      role="progressbar"
+      aria-label="Reading progress"
+    ></div>
+
+    <header>
+      <div class="header-container">
+        <div class="header-left">
+          <a
+            href="../index.html"
+            class="home-link"
+            aria-label="Return to tsDice app"
+            title="Return to tsDice"
+            >🎲</a
+          >
+          <div class="header-title">⚡ Quick Reference</div>
+        </div>
+        <button
+          class="mobile-menu-toggle"
+          onclick="toggleMobileMenu()"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <nav
+          class="header-nav"
+          id="main-nav"
+          aria-label="Documentation navigation"
+        >
+          <a href="user-guide.html" class="nav-link">📖 User Guide</a>
+          <a href="architecture.html" class="nav-link">🏗️ Architecture</a>
+          <a href="analysis.html" class="nav-link">📊 Analysis</a>
+          <a
+            href="quick-reference.html"
+            class="nav-link active"
+            aria-current="page"
+            >⚡ Quick Ref</a
+          >
+          <button
+            class="theme-toggle"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark/light theme"
+          >
+            🌓 Theme
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="layout-container">
+      <nav class="toc" aria-label="Table of contents">
+        <div class="toc-header">📑 Contents</div>
+        <ul class="toc-list">
+          <li><a href="#-at-a-glance">🎯 At a Glance</a></li>
+          <li><a href="#-keyboard-shortcuts">🔤 Keyboard Shortcuts</a></li>
+          <li class="toc-indent">
+            <a href="#shuffle-commands">Shuffle Commands</a>
+          </li>
+          <li class="toc-indent"><a href="#toggles">Toggles</a></li>
+          <li class="toc-indent"><a href="#navigation">Navigation</a></li>
+          <li class="toc-indent"><a href="#utilities">Utilities</a></li>
+          <li class="toc-indent"><a href="#easter-egg">Easter Egg</a></li>
+          <li><a href="#-file-structure">📁 File Structure</a></li>
+          <li><a href="#-module-cheat-sheet">🎨 Module Cheat Sheet</a></li>
+          <li class="toc-indent"><a href="#import-map">Import Map</a></li>
+          <li class="toc-indent">
+            <a href="#api-quick-reference">API Quick Reference</a>
+          </li>
+          <li><a href="#-chaos-level-guide">🎲 Chaos Level Guide</a></li>
+          <li><a href="#-common-workflows">🎯 Common Workflows</a></li>
+          <li class="toc-indent">
+            <a href="#rapid-exploration">Rapid Exploration</a>
+          </li>
+          <li class="toc-indent"><a href="#fine-tuning">Fine Tuning</a></li>
+          <li class="toc-indent"><a href="#undo-recovery">Undo Recovery</a></li>
+          <li class="toc-indent"><a href="#create-share">Create & Share</a></li>
+          <li>
+            <a href="#-configuration-structure">🔧 Configuration Structure</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#minimal-config">Minimal Config</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#with-all-features">With All Features</a>
+          </li>
+          <li><a href="#-color-palettes">🎨 Color Palettes</a></li>
+          <li class="toc-indent"><a href="#dark-mode">Dark Mode</a></li>
+          <li class="toc-indent"><a href="#light-mode">Light Mode</a></li>
+          <li><a href="#-particle-shapes">🔀 Particle Shapes</a></li>
+          <li><a href="#-directions">📐 Directions</a></li>
+          <li><a href="#-interaction-modes">🖱️ Interaction Modes</a></li>
+          <li class="toc-indent"><a href="#hover">Hover</a></li>
+          <li class="toc-indent"><a href="#click">Click</a></li>
+          <li><a href="#-debugging">🐛 Debugging</a></li>
+          <li class="toc-indent"><a href="#check-state">Check State</a></li>
+          <li class="toc-indent"><a href="#check-history">Check History</a></li>
+          <li class="toc-indent"><a href="#force-sync-ui">Force Sync UI</a></li>
+          <li class="toc-indent">
+            <a href="#manually-load-config">Manually Load Config</a>
+          </li>
+          <li class="toc-indent"><a href="#clear-history">Clear History</a></li>
+          <li><a href="#-performance-tips">📊 Performance Tips</a></li>
+          <li><a href="#-useful-links">🔗 Useful Links</a></li>
+          <li><a href="#-quick-recipes">💡 Quick Recipes</a></li>
+          <li class="toc-indent"><a href="#zen-mode">Zen Mode</a></li>
+          <li class="toc-indent"><a href="#matrix-rain">Matrix Rain</a></li>
+          <li class="toc-indent"><a href="#confetti">Confetti</a></li>
+          <li class="toc-indent"><a href="#starfield">Starfield</a></li>
+          <li><a href="#-common-patterns">📝 Common Patterns</a></li>
+          <li class="toc-indent">
+            <a href="#command-factory-pattern">Command Factory Pattern</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#toggle-factory-pattern">Toggle Factory Pattern</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#debounce-pattern">Debounce Pattern</a>
+          </li>
+          <li><a href="#-learning-path">🎓 Learning Path</a></li>
+          <li><a href="#-gotchas">⚠️ Gotchas</a></li>
+        </ul>
+      </nav>
+      <main id="main-content">
+        <article class="content">
+          <h1 id="-tsdice-quick-reference">⚡ tsDice Quick Reference</h1>
+          <blockquote>
+            <p>Fast lookup for developers and power users</p>
+          </blockquote>
+          <hr />
+          <h2 id="-at-a-glance">🎯 At a Glance</h2>
+          <pre><code>┌──────────────────────────────────────────────────────┐
 │  tsDice: tsParticles Random Configuration Generator  │
 │  • 16 JavaScript modules (13 core + constants)       │
 │  • 17 keyboard shortcuts                             │
@@ -321,128 +873,138 @@
 │  • Production build: 46 KB (gzipped)                 │
 └──────────────────────────────────────────────────────┘
 </code></pre>
-<hr>
-<h2>🔤 Keyboard Shortcuts</h2>
-<h3>Shuffle Commands</h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Alt+A</code></td>
-<td>Shuffle All</td>
-</tr>
-<tr>
-<td><code>Alt+P</code></td>
-<td>Shuffle Appearance</td>
-</tr>
-<tr>
-<td><code>Alt+V</code></td>
-<td>Shuffle Movement</td>
-</tr>
-<tr>
-<td><code>Alt+I</code></td>
-<td>Shuffle Interaction</td>
-</tr>
-<tr>
-<td><code>Alt+F</code></td>
-<td>Shuffle Special FX</td>
-</tr>
-</tbody></table>
-<h3>Toggles</h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Alt+G</code></td>
-<td>Toggle Gravity</td>
-</tr>
-<tr>
-<td><code>Alt+W</code></td>
-<td>Toggle Walls</td>
-</tr>
-<tr>
-<td><code>Alt+C</code></td>
-<td>Toggle Cursor Particle</td>
-</tr>
-<tr>
-<td><code>Alt+T</code></td>
-<td>Toggle Theme (Dark/Light)</td>
-</tr>
-<tr>
-<td><code>Space</code></td>
-<td>Pause/Play</td>
-</tr>
-</tbody></table>
-<h3>Navigation</h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Alt+Z</code></td>
-<td>Undo</td>
-</tr>
-<tr>
-<td><code>Alt+Y</code></td>
-<td>Redo</td>
-</tr>
-<tr>
-<td><code>Alt+M</code></td>
-<td>Toggle Menu</td>
-</tr>
-<tr>
-<td><code>Escape</code></td>
-<td>Close Modal/Menu</td>
-</tr>
-</tbody></table>
-<h3>Utilities</h3>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Alt+S</code></td>
-<td>Share (Copy URL)</td>
-</tr>
-<tr>
-<td><code>Alt+R</code></td>
-<td>Refresh Scene</td>
-</tr>
-<tr>
-<td><code>Alt+?</code></td>
-<td>Show Help</td>
-</tr>
-</tbody></table>
-<h3>Easter Egg</h3>
-<table>
-<thead>
-<tr>
-<th>Sequence</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>↑ ↑ ↓ ↓ ← → ← → B A</code></td>
-<td>Party Mode!</td>
-</tr>
-</tbody></table>
-<hr>
-<h2>📁 File Structure</h2>
-<pre><code>tsdice/
+          <hr />
+          <h2 id="-keyboard-shortcuts">🔤 Keyboard Shortcuts</h2>
+          <h3 id="shuffle-commands">Shuffle Commands</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Alt+A</code></td>
+                <td>Shuffle All</td>
+              </tr>
+              <tr>
+                <td><code>Alt+P</code></td>
+                <td>Shuffle Appearance</td>
+              </tr>
+              <tr>
+                <td><code>Alt+V</code></td>
+                <td>Shuffle Movement</td>
+              </tr>
+              <tr>
+                <td><code>Alt+I</code></td>
+                <td>Shuffle Interaction</td>
+              </tr>
+              <tr>
+                <td><code>Alt+F</code></td>
+                <td>Shuffle Special FX</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="toggles">Toggles</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Alt+G</code></td>
+                <td>Toggle Gravity</td>
+              </tr>
+              <tr>
+                <td><code>Alt+W</code></td>
+                <td>Toggle Walls</td>
+              </tr>
+              <tr>
+                <td><code>Alt+C</code></td>
+                <td>Toggle Cursor Particle</td>
+              </tr>
+              <tr>
+                <td><code>Alt+T</code></td>
+                <td>Toggle Theme (Dark/Light)</td>
+              </tr>
+              <tr>
+                <td><code>Space</code></td>
+                <td>Pause/Play</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="navigation">Navigation</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Alt+Z</code></td>
+                <td>Undo</td>
+              </tr>
+              <tr>
+                <td><code>Alt+Y</code></td>
+                <td>Redo</td>
+              </tr>
+              <tr>
+                <td><code>Alt+M</code></td>
+                <td>Toggle Menu</td>
+              </tr>
+              <tr>
+                <td><code>Escape</code></td>
+                <td>Close Modal/Menu</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="utilities">Utilities</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Alt+S</code></td>
+                <td>Share (Copy URL)</td>
+              </tr>
+              <tr>
+                <td><code>Alt+R</code></td>
+                <td>Refresh Scene</td>
+              </tr>
+              <tr>
+                <td><code>Alt+?</code></td>
+                <td>Show Help</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="easter-egg">Easter Egg</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Sequence</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>↑ ↑ ↓ ↓ ← → ← → B A</code></td>
+                <td>Party Mode!</td>
+              </tr>
+            </tbody>
+          </table>
+          <hr />
+          <h2 id="-file-structure">📁 File Structure</h2>
+          <pre><code>tsdice/
 ├── index.html                  # Main app + inline styles
 ├── package.json                # Dependencies &amp; scripts
 ├── README.md / ANALYSIS.md     # High-level + deep-dive docs
@@ -472,10 +1034,10 @@
     ├── tooltipManager.js       # Tooltip behavior
     └── keyboardShortcuts.js    # Keyboard events
 </code></pre>
-<hr>
-<h2>🎨 Module Cheat Sheet</h2>
-<h3>Import Map</h3>
-<pre><code class="language-javascript">// Core dependencies
+          <hr />
+          <h2 id="-module-cheat-sheet">🎨 Module Cheat Sheet</h2>
+          <h3 id="import-map">Import Map</h3>
+          <pre><code class="language-javascript">// Core dependencies
 import { tsParticles } from &#39;cdn.jsdelivr.net/@tsparticles/engine@3.9.1/+esm&#39;;
 import { loadAll } from &#39;cdn.jsdelivr.net/@tsparticles/all@3.9.1/+esm&#39;;
 
@@ -499,9 +1061,9 @@ import {
 import { initTooltipManager } from &#39;./tooltipManager.js&#39;;
 import { initKeyboardShortcuts } from &#39;./keyboardShortcuts.js&#39;;
 </code></pre>
-<h3>API Quick Reference</h3>
-<h4>State Management</h4>
-<pre><code class="language-javascript">// Read state
+          <h3 id="api-quick-reference">API Quick Reference</h3>
+          <h4 id="state-management">State Management</h4>
+          <pre><code class="language-javascript">// Read state
 AppState.ui.isDarkMode;
 AppState.particleState.chaosLevel;
 AppState.particleState.currentConfig;
@@ -509,27 +1071,27 @@ AppState.particleState.currentConfig;
 // Modify state (always through commands!)
 CommandManager.execute(command);
 </code></pre>
-<h4>Config Generation</h4>
-<pre><code class="language-javascript">ConfigGenerator.generateAppearance();
+          <h4 id="config-generation">Config Generation</h4>
+          <pre><code class="language-javascript">ConfigGenerator.generateAppearance();
 ConfigGenerator.generateMovement();
 ConfigGenerator.generateInteraction();
 ConfigGenerator.generateSpecialFX();
 </code></pre>
-<h4>Particles Service</h4>
-<pre><code class="language-javascript">buildConfig({ all: true }); // Full randomization
+          <h4 id="particles-service">Particles Service</h4>
+          <pre><code class="language-javascript">buildConfig({ all: true }); // Full randomization
 buildConfig({ appearance: true }); // Appearance only
 await loadParticles(config);
 reapplyToggleStates(config);
 </code></pre>
-<h4>UI Management</h4>
-<pre><code class="language-javascript">UIManager.syncUI(); // Sync all UI to state
+          <h4 id="ui-management">UI Management</h4>
+          <pre><code class="language-javascript">UIManager.syncUI(); // Sync all UI to state
 UIManager.showToast(message);
 UIManager.announce(message); // Screen reader
 UIManager.openModal(modal, opener);
 UIManager.closeModal(modal);
 </code></pre>
-<h4>Command Pattern</h4>
-<pre><code class="language-javascript">const command = {
+          <h4 id="command-pattern">Command Pattern</h4>
+          <pre><code class="language-javascript">const command = {
   async execute() {
     /* do thing */
   },
@@ -541,110 +1103,115 @@ CommandManager.execute(command);
 CommandManager.undo();
 CommandManager.redo();
 </code></pre>
-<hr>
-<h2>🎲 Chaos Level Guide</h2>
-<table>
-<thead>
-<tr>
-<th>Level</th>
-<th>Particles</th>
-<th>Speed</th>
-<th>Effects</th>
-<th>Vibe</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>40</td>
-<td>0.5-2x</td>
-<td>10%</td>
-<td>Zen</td>
-</tr>
-<tr>
-<td>2</td>
-<td>60</td>
-<td>1.0-4x</td>
-<td>20%</td>
-<td>Calm</td>
-</tr>
-<tr>
-<td>3</td>
-<td>80</td>
-<td>1.5-6x</td>
-<td>30%</td>
-<td>Gentle</td>
-</tr>
-<tr>
-<td>4</td>
-<td>100</td>
-<td>2.0-8x</td>
-<td>40%</td>
-<td>Moderate</td>
-</tr>
-<tr>
-<td>5</td>
-<td>120</td>
-<td>2.5-10x</td>
-<td>50%</td>
-<td>Balanced</td>
-</tr>
-<tr>
-<td>6</td>
-<td>140</td>
-<td>3.0-12x</td>
-<td>60%</td>
-<td>Energetic</td>
-</tr>
-<tr>
-<td>7</td>
-<td>160</td>
-<td>3.5-14x</td>
-<td>70%</td>
-<td>Dynamic</td>
-</tr>
-<tr>
-<td>8</td>
-<td>180</td>
-<td>4.0-16x</td>
-<td>80%</td>
-<td>Intense</td>
-</tr>
-<tr>
-<td>9</td>
-<td>200</td>
-<td>4.5-18x</td>
-<td>90%</td>
-<td>Extreme</td>
-</tr>
-<tr>
-<td>10</td>
-<td>220</td>
-<td>5.0-20x</td>
-<td>100%</td>
-<td>Maximum</td>
-</tr>
-</tbody></table>
-<p><strong>Formula</strong>: <code>particleCount = 20 + (chaosLevel * 20)</code></p>
-<hr>
-<h2>🎯 Common Workflows</h2>
-<h3>Rapid Exploration</h3>
-<pre><code>Alt+A → Alt+A → Alt+A → Space → Alt+Z
+          <hr />
+          <h2 id="-chaos-level-guide">🎲 Chaos Level Guide</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Particles</th>
+                <th>Speed</th>
+                <th>Effects</th>
+                <th>Vibe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>40</td>
+                <td>0.5-2x</td>
+                <td>10%</td>
+                <td>Zen</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>60</td>
+                <td>1.0-4x</td>
+                <td>20%</td>
+                <td>Calm</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>80</td>
+                <td>1.5-6x</td>
+                <td>30%</td>
+                <td>Gentle</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>100</td>
+                <td>2.0-8x</td>
+                <td>40%</td>
+                <td>Moderate</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>120</td>
+                <td>2.5-10x</td>
+                <td>50%</td>
+                <td>Balanced</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>140</td>
+                <td>3.0-12x</td>
+                <td>60%</td>
+                <td>Energetic</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>160</td>
+                <td>3.5-14x</td>
+                <td>70%</td>
+                <td>Dynamic</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>180</td>
+                <td>4.0-16x</td>
+                <td>80%</td>
+                <td>Intense</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>200</td>
+                <td>4.5-18x</td>
+                <td>90%</td>
+                <td>Extreme</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>220</td>
+                <td>5.0-20x</td>
+                <td>100%</td>
+                <td>Maximum</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>Formula</strong>:
+            <code>particleCount = 20 + (chaosLevel * 20)</code>
+          </p>
+          <hr />
+          <h2 id="-common-workflows">🎯 Common Workflows</h2>
+          <h3 id="rapid-exploration">Rapid Exploration</h3>
+          <pre><code>Alt+A → Alt+A → Alt+A → Space → Alt+Z
 </code></pre>
-<h3>Fine Tuning</h3>
-<pre><code>Alt+A → Alt+V → Alt+V → Alt+P → Alt+S
+          <h3 id="fine-tuning">Fine Tuning</h3>
+          <pre><code>Alt+A → Alt+V → Alt+V → Alt+P → Alt+S
 </code></pre>
-<h3>Undo Recovery</h3>
-<pre><code>Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
+          <h3 id="undo-recovery">Undo Recovery</h3>
+          <pre><code>Alt+A (oops!) → Alt+Z → Alt+Z → Alt+Y
 </code></pre>
-<h3>Create &amp; Share</h3>
-<pre><code>1. Shuffle until happy
+          <h3 id="create-share">Create & Share</h3>
+          <pre><code>1. Shuffle until happy
 2. Alt+S (share)
 3. Paste URL anywhere
 </code></pre>
-<hr>
-<h2>🔧 Configuration Structure</h2>
-<h3>Minimal Config</h3>
-<pre><code class="language-javascript">{
+          <hr />
+          <h2 id="-configuration-structure">🔧 Configuration Structure</h2>
+          <h3 id="minimal-config">Minimal Config</h3>
+          <pre><code class="language-javascript">{
   background: { color: { value: &quot;#111&quot; } },
   fpsLimit: 120,
   detectRetina: true,
@@ -673,8 +1240,8 @@ CommandManager.redo();
   }
 }
 </code></pre>
-<h3>With All Features</h3>
-<pre><code class="language-javascript">{
+          <h3 id="with-all-features">With All Features</h3>
+          <pre><code class="language-javascript">{
   // ... base config
   particles: {
     // ... appearance
@@ -693,10 +1260,10 @@ CommandManager.redo();
   }
 }
 </code></pre>
-<hr>
-<h2>🎨 Color Palettes</h2>
-<h3>Dark Mode</h3>
-<pre><code class="language-javascript">[
+          <hr />
+          <h2 id="-color-palettes">🎨 Color Palettes</h2>
+          <h3 id="dark-mode">Dark Mode</h3>
+          <pre><code class="language-javascript">[
   &#39;#ff007b&#39;,
   &#39;#33ff57&#39;,
   &#39;#3357ff&#39;,
@@ -707,8 +1274,8 @@ CommandManager.redo();
   &#39;#f15bb5&#39;,
 ];
 </code></pre>
-<h3>Light Mode</h3>
-<pre><code class="language-javascript">[
+          <h3 id="light-mode">Light Mode</h3>
+          <pre><code class="language-javascript">[
   &#39;#f72585&#39;,
   &#39;#7209b7&#39;,
   &#39;#3a0ca3&#39;,
@@ -719,9 +1286,9 @@ CommandManager.redo();
   &#39;#f9c74f&#39;,
 ];
 </code></pre>
-<hr>
-<h2>🔀 Particle Shapes</h2>
-<pre><code class="language-javascript">[
+          <hr />
+          <h2 id="-particle-shapes">🔀 Particle Shapes</h2>
+          <pre><code class="language-javascript">[
   &#39;circle&#39;,
   &#39;square&#39;,
   &#39;triangle&#39;,
@@ -733,9 +1300,9 @@ CommandManager.redo();
   &#39;character&#39;,
 ];
 </code></pre>
-<hr>
-<h2>📐 Directions</h2>
-<pre><code class="language-javascript">[
+          <hr />
+          <h2 id="-directions">📐 Directions</h2>
+          <pre><code class="language-javascript">[
   &#39;none&#39;,
   &#39;top&#39;,
   &#39;top-right&#39;,
@@ -747,73 +1314,91 @@ CommandManager.redo();
   &#39;top-left&#39;,
 ];
 </code></pre>
-<hr>
-<h2>🖱️ Interaction Modes</h2>
-<h3>Hover</h3>
-<pre><code class="language-javascript">[&#39;repulse&#39;, &#39;grab&#39;, &#39;bubble&#39;, &#39;slow&#39;, &#39;connect&#39;, &#39;parallax&#39;, &#39;attract&#39;];
+          <hr />
+          <h2 id="-interaction-modes">🖱️ Interaction Modes</h2>
+          <h3 id="hover">Hover</h3>
+          <pre><code class="language-javascript">[&#39;repulse&#39;, &#39;grab&#39;, &#39;bubble&#39;, &#39;slow&#39;, &#39;connect&#39;, &#39;parallax&#39;, &#39;attract&#39;];
 </code></pre>
-<h3>Click</h3>
-<pre><code class="language-javascript">[&#39;push&#39;, &#39;bubble&#39;, &#39;remove&#39;, &#39;trail&#39;, &#39;absorb&#39;];
+          <h3 id="click">Click</h3>
+          <pre><code class="language-javascript">[&#39;push&#39;, &#39;bubble&#39;, &#39;remove&#39;, &#39;trail&#39;, &#39;absorb&#39;];
 </code></pre>
-<hr>
-<h2>🐛 Debugging</h2>
-<h3>Check State</h3>
-<pre><code class="language-javascript">console.log(AppState);
+          <hr />
+          <h2 id="-debugging">🐛 Debugging</h2>
+          <h3 id="check-state">Check State</h3>
+          <pre><code class="language-javascript">console.log(AppState);
 console.log(AppState.particleState.currentConfig);
 </code></pre>
-<h3>Check History</h3>
-<pre><code class="language-javascript">console.log(CommandManager.undoStack.length);
+          <h3 id="check-history">Check History</h3>
+          <pre><code class="language-javascript">console.log(CommandManager.undoStack.length);
 console.log(CommandManager.redoStack.length);
 </code></pre>
-<h3>Force Sync UI</h3>
-<pre><code class="language-javascript">UIManager.syncUI();
+          <h3 id="force-sync-ui">Force Sync UI</h3>
+          <pre><code class="language-javascript">UIManager.syncUI();
 </code></pre>
-<h3>Manually Load Config</h3>
-<pre><code class="language-javascript">await loadParticles(yourConfig);
+          <h3 id="manually-load-config">Manually Load Config</h3>
+          <pre><code class="language-javascript">await loadParticles(yourConfig);
 </code></pre>
-<h3>Clear History</h3>
-<pre><code class="language-javascript">CommandManager.undoStack = [];
+          <h3 id="clear-history">Clear History</h3>
+          <pre><code class="language-javascript">CommandManager.undoStack = [];
 CommandManager.redoStack = [];
 </code></pre>
-<hr>
-<h2>📊 Performance Tips</h2>
-<ol>
-<li><strong>Keep Chaos ≤ 7</strong> on mobile</li>
-<li><strong>Disable links</strong> for better FPS</li>
-<li><strong>Pause when not watching</strong> (Space)</li>
-<li><strong>Use Light theme</strong> if laggy</li>
-<li><strong>Disable collisions</strong> if laggy</li>
-</ol>
-<hr>
-<h2>🔗 Useful Links</h2>
-<ul>
-<li><strong>Live Demo</strong>: <a href="https://zophiezlan.github.io/tsdice">zophiezlan.github.io/tsdice</a></li>
-<li><strong>GitHub</strong>: <a href="https://github.com/zophiezlan/tsdice">github.com/zophiezlan/tsdice</a></li>
-<li><strong>Desktop Version</strong>: <a href="https://github.com/zophiezlan/tsdice/tree/desktop">desktop branch</a></li>
-<li><strong>tsParticles Docs</strong>: <a href="https://particles.js.org">particles.js.org</a></li>
-</ul>
-<hr>
-<h2>💡 Quick Recipes</h2>
-<h3>Zen Mode</h3>
-<pre><code>Chaos: 2 | Theme: Light | Gravity: Off | Walls: Off
+          <hr />
+          <h2 id="-performance-tips">📊 Performance Tips</h2>
+          <ol>
+            <li><strong>Keep Chaos ≤ 7</strong> on mobile</li>
+            <li><strong>Disable links</strong> for better FPS</li>
+            <li><strong>Pause when not watching</strong> (Space)</li>
+            <li><strong>Use Light theme</strong> if laggy</li>
+            <li><strong>Disable collisions</strong> if laggy</li>
+          </ol>
+          <hr />
+          <h2 id="-useful-links">🔗 Useful Links</h2>
+          <ul>
+            <li>
+              <strong>Live Demo</strong>:
+              <a href="https://zophiezlan.github.io/tsdice"
+                >zophiezlan.github.io/tsdice</a
+              >
+            </li>
+            <li>
+              <strong>GitHub</strong>:
+              <a href="https://github.com/zophiezlan/tsdice"
+                >github.com/zophiezlan/tsdice</a
+              >
+            </li>
+            <li>
+              <strong>Desktop Version</strong>:
+              <a href="https://github.com/zophiezlan/tsdice/tree/desktop"
+                >desktop branch</a
+              >
+            </li>
+            <li>
+              <strong>tsParticles Docs</strong>:
+              <a href="https://particles.js.org">particles.js.org</a>
+            </li>
+          </ul>
+          <hr />
+          <h2 id="-quick-recipes">💡 Quick Recipes</h2>
+          <h3 id="zen-mode">Zen Mode</h3>
+          <pre><code>Chaos: 2 | Theme: Light | Gravity: Off | Walls: Off
 Shuffle until: Circles + Pastel colors + Slow movement
 </code></pre>
-<h3>Matrix Rain</h3>
-<pre><code>Chaos: 6 | Theme: Dark | Gravity: On | Walls: On
+          <h3 id="matrix-rain">Matrix Rain</h3>
+          <pre><code>Chaos: 6 | Theme: Dark | Gravity: On | Walls: On
 Shuffle until: Green lines + Downward direction
 </code></pre>
-<h3>Confetti</h3>
-<pre><code>Chaos: 10 | Theme: Any | Gravity: On | Walls: On
+          <h3 id="confetti">Confetti</h3>
+          <pre><code>Chaos: 10 | Theme: Any | Gravity: On | Walls: On
 Shuffle until: Multi-color + Diverse shapes
 </code></pre>
-<h3>Starfield</h3>
-<pre><code>Chaos: 4 | Theme: Dark | Gravity: Off | Walls: Off
+          <h3 id="starfield">Starfield</h3>
+          <pre><code>Chaos: 4 | Theme: Dark | Gravity: Off | Walls: Off
 Shuffle until: Stars + Links enabled + Slow speed
 </code></pre>
-<hr>
-<h2>📝 Common Patterns</h2>
-<h3>Command Factory Pattern</h3>
-<pre><code class="language-javascript">const createShuffleCommand = (options) =&gt; ({
+          <hr />
+          <h2 id="-common-patterns">📝 Common Patterns</h2>
+          <h3 id="command-factory-pattern">Command Factory Pattern</h3>
+          <pre><code class="language-javascript">const createShuffleCommand = (options) =&gt; ({
   async execute() {
     /* generate &amp; load */
   },
@@ -822,8 +1407,8 @@ Shuffle until: Stars + Links enabled + Slow speed
   },
 });
 </code></pre>
-<h3>Toggle Factory Pattern</h3>
-<pre><code class="language-javascript">const createToggleCommand = (stateKey, applyFn) =&gt; ({
+          <h3 id="toggle-factory-pattern">Toggle Factory Pattern</h3>
+          <pre><code class="language-javascript">const createToggleCommand = (stateKey, applyFn) =&gt; ({
   async execute() {
     AppState.ui[stateKey] = !AppState.ui[stateKey];
     await applyFn();
@@ -833,71 +1418,240 @@ Shuffle until: Stars + Links enabled + Slow speed
   },
 });
 </code></pre>
-<h3>Debounce Pattern</h3>
-<pre><code class="language-javascript">const debouncedFn = debounce((arg) =&gt; {
+          <h3 id="debounce-pattern">Debounce Pattern</h3>
+          <pre><code class="language-javascript">const debouncedFn = debounce((arg) =&gt; {
   // Expensive operation
 }, 500);
 </code></pre>
-<hr>
-<h2>🎓 Learning Path</h2>
-<ol>
-<li><strong>Beginner</strong>: Use GUI, explore shuffles</li>
-<li><strong>Intermediate</strong>: Learn keyboard shortcuts</li>
-<li><strong>Advanced</strong>: Create custom recipes</li>
-<li><strong>Expert</strong>: Modify source code, add features</li>
-</ol>
-<hr>
-<h2>⚠️ Gotchas</h2>
-<ol>
-<li><strong>History</strong>: Infinite undo/redo (memory permitting)</li>
-<li><strong>URL length</strong>: Configs too large may fail to share</li>
-<li><strong>Browser support</strong>: Requires ES6 modules</li>
-<li><strong>Chaos 10</strong>: May be laggy on old devices</li>
-<li><strong>Share URLs</strong>: Short URLs expire after ~1 year</li>
-</ol>
-<hr>
-<p><strong>For full details, see:</strong></p>
-<ul>
-<li>📖 <a href="USER_GUIDE.md">User Guide</a> — How to use tsDice</li>
-<li>🏗️ <a href="ARCHITECTURE.md">Architecture</a> — How it works</li>
-<li>📊 <a href="ANALYSIS.md">Analysis</a> — Complete technical overview</li>
-<li>📄 <a href="README.md">README</a> — Project overview</li>
-</ul>
-<hr>
-<p><strong>Now go create something beautiful!</strong> ✨</p>
+          <hr />
+          <h2 id="-learning-path">🎓 Learning Path</h2>
+          <ol>
+            <li><strong>Beginner</strong>: Use GUI, explore shuffles</li>
+            <li><strong>Intermediate</strong>: Learn keyboard shortcuts</li>
+            <li><strong>Advanced</strong>: Create custom recipes</li>
+            <li><strong>Expert</strong>: Modify source code, add features</li>
+          </ol>
+          <hr />
+          <h2 id="-gotchas">⚠️ Gotchas</h2>
+          <ol>
+            <li>
+              <strong>History</strong>: Infinite undo/redo (memory permitting)
+            </li>
+            <li>
+              <strong>URL length</strong>: Configs too large may fail to share
+            </li>
+            <li><strong>Browser support</strong>: Requires ES6 modules</li>
+            <li><strong>Chaos 10</strong>: May be laggy on old devices</li>
+            <li>
+              <strong>Share URLs</strong>: Short URLs expire after ~1 year
+            </li>
+          </ol>
+          <hr />
+          <p><strong>For full details, see:</strong></p>
+          <ul>
+            <li>
+              📖 <a href="USER_GUIDE.md">User Guide</a> — How to use tsDice
+            </li>
+            <li>
+              🏗️ <a href="ARCHITECTURE.md">Architecture</a> — How it works
+            </li>
+            <li>
+              📊 <a href="ANALYSIS.md">Analysis</a> — Complete technical
+              overview
+            </li>
+            <li>📄 <a href="README.md">README</a> — Project overview</li>
+          </ul>
+          <hr />
+          <p><strong>Now go create something beautiful!</strong> ✨</p>
+        </article>
+      </main>
+    </div>
 
-    </article>
-  </main>
+    <button
+      class="scroll-to-top"
+      id="scroll-to-top"
+      onclick="scrollToTop()"
+      aria-label="Scroll to top"
+    >
+      ↑
+    </button>
 
-  <footer>
-    <p>Generated from markdown • <a href="https://github.com/zophiezlan/tsdice" target="_blank" rel="noopener">View on GitHub</a></p>
-  </footer>
+    <footer>
+      <p>
+        Generated from markdown •
+        <a
+          href="https://github.com/zophiezlan/tsdice"
+          target="_blank"
+          rel="noopener"
+          >GitHub</a
+        >
+        •
+        <a href="../index.html">Back to App</a>
+      </p>
+    </footer>
 
-  <script>
-    // Theme toggle functionality
-    function toggleTheme() {
-      document.body.classList.toggle('light-mode');
-      localStorage.setItem('tsDiceDocsTheme',
-        document.body.classList.contains('light-mode') ? 'light' : 'dark'
-      );
-    }
-
-    // Load saved theme preference
-    const savedTheme = localStorage.getItem('tsDiceDocsTheme');
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-mode');
-    }
-
-    // Sync with main app's theme if available
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'tsDiceTheme') {
-        if (e.newValue === 'light') {
-          document.body.classList.add('light-mode');
-        } else {
-          document.body.classList.remove('light-mode');
-        }
+    <script>
+      // Theme toggle functionality
+      function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const theme = document.body.classList.contains('light-mode')
+          ? 'light'
+          : 'dark';
+        localStorage.setItem('tsDiceDocsTheme', theme);
       }
-    });
-  </script>
-</body>
+
+      // Load saved theme preference
+      const savedTheme = localStorage.getItem('tsDiceDocsTheme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+      }
+
+      // Sync with main app's theme if available
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'tsDiceTheme') {
+          if (e.newValue === 'light') {
+            document.body.classList.add('light-mode');
+          } else {
+            document.body.classList.remove('light-mode');
+          }
+        }
+      });
+
+      // Mobile menu toggle
+      function toggleMobileMenu() {
+        const nav = document.getElementById('main-nav');
+        const btn = document.querySelector('.mobile-menu-toggle');
+        const isOpen = nav.classList.toggle('mobile-open');
+        btn.setAttribute('aria-expanded', isOpen);
+      }
+
+      // Close mobile menu when clicking outside or on a link
+      document.addEventListener('click', (e) => {
+        const nav = document.getElementById('main-nav');
+        const btn = document.querySelector('.mobile-menu-toggle');
+        if (
+          nav.classList.contains('mobile-open') &&
+          !nav.contains(e.target) &&
+          e.target !== btn
+        ) {
+          nav.classList.remove('mobile-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close mobile menu when clicking on a nav link
+      document.querySelectorAll('.nav-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          const nav = document.getElementById('main-nav');
+          const btn = document.querySelector('.mobile-menu-toggle');
+          nav.classList.remove('mobile-open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Reading progress bar
+      function updateProgressBar() {
+        const winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        const height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('progress-bar').style.width = scrolled + '%';
+      }
+
+      window.addEventListener('scroll', updateProgressBar);
+
+      // Scroll to top button
+      const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+      window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+          scrollToTopBtn.classList.add('visible');
+        } else {
+          scrollToTopBtn.classList.remove('visible');
+        }
+      });
+
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+
+      // Keyboard shortcut for scroll to top (Home key)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Home' && !e.ctrlKey && !e.shiftKey) {
+          e.preventDefault();
+          scrollToTop();
+        }
+      });
+
+      // Add copy buttons to code blocks
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((pre) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-block-wrapper';
+          pre.parentNode.insertBefore(wrapper, pre);
+          wrapper.appendChild(pre);
+
+          const button = document.createElement('button');
+          button.className = 'copy-code-btn';
+          button.textContent = 'Copy';
+          button.setAttribute('aria-label', 'Copy code to clipboard');
+
+          button.addEventListener('click', async () => {
+            const code =
+              pre.querySelector('code')?.textContent || pre.textContent;
+            try {
+              await navigator.clipboard.writeText(code);
+              button.textContent = 'Copied!';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = 'Copy';
+                button.classList.remove('copied');
+              }, 2000);
+            } catch (err) {
+              button.textContent = 'Failed';
+              setTimeout(() => {
+                button.textContent = 'Copy';
+              }, 2000);
+            }
+          });
+
+          wrapper.appendChild(button);
+        });
+
+        // Highlight active TOC item on scroll
+        const observerOptions = {
+          rootMargin: '-80px 0px -80% 0px',
+          threshold: 0,
+        };
+
+        const headings = document.querySelectorAll('h2[id], h3[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              tocLinks.forEach((link) => {
+                link.style.fontWeight = 'normal';
+                link.style.color = 'var(--text-secondary)';
+              });
+              const activeLink = document.querySelector(
+                `.toc-list a[href="#${entry.target.id}"]`
+              );
+              if (activeLink) {
+                activeLink.style.fontWeight = '600';
+                activeLink.style.color = 'var(--link-color)';
+              }
+            }
+          });
+        }, observerOptions);
+
+        headings.forEach((heading) => observer.observe(heading));
+      });
+    </script>
+  </body>
 </html>
