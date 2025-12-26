@@ -1,0 +1,50 @@
+name: Build Documentation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '*.md'
+      - 'scripts/build-docs.js'
+      - '.github/workflows/build-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-docs:
+    name: Convert Markdown to HTML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build documentation
+        run: npm run build:docs
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code docs/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.git-check.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/
+          git commit -m "docs: auto-update HTML documentation from markdown [skip ci]"
+          git push
