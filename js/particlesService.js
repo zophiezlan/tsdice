@@ -331,10 +331,7 @@ export const updateThemeAndReload = async () => {
     config.particles.links.color.value = AppState.ui.isDarkMode
       ? '#ffffff'
       : '#333333';
-  if (config.particles.move.trail.enable)
-    config.particles.move.trail.fill.color.value = AppState.ui.isDarkMode
-      ? THEME_BACKGROUNDS.DARK
-      : THEME_BACKGROUNDS.LIGHT;
+  // Trail fill is empty to inherit the individual particle's color instead of using the background color
 
   await loadParticles(config);
 };

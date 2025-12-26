@@ -79,7 +79,7 @@ export const ConfigGenerator = {
           getChaosProbability(0.4, AppState.particleState.chaosLevel)
         ),
         length: getRandomInRange(3, 15),
-        fill: { color: { value: AppState.ui.isDarkMode ? '#111' : '#f0f0f0' } },
+        fill: {},
       },
     };
     if (
