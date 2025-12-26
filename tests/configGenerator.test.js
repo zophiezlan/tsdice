@@ -143,14 +143,14 @@ describe('ConfigGenerator', () => {
       expect(movement.straight).toBe(false);
     });
 
-    it('should use correct trail fill color based on theme', () => {
+    it('should use empty trail fill to inherit particle color', () => {
       AppState.ui.isDarkMode = true;
       const darkMovement = ConfigGenerator.generateMovement();
-      expect(darkMovement.trail.fill.color.value).toBe('#111');
+      expect(darkMovement.trail.fill).toEqual({});
 
       AppState.ui.isDarkMode = false;
       const lightMovement = ConfigGenerator.generateMovement();
-      expect(lightMovement.trail.fill.color.value).toBe('#f0f0f0');
+      expect(lightMovement.trail.fill).toEqual({});
     });
 
     it('should sometimes include attract mode', () => {
