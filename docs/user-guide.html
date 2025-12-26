@@ -1,360 +1,1110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-AU">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎨 User Guide - tsDice</title>
-  <meta name="description" content="Complete guide to using tsDice from beginner to power user">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎨 User Guide - tsDice</title>
+    <meta
+      name="description"
+      content="Complete guide to using tsDice from beginner to power user"
+    />
 
-  <style>
-    /* --- CSS Theming matching tsDice --- */
-    :root {
-      /* Backgrounds */
-      --bg-primary: #111;
-      --bg-content: rgba(255, 255, 255, 0.05);
-      --bg-code: rgba(0, 0, 0, 0.3);
-      --bg-code-block: rgba(0, 0, 0, 0.5);
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>"
+    />
 
-      /* Text */
-      --text-primary: white;
-      --text-secondary: #eee;
-      --text-strong: #fff;
-      --text-muted: #aaa;
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="🎨 User Guide - tsDice" />
+    <meta
+      property="og:description"
+      content="Complete guide to using tsDice from beginner to power user"
+    />
+    <meta property="og:site_name" content="tsDice Documentation" />
 
-      /* Borders */
-      --border-color: rgba(255, 255, 255, 0.2);
-      --border-accent: rgba(255, 255, 255, 0.3);
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="🎨 User Guide - tsDice" />
+    <meta
+      name="twitter:description"
+      content="Complete guide to using tsDice from beginner to power user"
+    />
 
-      /* Interactive */
-      --link-color: #87ceeb;
-      --link-color-hover: #9370db;
-      --focus-outline: #87ceeb;
-    }
+    <style>
+      /* --- CSS Theming matching tsDice --- */
+      :root {
+        /* Backgrounds */
+        --bg-primary: #111;
+        --bg-content: rgba(255, 255, 255, 0.05);
+        --bg-code: rgba(0, 0, 0, 0.3);
+        --bg-code-block: rgba(0, 0, 0, 0.5);
+        --bg-sidebar: rgba(255, 255, 255, 0.03);
 
-    body.light-mode {
-      /* Backgrounds */
-      --bg-primary: #f0f0f0;
-      --bg-content: rgba(0, 0, 0, 0.03);
-      --bg-code: rgba(0, 0, 0, 0.05);
-      --bg-code-block: rgba(0, 0, 0, 0.08);
+        /* Text */
+        --text-primary: white;
+        --text-secondary: #eee;
+        --text-strong: #fff;
+        --text-muted: #aaa;
 
-      /* Text */
-      --text-primary: #333;
-      --text-secondary: #444;
-      --text-strong: #000;
-      --text-muted: #666;
+        /* Borders */
+        --border-color: rgba(255, 255, 255, 0.2);
+        --border-accent: rgba(255, 255, 255, 0.3);
 
-      /* Borders */
-      --border-color: rgba(0, 0, 0, 0.2);
-      --border-accent: rgba(0, 0, 0, 0.3);
+        /* Interactive */
+        --link-color: #87ceeb;
+        --link-color-hover: #9370db;
+        --focus-outline: #87ceeb;
+        --active-nav: rgba(135, 206, 235, 0.2);
+      }
 
-      /* Interactive */
-      --link-color: #4361ee;
-      --link-color-hover: #7209b7;
-      --focus-outline: #4361ee;
-    }
+      body.light-mode {
+        /* Backgrounds */
+        --bg-primary: #f0f0f0;
+        --bg-content: rgba(0, 0, 0, 0.03);
+        --bg-code: rgba(0, 0, 0, 0.05);
+        --bg-code-block: rgba(0, 0, 0, 0.08);
+        --bg-sidebar: rgba(0, 0, 0, 0.02);
 
-    /* --- Base Styles --- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        /* Text */
+        --text-primary: #333;
+        --text-secondary: #444;
+        --text-strong: #000;
+        --text-muted: #666;
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+        /* Borders */
+        --border-color: rgba(0, 0, 0, 0.2);
+        --border-accent: rgba(0, 0, 0, 0.3);
 
-    /* --- Header --- */
-    header {
-      background: rgba(255, 255, 255, 0.1);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      backdrop-filter: blur(10px);
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        /* Interactive */
+        --link-color: #4361ee;
+        --link-color-hover: #7209b7;
+        --focus-outline: #4361ee;
+        --active-nav: rgba(67, 97, 238, 0.15);
+      }
 
-    .header-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
+      /* --- Reduced Motion --- */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
 
-    .header-nav {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
+      /* --- Base Styles --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    .nav-link {
-      color: var(--link-color);
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px;
+      }
 
-    .nav-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--link-color-hover);
-    }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.6;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
 
-    .theme-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.2s ease;
-    }
+      /* --- Skip to Content (Accessibility) --- */
+      .skip-to-content {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: var(--link-color);
+        color: #000;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        z-index: 1000;
+        font-weight: 600;
+      }
 
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+      .skip-to-content:focus {
+        top: 0;
+      }
 
-    /* --- Main Content --- */
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+      /* --- Progress Bar --- */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--link-color),
+          var(--link-color-hover)
+        );
+        z-index: 1001;
+        transition: width 0.1s ease;
+      }
 
-    .content {
-      background: var(--bg-content);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 2rem;
-    }
-
-    /* --- Typography --- */
-    h1, h2, h3, h4, h5, h6 {
-      color: var(--text-strong);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      line-height: 1.3;
-    }
-
-    h1 { font-size: 2.5rem; margin-top: 0; }
-    h2 { font-size: 2rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-    h3 { font-size: 1.5rem; }
-    h4 { font-size: 1.25rem; }
-    h5 { font-size: 1.1rem; }
-    h6 { font-size: 1rem; }
-
-    p {
-      margin: 1rem 0;
-      color: var(--text-secondary);
-    }
-
-    a {
-      color: var(--link-color);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    a:hover {
-      color: var(--link-color-hover);
-      text-decoration: underline;
-    }
-
-    /* --- Lists --- */
-    ul, ol {
-      margin: 1rem 0;
-      padding-left: 2rem;
-      color: var(--text-secondary);
-    }
-
-    li {
-      margin: 0.5rem 0;
-    }
-
-    /* --- Code --- */
-    code {
-      background: var(--bg-code);
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.9em;
-      color: var(--text-primary);
-    }
-
-    pre {
-      background: var(--bg-code-block);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 1rem;
-      overflow-x: auto;
-      margin: 1rem 0;
-    }
-
-    pre code {
-      background: none;
-      padding: 0;
-      color: var(--text-secondary);
-    }
-
-    /* --- Blockquotes --- */
-    blockquote {
-      border-left: 4px solid var(--link-color);
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
-      background: var(--bg-code);
-      color: var(--text-secondary);
-      font-style: italic;
-    }
-
-    blockquote p {
-      margin: 0.5rem 0;
-    }
-
-    /* --- Tables --- */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      overflow: hidden;
-      border-radius: 4px;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem;
-      text-align: left;
-    }
-
-    th {
-      background: rgba(255, 255, 255, 0.1);
-      font-weight: 600;
-      color: var(--text-strong);
-    }
-
-    tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    /* --- Horizontal Rule --- */
-    hr {
-      border: none;
-      border-top: 1px solid var(--border-color);
-      margin: 2rem 0;
-    }
-
-    /* --- Images --- */
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 4px;
-      margin: 1rem 0;
-    }
-
-    /* --- Footer --- */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border-color);
-      margin-top: 4rem;
-    }
-
-    /* --- Responsive --- */
-    @media (max-width: 768px) {
+      /* --- Header --- */
       header {
-        flex-direction: column;
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 100;
+      }
+
+      .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 1rem;
       }
 
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .home-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 1.5rem;
+        transition: transform 0.2s ease;
+        display: inline-block;
+        line-height: 1;
+      }
+
+      .home-link:hover {
+        transform: scale(1.1);
+      }
+
+      .home-link:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 4px;
+        border-radius: 4px;
+      }
+
+      .header-nav {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        color: var(--link-color);
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.95rem;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--link-color-hover);
+      }
+
+      .nav-link:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      .nav-link.active {
+        background: var(--active-nav);
+        font-weight: 600;
+        position: relative;
+      }
+
+      .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--link-color);
+      }
+
+      .theme-toggle {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: background 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .theme-toggle:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      /* Mobile Menu */
+      .mobile-menu-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      .mobile-menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* --- Layout Container --- */
+      .layout-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      /* --- Table of Contents Sidebar --- */
+      .toc {
+        position: sticky;
+        top: 100px;
+        flex: 0 0 250px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: var(--bg-sidebar);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        align-self: flex-start;
+      }
+
+      .toc-header {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: var(--text-strong);
+      }
+
+      .toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .toc-list li {
+        margin: 0;
+      }
+
+      .toc-list a {
+        display: block;
+        padding: 0.4rem 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+      }
+
+      .toc-list a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--link-color);
+        padding-left: 0.75rem;
+      }
+
+      .toc-indent {
+        padding-left: 1rem;
+      }
+
+      /* --- Main Content --- */
       main {
-        padding: 1rem;
+        flex: 1;
+        min-width: 0;
       }
 
       .content {
-        padding: 1rem;
+        background: var(--bg-content);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 2.5rem;
       }
 
-      h1 { font-size: 2rem; }
-      h2 { font-size: 1.75rem; }
-      h3 { font-size: 1.5rem; }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="header-title">🎨 User Guide</div>
-    <nav class="header-nav">
-      <a href="../index.html" class="nav-link">← Back to tsDice</a>
-      <a href="user-guide.html" class="nav-link">User Guide</a>
-      <a href="architecture.html" class="nav-link">Architecture</a>
-      <a href="analysis.html" class="nav-link">Analysis</a>
-      <a href="quick-reference.html" class="nav-link">Quick Ref</a>
-      <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
-    </nav>
-  </header>
+      /* --- Typography --- */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: var(--text-strong);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        position: relative;
+      }
 
-  <main>
-    <article class="content">
-      <h1>🎨 tsDice User Guide: From Beginner to Power User</h1>
-<blockquote>
-<p><strong>Welcome!</strong> This guide will take you from your first click to mastering tsDice&#39;s hidden depths.</p>
-</blockquote>
-<hr>
-<h2>📚 Table of Contents</h2>
-<ol>
-<li><a href="#your-first-5-minutes">Your First 5 Minutes</a></li>
-<li><a href="#understanding-the-interface">Understanding the Interface</a></li>
-<li><a href="#the-chaos-level-explained">The Chaos Level Explained</a></li>
-<li><a href="#shuffle-strategies">Shuffle Strategies</a></li>
-<li><a href="#toggle-powers">Toggle Powers</a></li>
-<li><a href="#keyboard-ninja-mode">Keyboard Ninja Mode</a></li>
-<li><a href="#sharing-your-creations">Sharing Your Creations</a></li>
-<li><a href="#creative-recipes">Creative Recipes</a></li>
-<li><a href="#troubleshooting">Troubleshooting</a></li>
-<li><a href="#pro-tips--tricks">Pro Tips &amp; Tricks</a></li>
-</ol>
-<hr>
-<h2>Your First 5 Minutes</h2>
-<h3>Step 1: Open tsDice</h3>
-<p>Visit <a href="https://zophiezlan.github.io/tsdice">zophiezlan.github.io/tsdice</a> and watch the particles dance! 🎉</p>
-<p>On your first visit (or every 24 hours), you&#39;ll see a quick welcome modal with helpful tips. Dismiss it to jump right in, or tick <strong>&quot;Don&#39;t show again&quot;</strong> if you prefer to skip it permanently.</p>
-<h3>Step 2: Open the Menu</h3>
-<p>Click the <strong>⚙️ settings icon</strong> in the bottom-left corner. The control panel slides out like magic.</p>
-<p><strong>Note</strong>: The menu automatically hides after 10 seconds of inactivity. Move your mouse over the menu or interact with it to keep it open!</p>
-<h3>Step 3: Your First Shuffle</h3>
-<p>Click the <strong>🎲 Shuffle All</strong> button. Boom! A completely new particle scene. Do it again. And again. Each one is unique!</p>
-<h3>Step 4: Explore Granular Control</h3>
-<p>Try these buttons one by one:</p>
-<ul>
-<li>👁️ <strong>Shuffle Appearance</strong> — Only the colors and shapes change</li>
-<li>🧭 <strong>Shuffle Movement</strong> — Only the motion changes</li>
-<li>🖱️ <strong>Shuffle Interaction</strong> — Only the mouse effects change</li>
-<li>✨ <strong>Shuffle Special FX</strong> — Only advanced effects toggle</li>
-</ul>
-<p>Notice how each shuffle preserves the other aspects? That&#39;s <strong>granular randomization</strong>!</p>
-<h3>Step 5: Play with Toggles</h3>
-<ul>
-<li>Click <strong>🌙 Theme</strong> to switch between dark and light mode</li>
-<li>Click <strong>⬇️ Gravity</strong> to watch particles fall</li>
-<li>Click <strong>🔲 Walls</strong> to make particles bounce at the edges</li>
-<li>Click <strong>🖱️ Cursor</strong> to turn your mouse into a particle emitter!</li>
-</ul>
-<p><strong>Congratulations!</strong> You now know the basics. Let&#39;s go deeper...</p>
-<hr>
-<h2>Understanding the Interface</h2>
-<h3>The Control Panel</h3>
-<pre><code>┌─────────────────────────────────────────────────────┐
+      h1 {
+        font-size: 2.5rem;
+        margin-top: 0;
+      }
+
+      h2 {
+        font-size: 2rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid var(--border-color);
+        scroll-margin-top: 80px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        scroll-margin-top: 80px;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+      }
+      h5 {
+        font-size: 1.1rem;
+      }
+      h6 {
+        font-size: 1rem;
+      }
+
+      /* Heading anchor links */
+      h2:hover .header-anchor,
+      h3:hover .header-anchor {
+        opacity: 1;
+      }
+
+      p {
+        margin: 1rem 0;
+        color: var(--text-secondary);
+      }
+
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      a:hover {
+        color: var(--link-color-hover);
+        text-decoration: underline;
+      }
+
+      a:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      /* --- Lists --- */
+      ul,
+      ol {
+        margin: 1rem 0;
+        padding-left: 2rem;
+        color: var(--text-secondary);
+      }
+
+      li {
+        margin: 0.5rem 0;
+      }
+
+      /* --- Code --- */
+      code {
+        background: var(--bg-code);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family:
+          'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New',
+          monospace;
+        font-size: 0.9em;
+        color: var(--text-primary);
+      }
+
+      pre {
+        background: var(--bg-code-block);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      pre code {
+        background: none;
+        padding: 0;
+        color: var(--text-secondary);
+      }
+
+      /* Copy button for code blocks */
+      .code-block-wrapper {
+        position: relative;
+      }
+
+      .copy-code-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        opacity: 0;
+        transition:
+          opacity 0.2s ease,
+          background 0.2s ease;
+      }
+
+      .code-block-wrapper:hover .copy-code-btn {
+        opacity: 1;
+      }
+
+      .copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .copy-code-btn.copied {
+        background: var(--link-color);
+        color: #000;
+      }
+
+      /* --- Blockquotes --- */
+      blockquote {
+        border-left: 4px solid var(--link-color);
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background: var(--bg-code);
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      blockquote p {
+        margin: 0.5rem 0;
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        overflow: hidden;
+        border-radius: 4px;
+        display: block;
+        overflow-x: auto;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: left;
+      }
+
+      th {
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        color: var(--text-strong);
+        position: sticky;
+        top: 0;
+      }
+
+      tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      /* --- Horizontal Rule --- */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 2rem 0;
+      }
+
+      /* --- Images --- */
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+
+      /* --- Scroll to Top Button --- */
+      .scroll-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.3s ease,
+          transform 0.2s ease,
+          background 0.2s ease;
+        z-index: 99;
+      }
+
+      .scroll-to-top.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .scroll-to-top:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-4px);
+      }
+
+      .scroll-to-top:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      /* --- Footer --- */
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 4rem;
+      }
+
+      footer a {
+        color: var(--link-color);
+        margin: 0 0.5rem;
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 1024px) {
+        .toc {
+          display: none;
+        }
+
+        .layout-container {
+          padding: 1.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header-container {
+          flex-wrap: wrap;
+        }
+
+        .header-nav {
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: rgba(17, 17, 17, 0.98);
+          backdrop-filter: blur(10px);
+          flex-direction: column;
+          padding: 1rem;
+          gap: 0.5rem;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          border-bottom: 1px solid var(--border-color);
+          z-index: 99;
+        }
+
+        body.light-mode .header-nav {
+          background: rgba(240, 240, 240, 0.98);
+        }
+
+        .header-nav.mobile-open {
+          max-height: 400px;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .nav-link,
+        .theme-toggle {
+          width: 100%;
+          text-align: center;
+        }
+
+        .layout-container {
+          padding: 1rem;
+          gap: 0;
+        }
+
+        .content {
+          padding: 1.5rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.75rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+
+        .scroll-to-top {
+          bottom: 1rem;
+          right: 1rem;
+          width: 44px;
+          height: 44px;
+        }
+
+        table {
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header-title {
+          font-size: 1.2rem;
+        }
+
+        .content {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 1.75rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        h3 {
+          font-size: 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-to-content">Skip to content</a>
+    <div
+      class="progress-bar"
+      id="progress-bar"
+      role="progressbar"
+      aria-label="Reading progress"
+    ></div>
+
+    <header>
+      <div class="header-container">
+        <div class="header-left">
+          <a
+            href="../index.html"
+            class="home-link"
+            aria-label="Return to tsDice app"
+            title="Return to tsDice"
+            >🎲</a
+          >
+          <div class="header-title">🎨 User Guide</div>
+        </div>
+        <button
+          class="mobile-menu-toggle"
+          onclick="toggleMobileMenu()"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <nav
+          class="header-nav"
+          id="main-nav"
+          aria-label="Documentation navigation"
+        >
+          <a href="user-guide.html" class="nav-link active" aria-current="page"
+            >📖 User Guide</a
+          >
+          <a href="architecture.html" class="nav-link">🏗️ Architecture</a>
+          <a href="analysis.html" class="nav-link">📊 Analysis</a>
+          <a href="quick-reference.html" class="nav-link">⚡ Quick Ref</a>
+          <button
+            class="theme-toggle"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark/light theme"
+          >
+            🌓 Theme
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="layout-container">
+      <nav class="toc" aria-label="Table of contents">
+        <div class="toc-header">📑 Contents</div>
+        <ul class="toc-list">
+          <li><a href="#-table-of-contents">📚 Table of Contents</a></li>
+          <li><a href="#your-first-5-minutes">Your First 5 Minutes</a></li>
+          <li class="toc-indent">
+            <a href="#step-1-open-tsdice">Step 1: Open tsDice</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#step-2-open-the-menu">Step 2: Open the Menu</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#step-3-your-first-shuffle">Step 3: Your First Shuffle</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#step-4-explore-granular-control"
+              >Step 4: Explore Granular Control</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#step-5-play-with-toggles">Step 5: Play with Toggles</a>
+          </li>
+          <li>
+            <a href="#understanding-the-interface"
+              >Understanding the Interface</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#the-control-panel">The Control Panel</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#button-categories">Button Categories</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#visual-feedback">Visual Feedback</a>
+          </li>
+          <li>
+            <a href="#the-chaos-level-explained">The Chaos Level Explained</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#what-changes-with-chaos-level"
+              >What Changes with Chaos Level?</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#how-it-works-behind-the-scenes"
+              >How It Works Behind the Scenes</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#recommended-chaos-levels-by-use-case"
+              >Recommended Chaos Levels by Use Case</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#chaos-toggles-super-powers"
+              >Chaos + Toggles = Super Powers</a
+            >
+          </li>
+          <li><a href="#shuffle-strategies">Shuffle Strategies</a></li>
+          <li class="toc-indent">
+            <a href="#strategy-1-the-explorer">Strategy 1: The Explorer</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#strategy-2-the-sculptor">Strategy 2: The Sculptor</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#strategy-3-the-archaeologist"
+              >Strategy 3: The Archaeologist</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#strategy-4-the-curator">Strategy 4: The Curator</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#strategy-5-the-mad-scientist"
+              >Strategy 5: The Mad Scientist</a
+            >
+          </li>
+          <li><a href="#toggle-powers">Toggle Powers</a></li>
+          <li class="toc-indent">
+            <a href="#gravity-toggle-">Gravity Toggle ⬇️</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#walls-toggle-">Walls Toggle 🔲</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#cursor-particle-">Cursor Particle 🖱️</a>
+          </li>
+          <li><a href="#keyboard-ninja-mode">Keyboard Ninja Mode</a></li>
+          <li class="toc-indent">
+            <a href="#essential-trio">Essential Trio</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#category-shuffles">Category Shuffles</a>
+          </li>
+          <li class="toc-indent"><a href="#toggles">Toggles</a></li>
+          <li class="toc-indent"><a href="#navigation">Navigation</a></li>
+          <li class="toc-indent"><a href="#utilities">Utilities</a></li>
+          <li class="toc-indent"><a href="#pro-workflows">Pro Workflows</a></li>
+          <li><a href="#sharing-your-creations">Sharing Your Creations</a></li>
+          <li class="toc-indent">
+            <a href="#how-sharing-works">How Sharing Works</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#understanding-share-urls">Understanding Share URLs</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#sharing-best-practices">Sharing Best Practices</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#what-gets-saved-in-urls">What Gets Saved in URLs?</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#sharing-etiquette">Sharing Etiquette</a>
+          </li>
+          <li><a href="#creative-recipes">Creative Recipes</a></li>
+          <li class="toc-indent">
+            <a href="#recipe-1-zen-garden">Recipe 1: Zen Garden</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#recipe-2-matrix-rain">Recipe 2: Matrix Rain</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#recipe-3-confetti-celebration"
+              >Recipe 3: Confetti Celebration</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#recipe-4-constellation-map"
+              >Recipe 4: Constellation Map</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#recipe-5-paint-splatter">Recipe 5: Paint Splatter</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#recipe-6-plasma-field">Recipe 6: Plasma Field</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#recipe-7-snowglobe">Recipe 7: Snowglobe</a>
+          </li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+          <li class="toc-indent">
+            <a href="#problem-particles-disappeared"
+              >Problem: Particles disappeared</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#problem-too-laggyslow-performance"
+              >Problem: Too laggy/slow performance</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#problem-share-link-doesnt-work"
+              >Problem: Share link doesn't work</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#problem-cant-undo-anymore">Problem: Can't undo anymore</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#problem-modal-wont-close">Problem: Modal won't close</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#problem-keyboard-shortcuts-not-working"
+              >Problem: Keyboard shortcuts not working</a
+            >
+          </li>
+          <li><a href="#pro-tips-tricks">Pro Tips & Tricks</a></li>
+          <li class="toc-indent">
+            <a href="#discovery-tips">Discovery Tips</a>
+          </li>
+          <li class="toc-indent"><a href="#workflow-tips">Workflow Tips</a></li>
+          <li class="toc-indent">
+            <a href="#performance-tips">Performance Tips</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#presentation-tips">Presentation Tips</a>
+          </li>
+          <li class="toc-indent"><a href="#creative-tips">Creative Tips</a></li>
+          <li><a href="#advanced-techniques">Advanced Techniques</a></li>
+          <li class="toc-indent">
+            <a href="#the-differential-shuffle">The Differential Shuffle</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#the-chaos-sweep">The Chaos Sweep</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#the-toggle-dance">The Toggle Dance</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#the-emoji-signature">The Emoji Signature</a>
+          </li>
+          <li><a href="#accessibility-features">Accessibility Features</a></li>
+          <li class="toc-indent">
+            <a href="#for-screen-reader-users">For Screen Reader Users</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#for-keyboard-users">For Keyboard Users</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#for-motion-sensitive-users">For Motion-Sensitive Users</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#for-low-vision-users">For Low Vision Users</a>
+          </li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#community-showcase">Community Showcase</a></li>
+        </ul>
+      </nav>
+      <main id="main-content">
+        <article class="content">
+          <h1 id="-tsdice-user-guide-from-beginner-to-power-user">
+            🎨 tsDice User Guide: From Beginner to Power User
+          </h1>
+          <blockquote>
+            <p>
+              <strong>Welcome!</strong> This guide will take you from your first
+              click to mastering tsDice&#39;s hidden depths.
+            </p>
+          </blockquote>
+          <hr />
+          <h2 id="-table-of-contents">📚 Table of Contents</h2>
+          <ol>
+            <li><a href="#your-first-5-minutes">Your First 5 Minutes</a></li>
+            <li>
+              <a href="#understanding-the-interface"
+                >Understanding the Interface</a
+              >
+            </li>
+            <li>
+              <a href="#the-chaos-level-explained">The Chaos Level Explained</a>
+            </li>
+            <li><a href="#shuffle-strategies">Shuffle Strategies</a></li>
+            <li><a href="#toggle-powers">Toggle Powers</a></li>
+            <li><a href="#keyboard-ninja-mode">Keyboard Ninja Mode</a></li>
+            <li>
+              <a href="#sharing-your-creations">Sharing Your Creations</a>
+            </li>
+            <li><a href="#creative-recipes">Creative Recipes</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#pro-tips--tricks">Pro Tips &amp; Tricks</a></li>
+          </ol>
+          <hr />
+          <h2 id="your-first-5-minutes">Your First 5 Minutes</h2>
+          <h3 id="step-1-open-tsdice">Step 1: Open tsDice</h3>
+          <p>
+            Visit
+            <a href="https://zophiezlan.github.io/tsdice"
+              >zophiezlan.github.io/tsdice</a
+            >
+            and watch the particles dance! 🎉
+          </p>
+          <p>
+            On your first visit (or every 24 hours), you&#39;ll see a quick
+            welcome modal with helpful tips. Dismiss it to jump right in, or
+            tick <strong>&quot;Don&#39;t show again&quot;</strong> if you prefer
+            to skip it permanently.
+          </p>
+          <h3 id="step-2-open-the-menu">Step 2: Open the Menu</h3>
+          <p>
+            Click the <strong>⚙️ settings icon</strong> in the bottom-left
+            corner. The control panel slides out like magic.
+          </p>
+          <p>
+            <strong>Note</strong>: The menu automatically hides after 10 seconds
+            of inactivity. Move your mouse over the menu or interact with it to
+            keep it open!
+          </p>
+          <h3 id="step-3-your-first-shuffle">Step 3: Your First Shuffle</h3>
+          <p>
+            Click the <strong>🎲 Shuffle All</strong> button. Boom! A completely
+            new particle scene. Do it again. And again. Each one is unique!
+          </p>
+          <h3 id="step-4-explore-granular-control">
+            Step 4: Explore Granular Control
+          </h3>
+          <p>Try these buttons one by one:</p>
+          <ul>
+            <li>
+              👁️ <strong>Shuffle Appearance</strong> — Only the colors and
+              shapes change
+            </li>
+            <li>
+              🧭 <strong>Shuffle Movement</strong> — Only the motion changes
+            </li>
+            <li>
+              🖱️ <strong>Shuffle Interaction</strong> — Only the mouse effects
+              change
+            </li>
+            <li>
+              ✨ <strong>Shuffle Special FX</strong> — Only advanced effects
+              toggle
+            </li>
+          </ul>
+          <p>
+            Notice how each shuffle preserves the other aspects? That&#39;s
+            <strong>granular randomization</strong>!
+          </p>
+          <h3 id="step-5-play-with-toggles">Step 5: Play with Toggles</h3>
+          <ul>
+            <li>
+              Click <strong>🌙 Theme</strong> to switch between dark and light
+              mode
+            </li>
+            <li>Click <strong>⬇️ Gravity</strong> to watch particles fall</li>
+            <li>
+              Click <strong>🔲 Walls</strong> to make particles bounce at the
+              edges
+            </li>
+            <li>
+              Click <strong>🖱️ Cursor</strong> to turn your mouse into a
+              particle emitter!
+            </li>
+          </ul>
+          <p>
+            <strong>Congratulations!</strong> You now know the basics. Let&#39;s
+            go deeper...
+          </p>
+          <hr />
+          <h2 id="understanding-the-interface">Understanding the Interface</h2>
+          <h3 id="the-control-panel">The Control Panel</h3>
+          <pre><code>┌─────────────────────────────────────────────────────┐
 │  🎲  👁️  🧭  🖱️  ✨   ← Shuffle Buttons             │
 │                                                      │
 │  ━━━━━━━━━━  5  ← Chaos Level Slider               │
@@ -364,289 +1114,352 @@
 │  ⬇️  🔲  🖱️  🔗  ℹ️   ← Toggles &amp; Utilities        │
 └─────────────────────────────────────────────────────┘
 </code></pre>
-<h3>Button Categories</h3>
-<h4>Shuffle Section</h4>
-<table>
-<thead>
-<tr>
-<th>Button</th>
-<th>Name</th>
-<th>What It Does</th>
-<th>When to Use</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>🎲</td>
-<td>Shuffle All</td>
-<td>Complete randomization</td>
-<td>Starting fresh, exploring widely</td>
-</tr>
-<tr>
-<td>👁️</td>
-<td>Shuffle Appearance</td>
-<td>Colors, shapes, sizes</td>
-<td>Fine-tuning the visuals</td>
-</tr>
-<tr>
-<td>🧭</td>
-<td>Shuffle Movement</td>
-<td>Speed, direction, trails</td>
-<td>Adjusting the animation feel</td>
-</tr>
-<tr>
-<td>🖱️</td>
-<td>Shuffle Interaction</td>
-<td>Mouse hover/click effects</td>
-<td>Changing interactivity</td>
-</tr>
-<tr>
-<td>✨</td>
-<td>Shuffle Special FX</td>
-<td>Links, rotation, wobble</td>
-<td>Adding/removing complexity</td>
-</tr>
-</tbody></table>
-<h4>History Section</h4>
-<table>
-<thead>
-<tr>
-<th>Button</th>
-<th>Name</th>
-<th>Shortcut</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>↶</td>
-<td>Back</td>
-<td>Alt+Z</td>
-<td>Undo last shuffle (infinite)</td>
-</tr>
-<tr>
-<td>↷</td>
-<td>Forward</td>
-<td>Alt+Y</td>
-<td>Redo after undo</td>
-</tr>
-<tr>
-<td>🔄</td>
-<td>Refresh</td>
-<td>Alt+R</td>
-<td>Restart animation (same config)</td>
-</tr>
-<tr>
-<td>⏸️</td>
-<td>Pause</td>
-<td>Space</td>
-<td>Freeze/resume animation</td>
-</tr>
-<tr>
-<td>🌙</td>
-<td>Theme</td>
-<td>Alt+T</td>
-<td>Toggle dark/light mode</td>
-</tr>
-</tbody></table>
-<h4>Toggle Section</h4>
-<table>
-<thead>
-<tr>
-<th>Button</th>
-<th>Name</th>
-<th>Shortcut</th>
-<th>Effect</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>⬇️</td>
-<td>Gravity</td>
-<td>Alt+G</td>
-<td>Pull particles downward</td>
-</tr>
-<tr>
-<td>🔲</td>
-<td>Walls</td>
-<td>Alt+W</td>
-<td>Bounce particles at edges</td>
-</tr>
-<tr>
-<td>🖱️</td>
-<td>Cursor</td>
-<td>Alt+C</td>
-<td>Emit particles from mouse</td>
-</tr>
-<tr>
-<td>🔗</td>
-<td>Share</td>
-<td>Alt+S</td>
-<td>Copy shareable URL</td>
-</tr>
-<tr>
-<td>ℹ️</td>
-<td>Info</td>
-<td>Alt+?</td>
-<td>Show help modal with tabs</td>
-</tr>
-</tbody></table>
-<p><strong>Note</strong>: The Info modal has three tabs (Controls, Shortcuts, Guide) that you can navigate with arrow keys. It remembers your last viewed tab!</p>
-<p>When you reopen it later, tsDice restores the tab you last used, so you can treat it as a personalized cheat sheet.</p>
-<h3>Visual Feedback</h3>
-<h4>Button States</h4>
-<ul>
-<li><strong>Normal</strong>: Semi-transparent glass effect</li>
-<li><strong>Hover</strong>: Brightens + scales up (1.1x)</li>
-<li><strong>Active</strong>: Purple background (toggles only)</li>
-<li><strong>Disabled</strong>: Grayed out + no pointer events</li>
-</ul>
-<h4>Shuffle Effects</h4>
-<p>When you shuffle, the particle canvas briefly brightens (1.3x brightness for 150ms) to provide instant visual confirmation of the action.</p>
-<h4>Toast Notifications</h4>
-<p>Toast notifications appear at the bottom center of the screen and automatically disappear after 3 seconds. They provide visual feedback for your actions:</p>
-<p><strong>Shuffle Actions:</strong></p>
-<ul>
-<li>&quot;Undid [Type] shuffle&quot; (e.g., &quot;Undid Appearance shuffle&quot;)</li>
-<li>&quot;Redid [Type] shuffle&quot; (e.g., &quot;Redid Movement shuffle&quot;)</li>
-</ul>
-<p><strong>Theme &amp; Display:</strong></p>
-<ul>
-<li>&quot;Dark theme enabled&quot; / &quot;Light theme enabled&quot;</li>
-<li>&quot;Animation paused&quot; / &quot;Animation resumed&quot;</li>
-<li>&quot;Scene refreshed!&quot;</li>
-</ul>
-<p><strong>Toggle Controls:</strong></p>
-<ul>
-<li>&quot;Gravity enabled&quot; / &quot;Gravity disabled&quot;</li>
-<li>&quot;Walls enabled&quot; / &quot;Walls disabled&quot;</li>
-<li>&quot;Cursor particle enabled&quot; / &quot;Cursor particle disabled&quot;</li>
-</ul>
-<p><strong>Chaos Level:</strong></p>
-<ul>
-<li>&quot;Chaos level set to [1-10]&quot; (e.g., &quot;Chaos level set to 8&quot;)</li>
-</ul>
-<p><strong>Sharing:</strong></p>
-<ul>
-<li>&quot;⏳ Creating shareable link...&quot;</li>
-<li>&quot;✓ Link copied to clipboard&quot;</li>
-<li>&quot;✓ Short link copied! [emoji-string]&quot;</li>
-<li>&quot;Current page URL copied as fallback&quot;</li>
-<li>&quot;❌ Failed to create share link&quot;</li>
-</ul>
-<p><strong>Special Features:</strong></p>
-<ul>
-<li>&quot;🎉 Party Mode Activated! 🎊&quot; (Konami code easter egg)</li>
-</ul>
-<p><strong>Error States:</strong></p>
-<ul>
-<li>&quot;Invalid shared configuration link&quot;</li>
-<li>&quot;No particle animation loaded&quot;</li>
-<li>&quot;Config error - restored previous state&quot;</li>
-<li>&quot;Failed to load particles - please refresh&quot;</li>
-<li>&quot;Failed to load particle configuration&quot;</li>
-</ul>
-<p><strong>Accessibility:</strong></p>
-<ul>
-<li>&quot;Animation paused due to reduced motion preference.&quot;</li>
-</ul>
-<h4>Screen Reader Announcements</h4>
-<p>tsDice uses ARIA live regions to announce important state changes to screen readers. These announcements complement the visual toast notifications:</p>
-<p><strong>Shuffle &amp; History:</strong></p>
-<ul>
-<li>&quot;New scene generated.&quot;</li>
-<li>&quot;Action undone.&quot;</li>
-<li>&quot;Action redone.&quot;</li>
-<li>&quot;Undid [Type] shuffle&quot;</li>
-<li>&quot;Redid [Type] shuffle&quot;</li>
-</ul>
-<p><strong>Toggle States:</strong></p>
-<ul>
-<li>&quot;Gravity enabled&quot; / &quot;Gravity disabled&quot;</li>
-<li>&quot;Walls enabled&quot; / &quot;Walls disabled&quot;</li>
-<li>&quot;Cursor enabled&quot; / &quot;Cursor disabled&quot;</li>
-<li>&quot;Theme enabled&quot; / &quot;Theme disabled&quot;</li>
-</ul>
-<p><strong>Playback Controls:</strong></p>
-<ul>
-<li>&quot;Animation paused&quot; / &quot;Animation resumed&quot;</li>
-<li>&quot;Scene refreshed&quot;</li>
-</ul>
-<p><strong>Chaos Level:</strong></p>
-<ul>
-<li>&quot;Chaos level [1-10]&quot; (announced during slider movement)</li>
-<li>&quot;Chaos level set to [1-10]&quot; (announced on release)</li>
-</ul>
-<p><strong>Sharing:</strong></p>
-<ul>
-<li>&quot;Creating shareable link&quot;</li>
-<li>&quot;Short emoji link copied to clipboard&quot;</li>
-<li>&quot;Full configuration link copied to clipboard&quot;</li>
-<li>&quot;Current page URL copied as fallback&quot;</li>
-<li>&quot;Error creating share link&quot;</li>
-</ul>
-<p><strong>Special Features:</strong></p>
-<ul>
-<li>&quot;Party mode activated with Konami code&quot;</li>
-</ul>
-<p><strong>Error &amp; Status Messages:</strong></p>
-<ul>
-<li>&quot;Invalid shared configuration link&quot;</li>
-<li>&quot;No particle animation loaded&quot;</li>
-<li>&quot;Config error - restored previous state&quot;</li>
-<li>&quot;Failed to load particles - please refresh&quot;</li>
-<li>&quot;Failed to load particle configuration&quot;</li>
-<li>&quot;Animation paused due to reduced motion preference.&quot;</li>
-</ul>
-<hr>
-<h2>The Chaos Level Explained</h2>
-<p>The <strong>Chaos Slider</strong> (1-10) is tsDice&#39;s secret weapon. It doesn&#39;t just control randomness — it controls <strong>complexity</strong>.</p>
-<h3>What Changes with Chaos Level?</h3>
-<table>
-<thead>
-<tr>
-<th>Chaos Level</th>
-<th>Particle Count</th>
-<th>Speed Range</th>
-<th>Effect Probability</th>
-<th>Vibe</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1-2</td>
-<td>20-60</td>
-<td>Slow (0.5-2x)</td>
-<td>10-20%</td>
-<td>Zen, minimalist</td>
-</tr>
-<tr>
-<td>3-4</td>
-<td>60-100</td>
-<td>Gentle (1.5-4x)</td>
-<td>30-40%</td>
-<td>Calm exploration</td>
-</tr>
-<tr>
-<td>5-6</td>
-<td>100-140</td>
-<td>Moderate (2.5-7x)</td>
-<td>50-60%</td>
-<td>Balanced energy</td>
-</tr>
-<tr>
-<td>7-8</td>
-<td>140-180</td>
-<td>Fast (3.5-10x)</td>
-<td>70-80%</td>
-<td>Dynamic chaos</td>
-</tr>
-<tr>
-<td>9-10</td>
-<td>180-220</td>
-<td>Extreme (4.5-13x)</td>
-<td>90-100%</td>
-<td>Maximum madness</td>
-</tr>
-</tbody></table>
-<h3>How It Works Behind the Scenes</h3>
-<pre><code class="language-javascript">// Particle count formula
+          <h3 id="button-categories">Button Categories</h3>
+          <h4 id="shuffle-section">Shuffle Section</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Button</th>
+                <th>Name</th>
+                <th>What It Does</th>
+                <th>When to Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>🎲</td>
+                <td>Shuffle All</td>
+                <td>Complete randomization</td>
+                <td>Starting fresh, exploring widely</td>
+              </tr>
+              <tr>
+                <td>👁️</td>
+                <td>Shuffle Appearance</td>
+                <td>Colors, shapes, sizes</td>
+                <td>Fine-tuning the visuals</td>
+              </tr>
+              <tr>
+                <td>🧭</td>
+                <td>Shuffle Movement</td>
+                <td>Speed, direction, trails</td>
+                <td>Adjusting the animation feel</td>
+              </tr>
+              <tr>
+                <td>🖱️</td>
+                <td>Shuffle Interaction</td>
+                <td>Mouse hover/click effects</td>
+                <td>Changing interactivity</td>
+              </tr>
+              <tr>
+                <td>✨</td>
+                <td>Shuffle Special FX</td>
+                <td>Links, rotation, wobble</td>
+                <td>Adding/removing complexity</td>
+              </tr>
+            </tbody>
+          </table>
+          <h4 id="history-section">History Section</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Button</th>
+                <th>Name</th>
+                <th>Shortcut</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>↶</td>
+                <td>Back</td>
+                <td>Alt+Z</td>
+                <td>Undo last shuffle (infinite)</td>
+              </tr>
+              <tr>
+                <td>↷</td>
+                <td>Forward</td>
+                <td>Alt+Y</td>
+                <td>Redo after undo</td>
+              </tr>
+              <tr>
+                <td>🔄</td>
+                <td>Refresh</td>
+                <td>Alt+R</td>
+                <td>Restart animation (same config)</td>
+              </tr>
+              <tr>
+                <td>⏸️</td>
+                <td>Pause</td>
+                <td>Space</td>
+                <td>Freeze/resume animation</td>
+              </tr>
+              <tr>
+                <td>🌙</td>
+                <td>Theme</td>
+                <td>Alt+T</td>
+                <td>Toggle dark/light mode</td>
+              </tr>
+            </tbody>
+          </table>
+          <h4 id="toggle-section">Toggle Section</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Button</th>
+                <th>Name</th>
+                <th>Shortcut</th>
+                <th>Effect</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>⬇️</td>
+                <td>Gravity</td>
+                <td>Alt+G</td>
+                <td>Pull particles downward</td>
+              </tr>
+              <tr>
+                <td>🔲</td>
+                <td>Walls</td>
+                <td>Alt+W</td>
+                <td>Bounce particles at edges</td>
+              </tr>
+              <tr>
+                <td>🖱️</td>
+                <td>Cursor</td>
+                <td>Alt+C</td>
+                <td>Emit particles from mouse</td>
+              </tr>
+              <tr>
+                <td>🔗</td>
+                <td>Share</td>
+                <td>Alt+S</td>
+                <td>Copy shareable URL</td>
+              </tr>
+              <tr>
+                <td>ℹ️</td>
+                <td>Info</td>
+                <td>Alt+?</td>
+                <td>Show help modal with tabs</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>Note</strong>: The Info modal has three tabs (Controls,
+            Shortcuts, Guide) that you can navigate with arrow keys. It
+            remembers your last viewed tab!
+          </p>
+          <p>
+            When you reopen it later, tsDice restores the tab you last used, so
+            you can treat it as a personalized cheat sheet.
+          </p>
+          <h3 id="visual-feedback">Visual Feedback</h3>
+          <h4 id="button-states">Button States</h4>
+          <ul>
+            <li><strong>Normal</strong>: Semi-transparent glass effect</li>
+            <li><strong>Hover</strong>: Brightens + scales up (1.1x)</li>
+            <li><strong>Active</strong>: Purple background (toggles only)</li>
+            <li><strong>Disabled</strong>: Grayed out + no pointer events</li>
+          </ul>
+          <h4 id="shuffle-effects">Shuffle Effects</h4>
+          <p>
+            When you shuffle, the particle canvas briefly brightens (1.3x
+            brightness for 150ms) to provide instant visual confirmation of the
+            action.
+          </p>
+          <h4 id="toast-notifications">Toast Notifications</h4>
+          <p>
+            Toast notifications appear at the bottom center of the screen and
+            automatically disappear after 3 seconds. They provide visual
+            feedback for your actions:
+          </p>
+          <p><strong>Shuffle Actions:</strong></p>
+          <ul>
+            <li>
+              &quot;Undid [Type] shuffle&quot; (e.g., &quot;Undid Appearance
+              shuffle&quot;)
+            </li>
+            <li>
+              &quot;Redid [Type] shuffle&quot; (e.g., &quot;Redid Movement
+              shuffle&quot;)
+            </li>
+          </ul>
+          <p><strong>Theme &amp; Display:</strong></p>
+          <ul>
+            <li>
+              &quot;Dark theme enabled&quot; / &quot;Light theme enabled&quot;
+            </li>
+            <li>
+              &quot;Animation paused&quot; / &quot;Animation resumed&quot;
+            </li>
+            <li>&quot;Scene refreshed!&quot;</li>
+          </ul>
+          <p><strong>Toggle Controls:</strong></p>
+          <ul>
+            <li>&quot;Gravity enabled&quot; / &quot;Gravity disabled&quot;</li>
+            <li>&quot;Walls enabled&quot; / &quot;Walls disabled&quot;</li>
+            <li>
+              &quot;Cursor particle enabled&quot; / &quot;Cursor particle
+              disabled&quot;
+            </li>
+          </ul>
+          <p><strong>Chaos Level:</strong></p>
+          <ul>
+            <li>
+              &quot;Chaos level set to [1-10]&quot; (e.g., &quot;Chaos level set
+              to 8&quot;)
+            </li>
+          </ul>
+          <p><strong>Sharing:</strong></p>
+          <ul>
+            <li>&quot;⏳ Creating shareable link...&quot;</li>
+            <li>&quot;✓ Link copied to clipboard&quot;</li>
+            <li>&quot;✓ Short link copied! [emoji-string]&quot;</li>
+            <li>&quot;Current page URL copied as fallback&quot;</li>
+            <li>&quot;❌ Failed to create share link&quot;</li>
+          </ul>
+          <p><strong>Special Features:</strong></p>
+          <ul>
+            <li>
+              &quot;🎉 Party Mode Activated! 🎊&quot; (Konami code easter egg)
+            </li>
+          </ul>
+          <p><strong>Error States:</strong></p>
+          <ul>
+            <li>&quot;Invalid shared configuration link&quot;</li>
+            <li>&quot;No particle animation loaded&quot;</li>
+            <li>&quot;Config error - restored previous state&quot;</li>
+            <li>&quot;Failed to load particles - please refresh&quot;</li>
+            <li>&quot;Failed to load particle configuration&quot;</li>
+          </ul>
+          <p><strong>Accessibility:</strong></p>
+          <ul>
+            <li>
+              &quot;Animation paused due to reduced motion preference.&quot;
+            </li>
+          </ul>
+          <h4 id="screen-reader-announcements">Screen Reader Announcements</h4>
+          <p>
+            tsDice uses ARIA live regions to announce important state changes to
+            screen readers. These announcements complement the visual toast
+            notifications:
+          </p>
+          <p><strong>Shuffle &amp; History:</strong></p>
+          <ul>
+            <li>&quot;New scene generated.&quot;</li>
+            <li>&quot;Action undone.&quot;</li>
+            <li>&quot;Action redone.&quot;</li>
+            <li>&quot;Undid [Type] shuffle&quot;</li>
+            <li>&quot;Redid [Type] shuffle&quot;</li>
+          </ul>
+          <p><strong>Toggle States:</strong></p>
+          <ul>
+            <li>&quot;Gravity enabled&quot; / &quot;Gravity disabled&quot;</li>
+            <li>&quot;Walls enabled&quot; / &quot;Walls disabled&quot;</li>
+            <li>&quot;Cursor enabled&quot; / &quot;Cursor disabled&quot;</li>
+            <li>&quot;Theme enabled&quot; / &quot;Theme disabled&quot;</li>
+          </ul>
+          <p><strong>Playback Controls:</strong></p>
+          <ul>
+            <li>
+              &quot;Animation paused&quot; / &quot;Animation resumed&quot;
+            </li>
+            <li>&quot;Scene refreshed&quot;</li>
+          </ul>
+          <p><strong>Chaos Level:</strong></p>
+          <ul>
+            <li>
+              &quot;Chaos level [1-10]&quot; (announced during slider movement)
+            </li>
+            <li>
+              &quot;Chaos level set to [1-10]&quot; (announced on release)
+            </li>
+          </ul>
+          <p><strong>Sharing:</strong></p>
+          <ul>
+            <li>&quot;Creating shareable link&quot;</li>
+            <li>&quot;Short emoji link copied to clipboard&quot;</li>
+            <li>&quot;Full configuration link copied to clipboard&quot;</li>
+            <li>&quot;Current page URL copied as fallback&quot;</li>
+            <li>&quot;Error creating share link&quot;</li>
+          </ul>
+          <p><strong>Special Features:</strong></p>
+          <ul>
+            <li>&quot;Party mode activated with Konami code&quot;</li>
+          </ul>
+          <p><strong>Error &amp; Status Messages:</strong></p>
+          <ul>
+            <li>&quot;Invalid shared configuration link&quot;</li>
+            <li>&quot;No particle animation loaded&quot;</li>
+            <li>&quot;Config error - restored previous state&quot;</li>
+            <li>&quot;Failed to load particles - please refresh&quot;</li>
+            <li>&quot;Failed to load particle configuration&quot;</li>
+            <li>
+              &quot;Animation paused due to reduced motion preference.&quot;
+            </li>
+          </ul>
+          <hr />
+          <h2 id="the-chaos-level-explained">The Chaos Level Explained</h2>
+          <p>
+            The <strong>Chaos Slider</strong> (1-10) is tsDice&#39;s secret
+            weapon. It doesn&#39;t just control randomness — it controls
+            <strong>complexity</strong>.
+          </p>
+          <h3 id="what-changes-with-chaos-level">
+            What Changes with Chaos Level?
+          </h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Chaos Level</th>
+                <th>Particle Count</th>
+                <th>Speed Range</th>
+                <th>Effect Probability</th>
+                <th>Vibe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1-2</td>
+                <td>20-60</td>
+                <td>Slow (0.5-2x)</td>
+                <td>10-20%</td>
+                <td>Zen, minimalist</td>
+              </tr>
+              <tr>
+                <td>3-4</td>
+                <td>60-100</td>
+                <td>Gentle (1.5-4x)</td>
+                <td>30-40%</td>
+                <td>Calm exploration</td>
+              </tr>
+              <tr>
+                <td>5-6</td>
+                <td>100-140</td>
+                <td>Moderate (2.5-7x)</td>
+                <td>50-60%</td>
+                <td>Balanced energy</td>
+              </tr>
+              <tr>
+                <td>7-8</td>
+                <td>140-180</td>
+                <td>Fast (3.5-10x)</td>
+                <td>70-80%</td>
+                <td>Dynamic chaos</td>
+              </tr>
+              <tr>
+                <td>9-10</td>
+                <td>180-220</td>
+                <td>Extreme (4.5-13x)</td>
+                <td>90-100%</td>
+                <td>Maximum madness</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="how-it-works-behind-the-scenes">
+            How It Works Behind the Scenes
+          </h3>
+          <pre><code class="language-javascript">// Particle count formula
 particleCount = 20 + chaosLevel * 20;
 
 // Chaos 1: 20 + (1 * 20) = 40 particles
@@ -664,583 +1477,1005 @@ effectChance = baseProbability * (chaosLevel / 5);
 // Chaos 5: 50% * (5/5) = 50% chance
 // Chaos 10: 50% * (10/5) = 100% chance
 </code></pre>
-<h3>Recommended Chaos Levels by Use Case</h3>
-<ul>
-<li><strong>Wallpaper</strong>: 2-4 (subtle, won&#39;t distract)</li>
-<li><strong>Presentation background</strong>: 3-5 (visible but not overwhelming)</li>
-<li><strong>Creative exploration</strong>: 7-9 (discover wild combinations)</li>
-<li><strong>Party mode</strong>: 10 (maximum everything)</li>
-<li><strong>Meditation</strong>: 1-2 (peaceful, slow, minimal)</li>
-</ul>
-<h3>Chaos + Toggles = Super Powers</h3>
-<p>Try these combinations:</p>
-<ul>
-<li><strong>Chaos 10 + Gravity + Walls</strong> = Particle pinball!</li>
-<li><strong>Chaos 1 + Cursor Particle</strong> = Elegant painting tool</li>
-<li><strong>Chaos 8 + Dark Theme</strong> = Cosmic starfield</li>
-<li><strong>Chaos 5 + Light Theme</strong> = Clean, professional</li>
-</ul>
-<hr>
-<h2>Shuffle Strategies</h2>
-<h3>Strategy 1: The Explorer</h3>
-<p><strong>Goal</strong>: Discover something unexpected</p>
-<ol>
-<li>Set Chaos to 7</li>
-<li>Click <strong>Shuffle All</strong> 10 times rapidly</li>
-<li>When something catches your eye, click <strong>Pause</strong></li>
-<li>Fine-tune with category shuffles</li>
-</ol>
-<h3>Strategy 2: The Sculptor</h3>
-<p><strong>Goal</strong>: Refine a specific aesthetic</p>
-<ol>
-<li>Start with <strong>Shuffle All</strong> until you like the movement</li>
-<li>Lock in movement, shuffle <strong>Appearance</strong> only</li>
-<li>Found good colors? Shuffle <strong>Interaction</strong> only</li>
-<li>Polish with <strong>Special FX</strong> shuffle</li>
-</ol>
-<h3>Strategy 3: The Archaeologist</h3>
-<p><strong>Goal</strong>: Recover a past discovery</p>
-<ol>
-<li>Shuffle freely without worry</li>
-<li>Went too far? Click <strong>Back</strong> (↶) repeatedly</li>
-<li>Use <strong>Forward</strong> (↷) to re-explore alternatives</li>
-<li>Infinite history means you&#39;re safe!</li>
-</ol>
-<h3>Strategy 4: The Curator</h3>
-<p><strong>Goal</strong>: Create a collection</p>
-<ol>
-<li>Shuffle until you find a keeper</li>
-<li>Click <strong>Share</strong> to save the URL</li>
-<li>Paste into a note/doc</li>
-<li>Repeat to build a library</li>
-<li>Later, open any URL to restore that exact scene</li>
-</ol>
-<h3>Strategy 5: The Mad Scientist</h3>
-<p><strong>Goal</strong>: Push boundaries</p>
-<ol>
-<li>Max out Chaos at 10</li>
-<li>Enable all toggles (Gravity, Walls, Cursor)</li>
-<li>Shuffle Special FX until something breaks beautifully</li>
-<li>Try the Konami code (↑ ↑ ↓ ↓ ← → ← → B A) for secret party mode!</li>
-</ol>
-<hr>
-<h2>Toggle Powers</h2>
-<h3>Gravity Toggle ⬇️</h3>
-<p><strong>What it does</strong>: Adds downward acceleration to all particles</p>
-<p><strong>Behaviors</strong>:</p>
-<ul>
-<li>Particles fall like rain, snow, or confetti</li>
-<li>Speed increases as they fall</li>
-<li>Combine with Walls for perpetual motion</li>
-<li>Without Walls, particles disappear off-screen</li>
-</ul>
-<p><strong>Creative uses</strong>:</p>
-<ul>
-<li><strong>Rain effect</strong>: Chaos 3, small circles, gravity on</li>
-<li><strong>Falling stars</strong>: Chaos 5, star shapes, gravity on</li>
-<li><strong>Snowfall</strong>: Chaos 2, white circles, slow speed</li>
-</ul>
-<h3>Walls Toggle 🔲</h3>
-<p><strong>What it does</strong>: Makes particles bounce off screen edges</p>
-<p><strong>Technical detail</strong>: Overrides the particle&#39;s <code>outMode</code> setting from &quot;out&quot; to &quot;bounce&quot;</p>
-<p><strong>Behaviors</strong>:</p>
-<ul>
-<li>Particles never disappear</li>
-<li>Creates contained, bubble-like movement</li>
-<li>Essential for long-running displays</li>
-</ul>
-<p><strong>Creative uses</strong>:</p>
-<ul>
-<li><strong>Bouncing balls</strong>: Chaos 6, circles, walls on</li>
-<li><strong>Particle billiards</strong>: Chaos 8, collisions on, walls on</li>
-<li><strong>Perpetual motion</strong>: Any chaos level, walls on</li>
-</ul>
-<h3>Cursor Particle 🖱️</h3>
-<p><strong>What it does</strong>: Turns your mouse into a particle emitter</p>
-<p><strong>Important</strong>: Temporarily disables hover and click interactions</p>
-<p><strong>Behaviors</strong>:</p>
-<ul>
-<li>Moving mouse creates a trail of particles</li>
-<li>Stationary mouse = no new particles</li>
-<li>Created particles follow current config settings</li>
-</ul>
-<p><strong>Creative uses</strong>:</p>
-<ul>
-<li><strong>Drawing tool</strong>: Chaos 2, cursor on, drag to paint</li>
-<li><strong>Signature creator</strong>: Write your name with particles</li>
-<li><strong>Interactive art</strong>: Let audience move mouse around</li>
-</ul>
-<p><strong>Tip</strong>: Try cursor mode with different particle shapes:</p>
-<ul>
-<li>Hearts = love message</li>
-<li>Stars = magical sparkles</li>
-<li>Emojis = fun signatures</li>
-</ul>
-<hr>
-<h2>Keyboard Ninja Mode</h2>
-<p>Once you memorize these shortcuts, you&#39;ll 10x your workflow:</p>
-<h3>Essential Trio</h3>
-<pre><code>Alt + A → Shuffle All
+          <h3 id="recommended-chaos-levels-by-use-case">
+            Recommended Chaos Levels by Use Case
+          </h3>
+          <ul>
+            <li>
+              <strong>Wallpaper</strong>: 2-4 (subtle, won&#39;t distract)
+            </li>
+            <li>
+              <strong>Presentation background</strong>: 3-5 (visible but not
+              overwhelming)
+            </li>
+            <li>
+              <strong>Creative exploration</strong>: 7-9 (discover wild
+              combinations)
+            </li>
+            <li><strong>Party mode</strong>: 10 (maximum everything)</li>
+            <li><strong>Meditation</strong>: 1-2 (peaceful, slow, minimal)</li>
+          </ul>
+          <h3 id="chaos-toggles-super-powers">
+            Chaos + Toggles = Super Powers
+          </h3>
+          <p>Try these combinations:</p>
+          <ul>
+            <li>
+              <strong>Chaos 10 + Gravity + Walls</strong> = Particle pinball!
+            </li>
+            <li>
+              <strong>Chaos 1 + Cursor Particle</strong> = Elegant painting tool
+            </li>
+            <li><strong>Chaos 8 + Dark Theme</strong> = Cosmic starfield</li>
+            <li>
+              <strong>Chaos 5 + Light Theme</strong> = Clean, professional
+            </li>
+          </ul>
+          <hr />
+          <h2 id="shuffle-strategies">Shuffle Strategies</h2>
+          <h3 id="strategy-1-the-explorer">Strategy 1: The Explorer</h3>
+          <p><strong>Goal</strong>: Discover something unexpected</p>
+          <ol>
+            <li>Set Chaos to 7</li>
+            <li>Click <strong>Shuffle All</strong> 10 times rapidly</li>
+            <li>
+              When something catches your eye, click <strong>Pause</strong>
+            </li>
+            <li>Fine-tune with category shuffles</li>
+          </ol>
+          <h3 id="strategy-2-the-sculptor">Strategy 2: The Sculptor</h3>
+          <p><strong>Goal</strong>: Refine a specific aesthetic</p>
+          <ol>
+            <li>
+              Start with <strong>Shuffle All</strong> until you like the
+              movement
+            </li>
+            <li>Lock in movement, shuffle <strong>Appearance</strong> only</li>
+            <li>
+              Found good colors? Shuffle <strong>Interaction</strong> only
+            </li>
+            <li>Polish with <strong>Special FX</strong> shuffle</li>
+          </ol>
+          <h3 id="strategy-3-the-archaeologist">
+            Strategy 3: The Archaeologist
+          </h3>
+          <p><strong>Goal</strong>: Recover a past discovery</p>
+          <ol>
+            <li>Shuffle freely without worry</li>
+            <li>Went too far? Click <strong>Back</strong> (↶) repeatedly</li>
+            <li>Use <strong>Forward</strong> (↷) to re-explore alternatives</li>
+            <li>Infinite history means you&#39;re safe!</li>
+          </ol>
+          <h3 id="strategy-4-the-curator">Strategy 4: The Curator</h3>
+          <p><strong>Goal</strong>: Create a collection</p>
+          <ol>
+            <li>Shuffle until you find a keeper</li>
+            <li>Click <strong>Share</strong> to save the URL</li>
+            <li>Paste into a note/doc</li>
+            <li>Repeat to build a library</li>
+            <li>Later, open any URL to restore that exact scene</li>
+          </ol>
+          <h3 id="strategy-5-the-mad-scientist">
+            Strategy 5: The Mad Scientist
+          </h3>
+          <p><strong>Goal</strong>: Push boundaries</p>
+          <ol>
+            <li>Max out Chaos at 10</li>
+            <li>Enable all toggles (Gravity, Walls, Cursor)</li>
+            <li>Shuffle Special FX until something breaks beautifully</li>
+            <li>
+              Try the Konami code (↑ ↑ ↓ ↓ ← → ← → B A) for secret party mode!
+            </li>
+          </ol>
+          <hr />
+          <h2 id="toggle-powers">Toggle Powers</h2>
+          <h3 id="gravity-toggle-">Gravity Toggle ⬇️</h3>
+          <p>
+            <strong>What it does</strong>: Adds downward acceleration to all
+            particles
+          </p>
+          <p><strong>Behaviors</strong>:</p>
+          <ul>
+            <li>Particles fall like rain, snow, or confetti</li>
+            <li>Speed increases as they fall</li>
+            <li>Combine with Walls for perpetual motion</li>
+            <li>Without Walls, particles disappear off-screen</li>
+          </ul>
+          <p><strong>Creative uses</strong>:</p>
+          <ul>
+            <li>
+              <strong>Rain effect</strong>: Chaos 3, small circles, gravity on
+            </li>
+            <li>
+              <strong>Falling stars</strong>: Chaos 5, star shapes, gravity on
+            </li>
+            <li>
+              <strong>Snowfall</strong>: Chaos 2, white circles, slow speed
+            </li>
+          </ul>
+          <h3 id="walls-toggle-">Walls Toggle 🔲</h3>
+          <p>
+            <strong>What it does</strong>: Makes particles bounce off screen
+            edges
+          </p>
+          <p>
+            <strong>Technical detail</strong>: Overrides the particle&#39;s
+            <code>outMode</code> setting from &quot;out&quot; to
+            &quot;bounce&quot;
+          </p>
+          <p><strong>Behaviors</strong>:</p>
+          <ul>
+            <li>Particles never disappear</li>
+            <li>Creates contained, bubble-like movement</li>
+            <li>Essential for long-running displays</li>
+          </ul>
+          <p><strong>Creative uses</strong>:</p>
+          <ul>
+            <li><strong>Bouncing balls</strong>: Chaos 6, circles, walls on</li>
+            <li>
+              <strong>Particle billiards</strong>: Chaos 8, collisions on, walls
+              on
+            </li>
+            <li>
+              <strong>Perpetual motion</strong>: Any chaos level, walls on
+            </li>
+          </ul>
+          <h3 id="cursor-particle-">Cursor Particle 🖱️</h3>
+          <p>
+            <strong>What it does</strong>: Turns your mouse into a particle
+            emitter
+          </p>
+          <p>
+            <strong>Important</strong>: Temporarily disables hover and click
+            interactions
+          </p>
+          <p><strong>Behaviors</strong>:</p>
+          <ul>
+            <li>Moving mouse creates a trail of particles</li>
+            <li>Stationary mouse = no new particles</li>
+            <li>Created particles follow current config settings</li>
+          </ul>
+          <p><strong>Creative uses</strong>:</p>
+          <ul>
+            <li>
+              <strong>Drawing tool</strong>: Chaos 2, cursor on, drag to paint
+            </li>
+            <li>
+              <strong>Signature creator</strong>: Write your name with particles
+            </li>
+            <li>
+              <strong>Interactive art</strong>: Let audience move mouse around
+            </li>
+          </ul>
+          <p>
+            <strong>Tip</strong>: Try cursor mode with different particle
+            shapes:
+          </p>
+          <ul>
+            <li>Hearts = love message</li>
+            <li>Stars = magical sparkles</li>
+            <li>Emojis = fun signatures</li>
+          </ul>
+          <hr />
+          <h2 id="keyboard-ninja-mode">Keyboard Ninja Mode</h2>
+          <p>
+            Once you memorize these shortcuts, you&#39;ll 10x your workflow:
+          </p>
+          <h3 id="essential-trio">Essential Trio</h3>
+          <pre><code>Alt + A → Shuffle All
 Space   → Pause/Play
 Alt + Z → Undo
 </code></pre>
-<p>These three cover 80% of usage!</p>
-<h3>Category Shuffles</h3>
-<pre><code>Alt + P → Shuffle Appearance (P for &quot;Pretty&quot;)
+          <p>These three cover 80% of usage!</p>
+          <h3 id="category-shuffles">Category Shuffles</h3>
+          <pre><code>Alt + P → Shuffle Appearance (P for &quot;Pretty&quot;)
 Alt + V → Shuffle Movement (V for &quot;Velocity&quot;)
 Alt + I → Shuffle Interaction (I for &quot;Interactive&quot;)
 Alt + F → Shuffle Special FX (F for &quot;FX&quot;)
 </code></pre>
-<h3>Toggles</h3>
-<pre><code>Alt + G → Gravity
+          <h3 id="toggles">Toggles</h3>
+          <pre><code>Alt + G → Gravity
 Alt + W → Walls
 Alt + C → Cursor particle
 Alt + T → Theme (dark/light)
 </code></pre>
-<h3>Navigation</h3>
-<pre><code>Alt + Z → Undo (like Ctrl+Z but for shuffles)
+          <h3 id="navigation">Navigation</h3>
+          <pre><code>Alt + Z → Undo (like Ctrl+Z but for shuffles)
 Alt + Y → Redo (like Ctrl+Y)
 Alt + M → Open/Close Menu
 </code></pre>
-<h3>Utilities</h3>
-<pre><code>Alt + S → Share (create URL)
+          <h3 id="utilities">Utilities</h3>
+          <pre><code>Alt + S → Share (create URL)
 Alt + R → Refresh (restart animation)
 Alt + ? → Show help modal
 Escape  → Close any modal
 </code></pre>
-<h3>Pro Workflows</h3>
-<h4>Rapid Exploration Workflow</h4>
-<pre><code>Alt+A Alt+A Alt+A Alt+A    (Shuffle 4 times)
+          <h3 id="pro-workflows">Pro Workflows</h3>
+          <h4 id="rapid-exploration-workflow">Rapid Exploration Workflow</h4>
+          <pre><code>Alt+A Alt+A Alt+A Alt+A    (Shuffle 4 times)
 Space                       (Pause on something good)
 Alt+Z                       (Go back one)
 Alt+P                       (Tweak appearance)
 Alt+S                       (Share it!)
 </code></pre>
-<h4>Fine-Tuning Workflow</h4>
-<pre><code>Alt+A                       (Start fresh)
+          <h4 id="fine-tuning-workflow">Fine-Tuning Workflow</h4>
+          <pre><code>Alt+A                       (Start fresh)
 Alt+V Alt+V Alt+V           (Shuffle movement until nice)
 Alt+P Alt+P                 (Shuffle appearance twice)
 Alt+F                       (Add some FX)
 Alt+W                       (Enable walls)
 Alt+S                       (Share final result)
 </code></pre>
-<h4>Recovery Workflow</h4>
-<pre><code>Alt+A Alt+A Alt+A           (Shuffle rapidly)
+          <h4 id="recovery-workflow">Recovery Workflow</h4>
+          <pre><code>Alt+A Alt+A Alt+A           (Shuffle rapidly)
 (Oops, went too far!)
 Alt+Z Alt+Z Alt+Z           (Undo 3 times)
 Alt+Y                       (Actually, redo 1)
 Perfect!
 </code></pre>
-<hr>
-<h2>Sharing Your Creations</h2>
-<h3>How Sharing Works</h3>
-<p>When you click <strong>Share</strong>, tsDice:</p>
-<ol>
-<li>Shows &quot;⏳ Creating shareable link...&quot; toast notification</li>
-<li>Captures your entire configuration + UI state</li>
-<li>Compresses it using LZMA algorithm (lz-string)</li>
-<li>Encodes as URL-safe Base64</li>
-<li>Attempts to shorten via emoji API (share.ket.horse)</li>
-<li>Copies to clipboard</li>
-<li>Shows success toast with either:<ul>
-<li>&quot;✓ Short link copied! [emoji-string]&quot; (if shortening succeeded)</li>
-<li>&quot;✓ Link copied to clipboard&quot; (if using full URL)</li>
-<li>&quot;Current page URL copied as fallback&quot; (if an error occurred)</li>
-</ul>
-</li>
-</ol>
-<h3>Understanding Share URLs</h3>
-<h4>Full URL (Unshortened)</h4>
-<pre><code>https://zophiezlan.github.io/tsdice/#config=N4IgdghgtgpiBc...
+          <hr />
+          <h2 id="sharing-your-creations">Sharing Your Creations</h2>
+          <h3 id="how-sharing-works">How Sharing Works</h3>
+          <p>When you click <strong>Share</strong>, tsDice:</p>
+          <ol>
+            <li>
+              Shows &quot;⏳ Creating shareable link...&quot; toast notification
+            </li>
+            <li>Captures your entire configuration + UI state</li>
+            <li>Compresses it using LZMA algorithm (lz-string)</li>
+            <li>Encodes as URL-safe Base64</li>
+            <li>Attempts to shorten via emoji API (share.ket.horse)</li>
+            <li>Copies to clipboard</li>
+            <li>
+              Shows success toast with either:
+              <ul>
+                <li>
+                  &quot;✓ Short link copied! [emoji-string]&quot; (if shortening
+                  succeeded)
+                </li>
+                <li>
+                  &quot;✓ Link copied to clipboard&quot; (if using full URL)
+                </li>
+                <li>
+                  &quot;Current page URL copied as fallback&quot; (if an error
+                  occurred)
+                </li>
+              </ul>
+            </li>
+          </ol>
+          <h3 id="understanding-share-urls">Understanding Share URLs</h3>
+          <h4 id="full-url-unshortened">Full URL (Unshortened)</h4>
+          <pre><code>https://zophiezlan.github.io/tsdice/#config=N4IgdghgtgpiBc...
                                  ↑
                           Compressed config data
 </code></pre>
-<p><strong>Length</strong>: 500-2000 characters (depends on complexity)</p>
-<h4>Short URL (Emoji)</h4>
-<pre><code>https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
+          <p>
+            <strong>Length</strong>: 500-2000 characters (depends on complexity)
+          </p>
+          <h4 id="short-url-emoji">Short URL (Emoji)</h4>
+          <pre><code>https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
                          ↑
                     8 random emojis
 </code></pre>
-<p><strong>Length</strong>: ~40 characters</p>
-<p><strong>Note</strong>: Short URLs redirect to the full URL, so both work identically!</p>
-<h3>Sharing Best Practices</h3>
-<h4>For Social Media</h4>
-<ul>
-<li><strong>Twitter/X</strong>: Short URL fits perfectly</li>
-<li><strong>Discord</strong>: Either format works</li>
-<li><strong>Reddit</strong>: Use markdown: <code>[Check out my particle scene!](URL)</code></li>
-</ul>
-<h4>For Work</h4>
-<ul>
-<li><strong>Slack</strong>: Short URL looks cleaner</li>
-<li><strong>Email</strong>: Full URL is more professional (no emoji confusion)</li>
-<li><strong>Presentation</strong>: Use full URL in slide notes</li>
-</ul>
-<h4>For Personal Use</h4>
-<ul>
-<li><strong>Bookmark</strong>: Full URL in browser bookmarks</li>
-<li><strong>Note-taking apps</strong>: Either format</li>
-<li><strong>Portfolio</strong>: Embed full URL in HTML</li>
-</ul>
-<h3>What Gets Saved in URLs?</h3>
-<p>✅ <strong>Included</strong>:</p>
-<ul>
-<li>Particle appearance (colors, shapes, sizes)</li>
-<li>Movement settings (speed, direction, trails)</li>
-<li>Interaction modes (hover, click effects)</li>
-<li>Special FX (links, rotation, wobble)</li>
-<li>Chaos level</li>
-<li>Theme (dark/light)</li>
-<li>Toggle states (gravity, walls, cursor)</li>
-</ul>
-<p>❌ <strong>Not Included</strong>:</p>
-<ul>
-<li>Animation playhead position</li>
-<li>Undo/redo history</li>
-<li>Modal open/closed state</li>
-</ul>
-<h3>Sharing Etiquette</h3>
-<ul>
-<li><strong>Credit tsParticles</strong>: &quot;Made with tsDice (tsParticles)&quot;</li>
-<li><strong>Describe your creation</strong>: &quot;Cosmic starfield at chaos 8&quot;</li>
-<li><strong>Share your recipe</strong>: &quot;Chaos 5 + gravity + walls + star shapes&quot;</li>
-</ul>
-<hr>
-<h2>Creative Recipes</h2>
-<h3>Recipe 1: Zen Garden</h3>
-<pre><code>1. Set Chaos to 2
+          <p><strong>Length</strong>: ~40 characters</p>
+          <p>
+            <strong>Note</strong>: Short URLs redirect to the full URL, so both
+            work identically!
+          </p>
+          <h3 id="sharing-best-practices">Sharing Best Practices</h3>
+          <h4 id="for-social-media">For Social Media</h4>
+          <ul>
+            <li><strong>Twitter/X</strong>: Short URL fits perfectly</li>
+            <li><strong>Discord</strong>: Either format works</li>
+            <li>
+              <strong>Reddit</strong>: Use markdown:
+              <code>[Check out my particle scene!](URL)</code>
+            </li>
+          </ul>
+          <h4 id="for-work">For Work</h4>
+          <ul>
+            <li><strong>Slack</strong>: Short URL looks cleaner</li>
+            <li>
+              <strong>Email</strong>: Full URL is more professional (no emoji
+              confusion)
+            </li>
+            <li><strong>Presentation</strong>: Use full URL in slide notes</li>
+          </ul>
+          <h4 id="for-personal-use">For Personal Use</h4>
+          <ul>
+            <li><strong>Bookmark</strong>: Full URL in browser bookmarks</li>
+            <li><strong>Note-taking apps</strong>: Either format</li>
+            <li><strong>Portfolio</strong>: Embed full URL in HTML</li>
+          </ul>
+          <h3 id="what-gets-saved-in-urls">What Gets Saved in URLs?</h3>
+          <p>✅ <strong>Included</strong>:</p>
+          <ul>
+            <li>Particle appearance (colors, shapes, sizes)</li>
+            <li>Movement settings (speed, direction, trails)</li>
+            <li>Interaction modes (hover, click effects)</li>
+            <li>Special FX (links, rotation, wobble)</li>
+            <li>Chaos level</li>
+            <li>Theme (dark/light)</li>
+            <li>Toggle states (gravity, walls, cursor)</li>
+          </ul>
+          <p>❌ <strong>Not Included</strong>:</p>
+          <ul>
+            <li>Animation playhead position</li>
+            <li>Undo/redo history</li>
+            <li>Modal open/closed state</li>
+          </ul>
+          <h3 id="sharing-etiquette">Sharing Etiquette</h3>
+          <ul>
+            <li>
+              <strong>Credit tsParticles</strong>: &quot;Made with tsDice
+              (tsParticles)&quot;
+            </li>
+            <li>
+              <strong>Describe your creation</strong>: &quot;Cosmic starfield at
+              chaos 8&quot;
+            </li>
+            <li>
+              <strong>Share your recipe</strong>: &quot;Chaos 5 + gravity +
+              walls + star shapes&quot;
+            </li>
+          </ul>
+          <hr />
+          <h2 id="creative-recipes">Creative Recipes</h2>
+          <h3 id="recipe-1-zen-garden">Recipe 1: Zen Garden</h3>
+          <pre><code>1. Set Chaos to 2
 2. Shuffle All until you get circles
 3. Enable Light Theme
 4. Shuffle Appearance until pastel colors
 5. Disable all Special FX (shuffle until links=false)
 6. Set speed to slow (shuffle Movement)
 </code></pre>
-<p><strong>Use case</strong>: Meditation background, calm presentations</p>
-<h3>Recipe 2: Matrix Rain</h3>
-<pre><code>1. Set Chaos to 6
+          <p>
+            <strong>Use case</strong>: Meditation background, calm presentations
+          </p>
+          <h3 id="recipe-2-matrix-rain">Recipe 2: Matrix Rain</h3>
+          <pre><code>1. Set Chaos to 6
 2. Dark Theme
 3. Shuffle until green particles
 4. Shuffle Movement until &quot;down&quot; direction
 5. Disable Walls for perpetual rain
 6. Shuffle until you get line shapes (or characters)
 </code></pre>
-<p><strong>Use case</strong>: Coding streams, hacker aesthetic</p>
-<h3>Recipe 3: Confetti Celebration</h3>
-<pre><code>1. Set Chaos to 10
+          <p><strong>Use case</strong>: Coding streams, hacker aesthetic</p>
+          <h3 id="recipe-3-confetti-celebration">
+            Recipe 3: Confetti Celebration
+          </h3>
+          <pre><code>1. Set Chaos to 10
 2. Shuffle All
 3. Enable Gravity
 4. Enable Walls
 5. Shuffle until multi-color and diverse shapes
 6. Click Refresh repeatedly to restart the fall
 </code></pre>
-<p><strong>Use case</strong>: Party backgrounds, celebration announcements</p>
-<h3>Recipe 4: Constellation Map</h3>
-<pre><code>1. Set Chaos to 4
+          <p>
+            <strong>Use case</strong>: Party backgrounds, celebration
+            announcements
+          </p>
+          <h3 id="recipe-4-constellation-map">Recipe 4: Constellation Map</h3>
+          <pre><code>1. Set Chaos to 4
 2. Dark Theme
 3. Shuffle until star shapes
 4. Shuffle Special FX until links enabled
 5. Disable gravity and walls
 6. Slow movement speed
 </code></pre>
-<p><strong>Use case</strong>: Night sky simulation, astronomy content</p>
-<h3>Recipe 5: Paint Splatter</h3>
-<pre><code>1. Set Chaos to 7
+          <p>
+            <strong>Use case</strong>: Night sky simulation, astronomy content
+          </p>
+          <h3 id="recipe-5-paint-splatter">Recipe 5: Paint Splatter</h3>
+          <pre><code>1. Set Chaos to 7
 2. Enable Cursor Particle
 3. Shuffle until large, colorful circles
 4. Enable Gravity
 5. Move mouse wildly across screen
 6. Disable Cursor after painting
 </code></pre>
-<p><strong>Use case</strong>: Abstract art, interactive installations</p>
-<h3>Recipe 6: Plasma Field</h3>
-<pre><code>1. Set Chaos to 8
+          <p>
+            <strong>Use case</strong>: Abstract art, interactive installations
+          </p>
+          <h3 id="recipe-6-plasma-field">Recipe 6: Plasma Field</h3>
+          <pre><code>1. Set Chaos to 8
 2. Shuffle until small particles
 3. Enable wobble effect (shuffle FX)
 4. Enable links (shuffle FX until appears)
 5. Enable rotation (shuffle FX)
 6. Disable straight movement
 </code></pre>
-<p><strong>Use case</strong>: Sci-fi backgrounds, energy fields</p>
-<h3>Recipe 7: Snowglobe</h3>
-<pre><code>1. Set Chaos to 3
+          <p><strong>Use case</strong>: Sci-fi backgrounds, energy fields</p>
+          <h3 id="recipe-7-snowglobe">Recipe 7: Snowglobe</h3>
+          <pre><code>1. Set Chaos to 3
 2. Light Theme
 3. Shuffle until white circles
 4. Enable Gravity
 5. Enable Walls
 6. Shuffle Movement until very slow
 </code></pre>
-<p><strong>Use case</strong>: Winter themes, holiday cards</p>
-<hr>
-<h2>Troubleshooting</h2>
-<h3>Problem: Particles disappeared</h3>
-<p><strong>Causes</strong>:</p>
-<ul>
-<li>They left the screen (outMode = &quot;out&quot;)</li>
-<li>Life/destroy effect enabled</li>
-<li>Chaos too low + small particle count</li>
-</ul>
-<p><strong>Solutions</strong>:</p>
-<ol>
-<li>Enable <strong>Walls</strong> toggle</li>
-<li>Click <strong>Refresh</strong> to restart</li>
-<li>Shuffle Special FX to disable life/destroy</li>
-<li>Increase Chaos level</li>
-</ol>
-<h3>Problem: Too laggy/slow performance</h3>
-<p><strong>Causes</strong>:</p>
-<ul>
-<li>Chaos level too high</li>
-<li>Too many complex effects</li>
-<li>Older device</li>
-</ul>
-<p><strong>Solutions</strong>:</p>
-<ol>
-<li>Lower Chaos to 3-5</li>
-<li>Disable Special FX (links especially)</li>
-<li>Shuffle FX until collisions disabled</li>
-<li>Enable Light Theme (sometimes helps)</li>
-<li>Close other browser tabs</li>
-</ol>
-<h3>Problem: Share link doesn&#39;t work</h3>
-<p><strong>Causes</strong>:</p>
-<ul>
-<li>URL got truncated (copied partially)</li>
-<li>Emoji URL expired (rare)</li>
-<li>Browser cache issue</li>
-</ul>
-<p><strong>Solutions</strong>:</p>
-<ol>
-<li>Copy URL again (might have been cut off)</li>
-<li>Try opening in incognito/private mode</li>
-<li>Use full URL instead of short URL</li>
-<li>Clear browser cache</li>
-</ol>
-<h3>Problem: Can&#39;t undo anymore</h3>
-<p><strong>Cause</strong>: This shouldn&#39;t happen anymore - history is now infinite!</p>
-<p><strong>Solution</strong>: If you do encounter this issue, it may be a browser memory limitation:</p>
-<ul>
-<li>Try refreshing the page</li>
-<li>Share important configs regularly as a backup</li>
-</ul>
-<h3>Problem: Modal won&#39;t close</h3>
-<p><strong>Solutions</strong>:</p>
-<ol>
-<li>Press <strong>Escape</strong> key</li>
-<li>Click outside the modal (on dark overlay)</li>
-<li>Click the close button again</li>
-<li>Refresh the page</li>
-</ol>
-<h3>Problem: Keyboard shortcuts not working</h3>
-<p><strong>Causes</strong>:</p>
-<ul>
-<li>Typing in search bar / input field</li>
-<li>Modal is open (some shortcuts disabled)</li>
-<li>Browser extension conflict</li>
-</ul>
-<p><strong>Solutions</strong>:</p>
-<ol>
-<li>Click on page background first</li>
-<li>Close any open modals</li>
-<li>Try in incognito mode</li>
-<li>Check browser console for errors</li>
-</ol>
-<hr>
-<h2>Pro Tips &amp; Tricks</h2>
-<h3>Discovery Tips</h3>
-<ol>
-<li><p><strong>The Rule of 3</strong>: Shuffle 3 times before judging. First shuffle might not impress, but the third often surprises.</p>
-</li>
-<li><p><strong>Chaos Hopping</strong>: Jump between chaos 2 → 8 → 2. Extremes reveal possibilities the middle misses.</p>
-</li>
-<li><p><strong>Theme Flip Test</strong>: Found something good? Toggle theme. Sometimes it&#39;s even better in the opposite mode!</p>
-</li>
-<li><p><strong>Category Isolation</strong>: Love the movement but hate the colors? Shuffle Appearance ONLY. Don&#39;t start over.</p>
-</li>
-<li><p><strong>The Pause Reveal</strong>: Shuffle rapidly with eyes closed, pause randomly, open eyes. Your brain will find patterns!</p>
-</li>
-</ol>
-<h3>Workflow Tips</h3>
-<ol>
-<li><p><strong>Start High, End Low</strong>: Begin at Chaos 8 for wild ideas, then lower to 4 to refine.</p>
-</li>
-<li><p><strong>Bookmark Your Go-Tos</strong>: Create a &quot;tsDice Library&quot; bookmark folder with 10-20 favorite configs.</p>
-</li>
-<li><p><strong>Name Your Shares</strong>: When pasting URLs in notes, add descriptions: <code>🌌 Cosmic scene - chaos 7</code></p>
-</li>
-<li><p><strong>Use Refresh, Not Shuffle</strong>: Found the perfect config but want to restart the animation? Refresh, don&#39;t shuffle!</p>
-</li>
-<li><p><strong>Undo Is Your Friend</strong>: Never fear experimentation. You can undo as far back as you want!</p>
-</li>
-</ol>
-<h3>Performance Tips</h3>
-<ol>
-<li><p><strong>Mobile Optimization</strong>: On phones, keep chaos ≤ 6 for smooth 60fps</p>
-</li>
-<li><p><strong>Battery Saver</strong>: Pause the animation when not actively watching (Space bar)</p>
-</li>
-<li><p><strong>Fullscreen Focus</strong>: Press F11 (or fullscreen button) for distraction-free creative mode</p>
-</li>
-<li><p><strong>Theme for Speed</strong>: Light theme sometimes renders faster than dark (depends on colors)</p>
-</li>
-</ol>
-<h3>Presentation Tips</h3>
-<ol>
-<li><p><strong>Pre-Shuffle Before Demo</strong>: Have 3-4 scenes ready via shared URLs before your presentation</p>
-</li>
-<li><p><strong>Audience Interaction</strong>: Enable Cursor Particle and let audience members &quot;paint&quot; with their mouse</p>
-</li>
-<li><p><strong>Live Customization</strong>: Ask audience &quot;calm or chaos?&quot; then adjust slider in real-time</p>
-</li>
-<li><p><strong>Background Loop</strong>: Set Chaos 3, enable Walls, let it run infinitely during talks</p>
-</li>
-</ol>
-<h3>Creative Tips</h3>
-<ol>
-<li><p><strong>Match Your Brand</strong>: Shuffle until colors match your logo, then save that URL permanently</p>
-</li>
-<li><p><strong>Seasonal Themes</strong>:</p>
-<ul>
-<li>Spring: Green/pink, chaos 4, gravity off</li>
-<li>Summer: Bright colors, chaos 7</li>
-<li>Fall: Orange/brown, gravity on</li>
-<li>Winter: White, chaos 2, gravity on</li>
-</ul>
-</li>
-<li><p><strong>Emotion Mapping</strong>:</p>
-<ul>
-<li>Joy: High chaos, warm colors</li>
-<li>Calm: Low chaos, cool colors</li>
-<li>Mystery: Dark theme, wobble FX</li>
-<li>Energy: Max chaos, collision FX</li>
-</ul>
-</li>
-<li><p><strong>Desktop Wallpaper</strong>: Use the <a href="https://github.com/zophiezlan/tsdice/tree/desktop">desktop branch</a> + Lively Wallpaper for animated backgrounds</p>
-</li>
-</ol>
-<hr>
-<h2>Advanced Techniques</h2>
-<h3>The Differential Shuffle</h3>
-<p>Create subtle variations of a good config:</p>
-<ol>
-<li>Find a config you love (let&#39;s say Config A)</li>
-<li>Click <strong>Share</strong> and save URL as &quot;Original&quot;</li>
-<li>Shuffle <strong>only Appearance</strong> → Save as &quot;Color Variant 1&quot;</li>
-<li>Undo back to Config A</li>
-<li>Shuffle <strong>only Movement</strong> → Save as &quot;Motion Variant 1&quot;</li>
-<li>Undo back to Config A</li>
-<li>Shuffle <strong>only FX</strong> → Save as &quot;FX Variant 1&quot;</li>
-</ol>
-<p>Now you have 4 related scenes!</p>
-<h3>The Chaos Sweep</h3>
-<p>Find the sweet spot for any config:</p>
-<ol>
-<li>Shuffle All at Chaos 5</li>
-<li>Test at Chaos 1 → Too calm?</li>
-<li>Test at Chaos 10 → Too chaotic?</li>
-<li>Binary search: Try 5 → 7 → 6 → Find perfect level</li>
-</ol>
-<h3>The Toggle Dance</h3>
-<p>Create dynamic scenes by rapidly toggling:</p>
-<ol>
-<li>Set up a good base config</li>
-<li>Enable Gravity → Watch particles fall</li>
-<li>Disable Gravity → Watch particles float</li>
-<li>Enable Walls → Particles contained</li>
-<li>Disable Walls → Particles free</li>
-</ol>
-<p>Cycle these every 10 seconds for an evolving scene!</p>
-<h3>The Emoji Signature</h3>
-<p>Create a personal particle style:</p>
-<ol>
-<li>Find your favorite emoji shape (character type)</li>
-<li>Always use the same chaos level (your &quot;signature chaos&quot;)</li>
-<li>Pick a color palette you love</li>
-<li>Save multiple URLs with this style</li>
-</ol>
-<p>People will recognize your &quot;particle aesthetic&quot;!</p>
-<hr>
-<h2>Accessibility Features</h2>
-<p>tsDice is built with <strong>accessibility first</strong>:</p>
-<h3>For Screen Reader Users</h3>
-<ul>
-<li>All buttons have ARIA labels</li>
-<li>Live regions announce state changes</li>
-<li>Keyboard shortcuts announced in tooltips</li>
-<li>Modal focus management</li>
-</ul>
-<h3>For Keyboard Users</h3>
-<ul>
-<li>Full keyboard navigation (Tab, Enter, Arrow keys)</li>
-<li>No mouse required!</li>
-<li>Visible focus indicators</li>
-<li>Modal focus trapping</li>
-</ul>
-<h3>For Motion-Sensitive Users</h3>
-<ul>
-<li>Automatic pause for <code>prefers-reduced-motion</code></li>
-<li>Manual pause available (Space bar)</li>
-<li>Reduced animation mode supported</li>
-</ul>
-<h3>For Low Vision Users</h3>
-<ul>
-<li>High contrast mode support</li>
-<li>Scalable UI (respects browser zoom)</li>
-<li>Large touch targets (44x44px minimum)</li>
-</ul>
-<hr>
-<h2>FAQ</h2>
-<p><strong>Q: Can I use tsDice creations commercially?</strong><br>A: Yes! MIT license. Credit appreciated but not required.</p>
-<p><strong>Q: How long do share URLs last?</strong><br>A: Forever! Full URLs work as long as tsDice exists. Short URLs last 1+ year.</p>
-<p><strong>Q: Can I download the particle animations?</strong><br>A: Not directly, but you can use OBS or screen recording software.</p>
-<p><strong>Q: Does tsDice work offline?</strong><br>A: Not currently (requires CDN for tsParticles), but could be modified.</p>
-<p><strong>Q: Can I add my own particle shapes?</strong><br>A: Not in the UI, but you can fork the code and extend <code>configGenerator.js</code>.</p>
-<p><strong>Q: Why is my chaos 10 config slow?</strong><br>A: 220+ particles is demanding. Try chaos 7-8 or disable complex effects.</p>
-<p><strong>Q: Can I embed tsDice in my website?</strong><br>A: Yes! Use an iframe pointing to a share URL.</p>
-<p><strong>Q: What&#39;s the desktop wallpaper version?</strong><br>A: Check the <a href="https://github.com/zophiezlan/tsdice/tree/desktop">desktop branch</a> for Lively Wallpaper integration.</p>
-<hr>
-<h2>Community Showcase</h2>
-<p>Share your creations!</p>
-<ul>
-<li><strong>GitHub Discussions</strong>: Post your favorite configs</li>
-<li><strong>Twitter/X</strong>: Use #tsDice hashtag</li>
-<li><strong>Reddit</strong>: Share in r/generative or r/creativecoding</li>
-</ul>
-<hr>
-<p><strong>Ready to create magic? <a href="https://zophiezlan.github.io/tsdice/">Launch tsDice →</a></strong></p>
-<p><em>Happy shuffling!</em> 🎲✨🎨</p>
+          <p><strong>Use case</strong>: Winter themes, holiday cards</p>
+          <hr />
+          <h2 id="troubleshooting">Troubleshooting</h2>
+          <h3 id="problem-particles-disappeared">
+            Problem: Particles disappeared
+          </h3>
+          <p><strong>Causes</strong>:</p>
+          <ul>
+            <li>They left the screen (outMode = &quot;out&quot;)</li>
+            <li>Life/destroy effect enabled</li>
+            <li>Chaos too low + small particle count</li>
+          </ul>
+          <p><strong>Solutions</strong>:</p>
+          <ol>
+            <li>Enable <strong>Walls</strong> toggle</li>
+            <li>Click <strong>Refresh</strong> to restart</li>
+            <li>Shuffle Special FX to disable life/destroy</li>
+            <li>Increase Chaos level</li>
+          </ol>
+          <h3 id="problem-too-laggyslow-performance">
+            Problem: Too laggy/slow performance
+          </h3>
+          <p><strong>Causes</strong>:</p>
+          <ul>
+            <li>Chaos level too high</li>
+            <li>Too many complex effects</li>
+            <li>Older device</li>
+          </ul>
+          <p><strong>Solutions</strong>:</p>
+          <ol>
+            <li>Lower Chaos to 3-5</li>
+            <li>Disable Special FX (links especially)</li>
+            <li>Shuffle FX until collisions disabled</li>
+            <li>Enable Light Theme (sometimes helps)</li>
+            <li>Close other browser tabs</li>
+          </ol>
+          <h3 id="problem-share-link-doesnt-work">
+            Problem: Share link doesn't work
+          </h3>
+          <p><strong>Causes</strong>:</p>
+          <ul>
+            <li>URL got truncated (copied partially)</li>
+            <li>Emoji URL expired (rare)</li>
+            <li>Browser cache issue</li>
+          </ul>
+          <p><strong>Solutions</strong>:</p>
+          <ol>
+            <li>Copy URL again (might have been cut off)</li>
+            <li>Try opening in incognito/private mode</li>
+            <li>Use full URL instead of short URL</li>
+            <li>Clear browser cache</li>
+          </ol>
+          <h3 id="problem-cant-undo-anymore">Problem: Can't undo anymore</h3>
+          <p>
+            <strong>Cause</strong>: This shouldn&#39;t happen anymore - history
+            is now infinite!
+          </p>
+          <p>
+            <strong>Solution</strong>: If you do encounter this issue, it may be
+            a browser memory limitation:
+          </p>
+          <ul>
+            <li>Try refreshing the page</li>
+            <li>Share important configs regularly as a backup</li>
+          </ul>
+          <h3 id="problem-modal-wont-close">Problem: Modal won't close</h3>
+          <p><strong>Solutions</strong>:</p>
+          <ol>
+            <li>Press <strong>Escape</strong> key</li>
+            <li>Click outside the modal (on dark overlay)</li>
+            <li>Click the close button again</li>
+            <li>Refresh the page</li>
+          </ol>
+          <h3 id="problem-keyboard-shortcuts-not-working">
+            Problem: Keyboard shortcuts not working
+          </h3>
+          <p><strong>Causes</strong>:</p>
+          <ul>
+            <li>Typing in search bar / input field</li>
+            <li>Modal is open (some shortcuts disabled)</li>
+            <li>Browser extension conflict</li>
+          </ul>
+          <p><strong>Solutions</strong>:</p>
+          <ol>
+            <li>Click on page background first</li>
+            <li>Close any open modals</li>
+            <li>Try in incognito mode</li>
+            <li>Check browser console for errors</li>
+          </ol>
+          <hr />
+          <h2 id="pro-tips-tricks">Pro Tips & Tricks</h2>
+          <h3 id="discovery-tips">Discovery Tips</h3>
+          <ol>
+            <li>
+              <p>
+                <strong>The Rule of 3</strong>: Shuffle 3 times before judging.
+                First shuffle might not impress, but the third often surprises.
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Chaos Hopping</strong>: Jump between chaos 2 → 8 → 2.
+                Extremes reveal possibilities the middle misses.
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Theme Flip Test</strong>: Found something good? Toggle
+                theme. Sometimes it&#39;s even better in the opposite mode!
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Category Isolation</strong>: Love the movement but hate
+                the colors? Shuffle Appearance ONLY. Don&#39;t start over.
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>The Pause Reveal</strong>: Shuffle rapidly with eyes
+                closed, pause randomly, open eyes. Your brain will find
+                patterns!
+              </p>
+            </li>
+          </ol>
+          <h3 id="workflow-tips">Workflow Tips</h3>
+          <ol>
+            <li>
+              <p>
+                <strong>Start High, End Low</strong>: Begin at Chaos 8 for wild
+                ideas, then lower to 4 to refine.
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Bookmark Your Go-Tos</strong>: Create a &quot;tsDice
+                Library&quot; bookmark folder with 10-20 favorite configs.
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Name Your Shares</strong>: When pasting URLs in notes,
+                add descriptions: <code>🌌 Cosmic scene - chaos 7</code>
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Use Refresh, Not Shuffle</strong>: Found the perfect
+                config but want to restart the animation? Refresh, don&#39;t
+                shuffle!
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Undo Is Your Friend</strong>: Never fear
+                experimentation. You can undo as far back as you want!
+              </p>
+            </li>
+          </ol>
+          <h3 id="performance-tips">Performance Tips</h3>
+          <ol>
+            <li>
+              <p>
+                <strong>Mobile Optimization</strong>: On phones, keep chaos ≤ 6
+                for smooth 60fps
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Battery Saver</strong>: Pause the animation when not
+                actively watching (Space bar)
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Fullscreen Focus</strong>: Press F11 (or fullscreen
+                button) for distraction-free creative mode
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Theme for Speed</strong>: Light theme sometimes renders
+                faster than dark (depends on colors)
+              </p>
+            </li>
+          </ol>
+          <h3 id="presentation-tips">Presentation Tips</h3>
+          <ol>
+            <li>
+              <p>
+                <strong>Pre-Shuffle Before Demo</strong>: Have 3-4 scenes ready
+                via shared URLs before your presentation
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Audience Interaction</strong>: Enable Cursor Particle
+                and let audience members &quot;paint&quot; with their mouse
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Live Customization</strong>: Ask audience &quot;calm or
+                chaos?&quot; then adjust slider in real-time
+              </p>
+            </li>
+            <li>
+              <p>
+                <strong>Background Loop</strong>: Set Chaos 3, enable Walls, let
+                it run infinitely during talks
+              </p>
+            </li>
+          </ol>
+          <h3 id="creative-tips">Creative Tips</h3>
+          <ol>
+            <li>
+              <p>
+                <strong>Match Your Brand</strong>: Shuffle until colors match
+                your logo, then save that URL permanently
+              </p>
+            </li>
+            <li>
+              <p><strong>Seasonal Themes</strong>:</p>
+              <ul>
+                <li>Spring: Green/pink, chaos 4, gravity off</li>
+                <li>Summer: Bright colors, chaos 7</li>
+                <li>Fall: Orange/brown, gravity on</li>
+                <li>Winter: White, chaos 2, gravity on</li>
+              </ul>
+            </li>
+            <li>
+              <p><strong>Emotion Mapping</strong>:</p>
+              <ul>
+                <li>Joy: High chaos, warm colors</li>
+                <li>Calm: Low chaos, cool colors</li>
+                <li>Mystery: Dark theme, wobble FX</li>
+                <li>Energy: Max chaos, collision FX</li>
+              </ul>
+            </li>
+            <li>
+              <p>
+                <strong>Desktop Wallpaper</strong>: Use the
+                <a href="https://github.com/zophiezlan/tsdice/tree/desktop"
+                  >desktop branch</a
+                >
+                + Lively Wallpaper for animated backgrounds
+              </p>
+            </li>
+          </ol>
+          <hr />
+          <h2 id="advanced-techniques">Advanced Techniques</h2>
+          <h3 id="the-differential-shuffle">The Differential Shuffle</h3>
+          <p>Create subtle variations of a good config:</p>
+          <ol>
+            <li>Find a config you love (let&#39;s say Config A)</li>
+            <li>
+              Click <strong>Share</strong> and save URL as &quot;Original&quot;
+            </li>
+            <li>
+              Shuffle <strong>only Appearance</strong> → Save as &quot;Color
+              Variant 1&quot;
+            </li>
+            <li>Undo back to Config A</li>
+            <li>
+              Shuffle <strong>only Movement</strong> → Save as &quot;Motion
+              Variant 1&quot;
+            </li>
+            <li>Undo back to Config A</li>
+            <li>
+              Shuffle <strong>only FX</strong> → Save as &quot;FX Variant
+              1&quot;
+            </li>
+          </ol>
+          <p>Now you have 4 related scenes!</p>
+          <h3 id="the-chaos-sweep">The Chaos Sweep</h3>
+          <p>Find the sweet spot for any config:</p>
+          <ol>
+            <li>Shuffle All at Chaos 5</li>
+            <li>Test at Chaos 1 → Too calm?</li>
+            <li>Test at Chaos 10 → Too chaotic?</li>
+            <li>Binary search: Try 5 → 7 → 6 → Find perfect level</li>
+          </ol>
+          <h3 id="the-toggle-dance">The Toggle Dance</h3>
+          <p>Create dynamic scenes by rapidly toggling:</p>
+          <ol>
+            <li>Set up a good base config</li>
+            <li>Enable Gravity → Watch particles fall</li>
+            <li>Disable Gravity → Watch particles float</li>
+            <li>Enable Walls → Particles contained</li>
+            <li>Disable Walls → Particles free</li>
+          </ol>
+          <p>Cycle these every 10 seconds for an evolving scene!</p>
+          <h3 id="the-emoji-signature">The Emoji Signature</h3>
+          <p>Create a personal particle style:</p>
+          <ol>
+            <li>Find your favorite emoji shape (character type)</li>
+            <li>
+              Always use the same chaos level (your &quot;signature chaos&quot;)
+            </li>
+            <li>Pick a color palette you love</li>
+            <li>Save multiple URLs with this style</li>
+          </ol>
+          <p>People will recognize your &quot;particle aesthetic&quot;!</p>
+          <hr />
+          <h2 id="accessibility-features">Accessibility Features</h2>
+          <p>tsDice is built with <strong>accessibility first</strong>:</p>
+          <h3 id="for-screen-reader-users">For Screen Reader Users</h3>
+          <ul>
+            <li>All buttons have ARIA labels</li>
+            <li>Live regions announce state changes</li>
+            <li>Keyboard shortcuts announced in tooltips</li>
+            <li>Modal focus management</li>
+          </ul>
+          <h3 id="for-keyboard-users">For Keyboard Users</h3>
+          <ul>
+            <li>Full keyboard navigation (Tab, Enter, Arrow keys)</li>
+            <li>No mouse required!</li>
+            <li>Visible focus indicators</li>
+            <li>Modal focus trapping</li>
+          </ul>
+          <h3 id="for-motion-sensitive-users">For Motion-Sensitive Users</h3>
+          <ul>
+            <li>Automatic pause for <code>prefers-reduced-motion</code></li>
+            <li>Manual pause available (Space bar)</li>
+            <li>Reduced animation mode supported</li>
+          </ul>
+          <h3 id="for-low-vision-users">For Low Vision Users</h3>
+          <ul>
+            <li>High contrast mode support</li>
+            <li>Scalable UI (respects browser zoom)</li>
+            <li>Large touch targets (44x44px minimum)</li>
+          </ul>
+          <hr />
+          <h2 id="faq">FAQ</h2>
+          <p>
+            <strong>Q: Can I use tsDice creations commercially?</strong><br />A:
+            Yes! MIT license. Credit appreciated but not required.
+          </p>
+          <p>
+            <strong>Q: How long do share URLs last?</strong><br />A: Forever!
+            Full URLs work as long as tsDice exists. Short URLs last 1+ year.
+          </p>
+          <p>
+            <strong>Q: Can I download the particle animations?</strong><br />A:
+            Not directly, but you can use OBS or screen recording software.
+          </p>
+          <p>
+            <strong>Q: Does tsDice work offline?</strong><br />A: Not currently
+            (requires CDN for tsParticles), but could be modified.
+          </p>
+          <p>
+            <strong>Q: Can I add my own particle shapes?</strong><br />A: Not in
+            the UI, but you can fork the code and extend
+            <code>configGenerator.js</code>.
+          </p>
+          <p>
+            <strong>Q: Why is my chaos 10 config slow?</strong><br />A: 220+
+            particles is demanding. Try chaos 7-8 or disable complex effects.
+          </p>
+          <p>
+            <strong>Q: Can I embed tsDice in my website?</strong><br />A: Yes!
+            Use an iframe pointing to a share URL.
+          </p>
+          <p>
+            <strong>Q: What&#39;s the desktop wallpaper version?</strong
+            ><br />A: Check the
+            <a href="https://github.com/zophiezlan/tsdice/tree/desktop"
+              >desktop branch</a
+            >
+            for Lively Wallpaper integration.
+          </p>
+          <hr />
+          <h2 id="community-showcase">Community Showcase</h2>
+          <p>Share your creations!</p>
+          <ul>
+            <li>
+              <strong>GitHub Discussions</strong>: Post your favorite configs
+            </li>
+            <li><strong>Twitter/X</strong>: Use #tsDice hashtag</li>
+            <li>
+              <strong>Reddit</strong>: Share in r/generative or r/creativecoding
+            </li>
+          </ul>
+          <hr />
+          <p>
+            <strong
+              >Ready to create magic?
+              <a href="https://zophiezlan.github.io/tsdice/"
+                >Launch tsDice →</a
+              ></strong
+            >
+          </p>
+          <p><em>Happy shuffling!</em> 🎲✨🎨</p>
+        </article>
+      </main>
+    </div>
 
-    </article>
-  </main>
+    <button
+      class="scroll-to-top"
+      id="scroll-to-top"
+      onclick="scrollToTop()"
+      aria-label="Scroll to top"
+    >
+      ↑
+    </button>
 
-  <footer>
-    <p>Generated from markdown • <a href="https://github.com/zophiezlan/tsdice" target="_blank" rel="noopener">View on GitHub</a></p>
-  </footer>
+    <footer>
+      <p>
+        Generated from markdown •
+        <a
+          href="https://github.com/zophiezlan/tsdice"
+          target="_blank"
+          rel="noopener"
+          >GitHub</a
+        >
+        •
+        <a href="../index.html">Back to App</a>
+      </p>
+    </footer>
 
-  <script>
-    // Theme toggle functionality
-    function toggleTheme() {
-      document.body.classList.toggle('light-mode');
-      localStorage.setItem('tsDiceDocsTheme',
-        document.body.classList.contains('light-mode') ? 'light' : 'dark'
-      );
-    }
-
-    // Load saved theme preference
-    const savedTheme = localStorage.getItem('tsDiceDocsTheme');
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-mode');
-    }
-
-    // Sync with main app's theme if available
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'tsDiceTheme') {
-        if (e.newValue === 'light') {
-          document.body.classList.add('light-mode');
-        } else {
-          document.body.classList.remove('light-mode');
-        }
+    <script>
+      // Theme toggle functionality
+      function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const theme = document.body.classList.contains('light-mode')
+          ? 'light'
+          : 'dark';
+        localStorage.setItem('tsDiceDocsTheme', theme);
       }
-    });
-  </script>
-</body>
+
+      // Load saved theme preference
+      const savedTheme = localStorage.getItem('tsDiceDocsTheme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+      }
+
+      // Sync with main app's theme if available
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'tsDiceTheme') {
+          if (e.newValue === 'light') {
+            document.body.classList.add('light-mode');
+          } else {
+            document.body.classList.remove('light-mode');
+          }
+        }
+      });
+
+      // Mobile menu toggle
+      function toggleMobileMenu() {
+        const nav = document.getElementById('main-nav');
+        const btn = document.querySelector('.mobile-menu-toggle');
+        const isOpen = nav.classList.toggle('mobile-open');
+        btn.setAttribute('aria-expanded', isOpen);
+      }
+
+      // Close mobile menu when clicking outside or on a link
+      document.addEventListener('click', (e) => {
+        const nav = document.getElementById('main-nav');
+        const btn = document.querySelector('.mobile-menu-toggle');
+        if (
+          nav.classList.contains('mobile-open') &&
+          !nav.contains(e.target) &&
+          e.target !== btn
+        ) {
+          nav.classList.remove('mobile-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close mobile menu when clicking on a nav link
+      document.querySelectorAll('.nav-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          const nav = document.getElementById('main-nav');
+          const btn = document.querySelector('.mobile-menu-toggle');
+          nav.classList.remove('mobile-open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Reading progress bar
+      function updateProgressBar() {
+        const winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        const height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('progress-bar').style.width = scrolled + '%';
+      }
+
+      window.addEventListener('scroll', updateProgressBar);
+
+      // Scroll to top button
+      const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+      window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+          scrollToTopBtn.classList.add('visible');
+        } else {
+          scrollToTopBtn.classList.remove('visible');
+        }
+      });
+
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+
+      // Keyboard shortcut for scroll to top (Home key)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Home' && !e.ctrlKey && !e.shiftKey) {
+          e.preventDefault();
+          scrollToTop();
+        }
+      });
+
+      // Add copy buttons to code blocks
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((pre) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-block-wrapper';
+          pre.parentNode.insertBefore(wrapper, pre);
+          wrapper.appendChild(pre);
+
+          const button = document.createElement('button');
+          button.className = 'copy-code-btn';
+          button.textContent = 'Copy';
+          button.setAttribute('aria-label', 'Copy code to clipboard');
+
+          button.addEventListener('click', async () => {
+            const code =
+              pre.querySelector('code')?.textContent || pre.textContent;
+            try {
+              await navigator.clipboard.writeText(code);
+              button.textContent = 'Copied!';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = 'Copy';
+                button.classList.remove('copied');
+              }, 2000);
+            } catch (err) {
+              button.textContent = 'Failed';
+              setTimeout(() => {
+                button.textContent = 'Copy';
+              }, 2000);
+            }
+          });
+
+          wrapper.appendChild(button);
+        });
+
+        // Highlight active TOC item on scroll
+        const observerOptions = {
+          rootMargin: '-80px 0px -80% 0px',
+          threshold: 0,
+        };
+
+        const headings = document.querySelectorAll('h2[id], h3[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              tocLinks.forEach((link) => {
+                link.style.fontWeight = 'normal';
+                link.style.color = 'var(--text-secondary)';
+              });
+              const activeLink = document.querySelector(
+                `.toc-list a[href="#${entry.target.id}"]`
+              );
+              if (activeLink) {
+                activeLink.style.fontWeight = '600';
+                activeLink.style.color = 'var(--link-color)';
+              }
+            }
+          });
+        }, observerOptions);
+
+        headings.forEach((heading) => observer.observe(heading));
+      });
+    </script>
+  </body>
 </html>

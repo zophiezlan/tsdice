@@ -22,6 +22,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -35,10 +36,63 @@ jobs:
       - name: Build documentation
         run: npm run build:docs
 
+      - name: Validate HTML output
+        run: |
+          echo "📝 Validating generated HTML files..."
+          for file in docs/*.html; do
+            if [ -f "$file" ]; then
+              # Check for basic HTML structure
+              if ! grep -q "<!DOCTYPE html>" "$file"; then
+                echo "❌ Missing DOCTYPE in $file"
+                exit 1
+              fi
+              if ! grep -q "<html" "$file"; then
+                echo "❌ Missing html tag in $file"
+                exit 1
+              fi
+              # Check for required elements
+              if ! grep -q 'class="toc"' "$file" && ! grep -q "quick-reference.html" <<< "$file"; then
+                echo "⚠️ Warning: No TOC found in $file (might be expected for short docs)"
+              fi
+              # Check for accessibility features
+              if ! grep -q 'skip-to-content' "$file"; then
+                echo "❌ Missing skip-to-content link in $file"
+                exit 1
+              fi
+              if ! grep -q 'aria-label' "$file"; then
+                echo "❌ Missing ARIA labels in $file"
+                exit 1
+              fi
+              echo "✅ $file validated successfully"
+            fi
+          done
+          echo "✨ All HTML files validated!"
+
       - name: Check for changes
         id: git-check
         run: |
           git diff --exit-code docs/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+
+      - name: Generate build summary
+        if: steps.git-check.outputs.has_changes == 'true'
+        run: |
+          echo "## 📚 Documentation Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          for file in docs/*.html; do
+            if [ -f "$file" ]; then
+              size=$(du -h "$file" | cut -f1)
+              lines=$(wc -l < "$file")
+              echo "- \`$(basename $file)\`: $size ($lines lines)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```diff' >> $GITHUB_STEP_SUMMARY
+          git diff --stat docs/ >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Commit and push changes
         if: steps.git-check.outputs.has_changes == 'true'

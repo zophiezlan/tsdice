@@ -1,331 +1,962 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-AU">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏗️ Architecture - tsDice</title>
-  <meta name="description" content="Technical architecture and design decisions">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🏗️ Architecture - tsDice</title>
+    <meta
+      name="description"
+      content="Technical architecture and design decisions"
+    />
 
-  <style>
-    /* --- CSS Theming matching tsDice --- */
-    :root {
-      /* Backgrounds */
-      --bg-primary: #111;
-      --bg-content: rgba(255, 255, 255, 0.05);
-      --bg-code: rgba(0, 0, 0, 0.3);
-      --bg-code-block: rgba(0, 0, 0, 0.5);
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>"
+    />
 
-      /* Text */
-      --text-primary: white;
-      --text-secondary: #eee;
-      --text-strong: #fff;
-      --text-muted: #aaa;
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="🏗️ Architecture - tsDice" />
+    <meta
+      property="og:description"
+      content="Technical architecture and design decisions"
+    />
+    <meta property="og:site_name" content="tsDice Documentation" />
 
-      /* Borders */
-      --border-color: rgba(255, 255, 255, 0.2);
-      --border-accent: rgba(255, 255, 255, 0.3);
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="🏗️ Architecture - tsDice" />
+    <meta
+      name="twitter:description"
+      content="Technical architecture and design decisions"
+    />
 
-      /* Interactive */
-      --link-color: #87ceeb;
-      --link-color-hover: #9370db;
-      --focus-outline: #87ceeb;
-    }
+    <style>
+      /* --- CSS Theming matching tsDice --- */
+      :root {
+        /* Backgrounds */
+        --bg-primary: #111;
+        --bg-content: rgba(255, 255, 255, 0.05);
+        --bg-code: rgba(0, 0, 0, 0.3);
+        --bg-code-block: rgba(0, 0, 0, 0.5);
+        --bg-sidebar: rgba(255, 255, 255, 0.03);
 
-    body.light-mode {
-      /* Backgrounds */
-      --bg-primary: #f0f0f0;
-      --bg-content: rgba(0, 0, 0, 0.03);
-      --bg-code: rgba(0, 0, 0, 0.05);
-      --bg-code-block: rgba(0, 0, 0, 0.08);
+        /* Text */
+        --text-primary: white;
+        --text-secondary: #eee;
+        --text-strong: #fff;
+        --text-muted: #aaa;
 
-      /* Text */
-      --text-primary: #333;
-      --text-secondary: #444;
-      --text-strong: #000;
-      --text-muted: #666;
+        /* Borders */
+        --border-color: rgba(255, 255, 255, 0.2);
+        --border-accent: rgba(255, 255, 255, 0.3);
 
-      /* Borders */
-      --border-color: rgba(0, 0, 0, 0.2);
-      --border-accent: rgba(0, 0, 0, 0.3);
+        /* Interactive */
+        --link-color: #87ceeb;
+        --link-color-hover: #9370db;
+        --focus-outline: #87ceeb;
+        --active-nav: rgba(135, 206, 235, 0.2);
+      }
 
-      /* Interactive */
-      --link-color: #4361ee;
-      --link-color-hover: #7209b7;
-      --focus-outline: #4361ee;
-    }
+      body.light-mode {
+        /* Backgrounds */
+        --bg-primary: #f0f0f0;
+        --bg-content: rgba(0, 0, 0, 0.03);
+        --bg-code: rgba(0, 0, 0, 0.05);
+        --bg-code-block: rgba(0, 0, 0, 0.08);
+        --bg-sidebar: rgba(0, 0, 0, 0.02);
 
-    /* --- Base Styles --- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        /* Text */
+        --text-primary: #333;
+        --text-secondary: #444;
+        --text-strong: #000;
+        --text-muted: #666;
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+        /* Borders */
+        --border-color: rgba(0, 0, 0, 0.2);
+        --border-accent: rgba(0, 0, 0, 0.3);
 
-    /* --- Header --- */
-    header {
-      background: rgba(255, 255, 255, 0.1);
-      border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      backdrop-filter: blur(10px);
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        /* Interactive */
+        --link-color: #4361ee;
+        --link-color-hover: #7209b7;
+        --focus-outline: #4361ee;
+        --active-nav: rgba(67, 97, 238, 0.15);
+      }
 
-    .header-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
+      /* --- Reduced Motion --- */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
 
-    .header-nav {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
+      /* --- Base Styles --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    .nav-link {
-      color: var(--link-color);
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px;
+      }
 
-    .nav-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--link-color-hover);
-    }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.6;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
 
-    .theme-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.2s ease;
-    }
+      /* --- Skip to Content (Accessibility) --- */
+      .skip-to-content {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: var(--link-color);
+        color: #000;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        z-index: 1000;
+        font-weight: 600;
+      }
 
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
+      .skip-to-content:focus {
+        top: 0;
+      }
 
-    /* --- Main Content --- */
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+      /* --- Progress Bar --- */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--link-color),
+          var(--link-color-hover)
+        );
+        z-index: 1001;
+        transition: width 0.1s ease;
+      }
 
-    .content {
-      background: var(--bg-content);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 2rem;
-    }
-
-    /* --- Typography --- */
-    h1, h2, h3, h4, h5, h6 {
-      color: var(--text-strong);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      line-height: 1.3;
-    }
-
-    h1 { font-size: 2.5rem; margin-top: 0; }
-    h2 { font-size: 2rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
-    h3 { font-size: 1.5rem; }
-    h4 { font-size: 1.25rem; }
-    h5 { font-size: 1.1rem; }
-    h6 { font-size: 1rem; }
-
-    p {
-      margin: 1rem 0;
-      color: var(--text-secondary);
-    }
-
-    a {
-      color: var(--link-color);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    a:hover {
-      color: var(--link-color-hover);
-      text-decoration: underline;
-    }
-
-    /* --- Lists --- */
-    ul, ol {
-      margin: 1rem 0;
-      padding-left: 2rem;
-      color: var(--text-secondary);
-    }
-
-    li {
-      margin: 0.5rem 0;
-    }
-
-    /* --- Code --- */
-    code {
-      background: var(--bg-code);
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.9em;
-      color: var(--text-primary);
-    }
-
-    pre {
-      background: var(--bg-code-block);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 1rem;
-      overflow-x: auto;
-      margin: 1rem 0;
-    }
-
-    pre code {
-      background: none;
-      padding: 0;
-      color: var(--text-secondary);
-    }
-
-    /* --- Blockquotes --- */
-    blockquote {
-      border-left: 4px solid var(--link-color);
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
-      background: var(--bg-code);
-      color: var(--text-secondary);
-      font-style: italic;
-    }
-
-    blockquote p {
-      margin: 0.5rem 0;
-    }
-
-    /* --- Tables --- */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      overflow: hidden;
-      border-radius: 4px;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem;
-      text-align: left;
-    }
-
-    th {
-      background: rgba(255, 255, 255, 0.1);
-      font-weight: 600;
-      color: var(--text-strong);
-    }
-
-    tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    /* --- Horizontal Rule --- */
-    hr {
-      border: none;
-      border-top: 1px solid var(--border-color);
-      margin: 2rem 0;
-    }
-
-    /* --- Images --- */
-    img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 4px;
-      margin: 1rem 0;
-    }
-
-    /* --- Footer --- */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border-color);
-      margin-top: 4rem;
-    }
-
-    /* --- Responsive --- */
-    @media (max-width: 768px) {
+      /* --- Header --- */
       header {
-        flex-direction: column;
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 100;
+      }
+
+      .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 1rem;
       }
 
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .home-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 1.5rem;
+        transition: transform 0.2s ease;
+        display: inline-block;
+        line-height: 1;
+      }
+
+      .home-link:hover {
+        transform: scale(1.1);
+      }
+
+      .home-link:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 4px;
+        border-radius: 4px;
+      }
+
+      .header-nav {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        color: var(--link-color);
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.95rem;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--link-color-hover);
+      }
+
+      .nav-link:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      .nav-link.active {
+        background: var(--active-nav);
+        font-weight: 600;
+        position: relative;
+      }
+
+      .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--link-color);
+      }
+
+      .theme-toggle {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: background 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .theme-toggle:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      /* Mobile Menu */
+      .mobile-menu-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      .mobile-menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* --- Layout Container --- */
+      .layout-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      /* --- Table of Contents Sidebar --- */
+      .toc {
+        position: sticky;
+        top: 100px;
+        flex: 0 0 250px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: var(--bg-sidebar);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        align-self: flex-start;
+      }
+
+      .toc-header {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: var(--text-strong);
+      }
+
+      .toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .toc-list li {
+        margin: 0;
+      }
+
+      .toc-list a {
+        display: block;
+        padding: 0.4rem 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+      }
+
+      .toc-list a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--link-color);
+        padding-left: 0.75rem;
+      }
+
+      .toc-indent {
+        padding-left: 1rem;
+      }
+
+      /* --- Main Content --- */
       main {
-        padding: 1rem;
+        flex: 1;
+        min-width: 0;
       }
 
       .content {
-        padding: 1rem;
+        background: var(--bg-content);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 2.5rem;
       }
 
-      h1 { font-size: 2rem; }
-      h2 { font-size: 1.75rem; }
-      h3 { font-size: 1.5rem; }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="header-title">🏗️ Architecture</div>
-    <nav class="header-nav">
-      <a href="../index.html" class="nav-link">← Back to tsDice</a>
-      <a href="user-guide.html" class="nav-link">User Guide</a>
-      <a href="architecture.html" class="nav-link">Architecture</a>
-      <a href="analysis.html" class="nav-link">Analysis</a>
-      <a href="quick-reference.html" class="nav-link">Quick Ref</a>
-      <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
-    </nav>
-  </header>
+      /* --- Typography --- */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: var(--text-strong);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        position: relative;
+      }
 
-  <main>
-    <article class="content">
-      <h1>🏛️ tsDice Architecture Guide</h1>
-<blockquote>
-<p>A comprehensive deep dive into the design decisions, patterns, and technical implementation of tsDice.</p>
-</blockquote>
-<hr>
-<h2>Table of Contents</h2>
-<ol>
-<li><a href="#system-overview">System Overview</a></li>
-<li><a href="#design-principles">Design Principles</a></li>
-<li><a href="#module-architecture">Module Architecture</a></li>
-<li><a href="#data-flow--state-management">Data Flow &amp; State Management</a></li>
-<li><a href="#key-algorithms">Key Algorithms</a></li>
-<li><a href="#performance-considerations">Performance Considerations</a></li>
-<li><a href="#security--privacy">Security &amp; Privacy</a></li>
-<li><a href="#extension-points">Extension Points</a></li>
-</ol>
-<hr>
-<h2>System Overview</h2>
-<h3>High-Level Architecture</h3>
-<pre><code>┌─────────────────────────────────────────────────────────────┐
+      h1 {
+        font-size: 2.5rem;
+        margin-top: 0;
+      }
+
+      h2 {
+        font-size: 2rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid var(--border-color);
+        scroll-margin-top: 80px;
+      }
+
+      h3 {
+        font-size: 1.5rem;
+        scroll-margin-top: 80px;
+      }
+
+      h4 {
+        font-size: 1.25rem;
+      }
+      h5 {
+        font-size: 1.1rem;
+      }
+      h6 {
+        font-size: 1rem;
+      }
+
+      /* Heading anchor links */
+      h2:hover .header-anchor,
+      h3:hover .header-anchor {
+        opacity: 1;
+      }
+
+      p {
+        margin: 1rem 0;
+        color: var(--text-secondary);
+      }
+
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      a:hover {
+        color: var(--link-color-hover);
+        text-decoration: underline;
+      }
+
+      a:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      /* --- Lists --- */
+      ul,
+      ol {
+        margin: 1rem 0;
+        padding-left: 2rem;
+        color: var(--text-secondary);
+      }
+
+      li {
+        margin: 0.5rem 0;
+      }
+
+      /* --- Code --- */
+      code {
+        background: var(--bg-code);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family:
+          'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New',
+          monospace;
+        font-size: 0.9em;
+        color: var(--text-primary);
+      }
+
+      pre {
+        background: var(--bg-code-block);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      pre code {
+        background: none;
+        padding: 0;
+        color: var(--text-secondary);
+      }
+
+      /* Copy button for code blocks */
+      .code-block-wrapper {
+        position: relative;
+      }
+
+      .copy-code-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        opacity: 0;
+        transition:
+          opacity 0.2s ease,
+          background 0.2s ease;
+      }
+
+      .code-block-wrapper:hover .copy-code-btn {
+        opacity: 1;
+      }
+
+      .copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .copy-code-btn.copied {
+        background: var(--link-color);
+        color: #000;
+      }
+
+      /* --- Blockquotes --- */
+      blockquote {
+        border-left: 4px solid var(--link-color);
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        background: var(--bg-code);
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      blockquote p {
+        margin: 0.5rem 0;
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        overflow: hidden;
+        border-radius: 4px;
+        display: block;
+        overflow-x: auto;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--border-color);
+        padding: 0.75rem;
+        text-align: left;
+      }
+
+      th {
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        color: var(--text-strong);
+        position: sticky;
+        top: 0;
+      }
+
+      tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      /* --- Horizontal Rule --- */
+      hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 2rem 0;
+      }
+
+      /* --- Images --- */
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+
+      /* --- Scroll to Top Button --- */
+      .scroll-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.3s ease,
+          transform 0.2s ease,
+          background 0.2s ease;
+        z-index: 99;
+      }
+
+      .scroll-to-top.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .scroll-to-top:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-4px);
+      }
+
+      .scroll-to-top:focus {
+        outline: 2px solid var(--focus-outline);
+        outline-offset: 2px;
+      }
+
+      /* --- Footer --- */
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 4rem;
+      }
+
+      footer a {
+        color: var(--link-color);
+        margin: 0 0.5rem;
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 1024px) {
+        .toc {
+          display: none;
+        }
+
+        .layout-container {
+          padding: 1.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header-container {
+          flex-wrap: wrap;
+        }
+
+        .header-nav {
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: rgba(17, 17, 17, 0.98);
+          backdrop-filter: blur(10px);
+          flex-direction: column;
+          padding: 1rem;
+          gap: 0.5rem;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          border-bottom: 1px solid var(--border-color);
+          z-index: 99;
+        }
+
+        body.light-mode .header-nav {
+          background: rgba(240, 240, 240, 0.98);
+        }
+
+        .header-nav.mobile-open {
+          max-height: 400px;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+
+        .nav-link,
+        .theme-toggle {
+          width: 100%;
+          text-align: center;
+        }
+
+        .layout-container {
+          padding: 1rem;
+          gap: 0;
+        }
+
+        .content {
+          padding: 1.5rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+        h2 {
+          font-size: 1.75rem;
+        }
+        h3 {
+          font-size: 1.5rem;
+        }
+
+        .scroll-to-top {
+          bottom: 1rem;
+          right: 1rem;
+          width: 44px;
+          height: 44px;
+        }
+
+        table {
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header-title {
+          font-size: 1.2rem;
+        }
+
+        .content {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 1.75rem;
+        }
+        h2 {
+          font-size: 1.5rem;
+        }
+        h3 {
+          font-size: 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-to-content">Skip to content</a>
+    <div
+      class="progress-bar"
+      id="progress-bar"
+      role="progressbar"
+      aria-label="Reading progress"
+    ></div>
+
+    <header>
+      <div class="header-container">
+        <div class="header-left">
+          <a
+            href="../index.html"
+            class="home-link"
+            aria-label="Return to tsDice app"
+            title="Return to tsDice"
+            >🎲</a
+          >
+          <div class="header-title">🏗️ Architecture</div>
+        </div>
+        <button
+          class="mobile-menu-toggle"
+          onclick="toggleMobileMenu()"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <nav
+          class="header-nav"
+          id="main-nav"
+          aria-label="Documentation navigation"
+        >
+          <a href="user-guide.html" class="nav-link">📖 User Guide</a>
+          <a
+            href="architecture.html"
+            class="nav-link active"
+            aria-current="page"
+            >🏗️ Architecture</a
+          >
+          <a href="analysis.html" class="nav-link">📊 Analysis</a>
+          <a href="quick-reference.html" class="nav-link">⚡ Quick Ref</a>
+          <button
+            class="theme-toggle"
+            onclick="toggleTheme()"
+            aria-label="Toggle dark/light theme"
+          >
+            🌓 Theme
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="layout-container">
+      <nav class="toc" aria-label="Table of contents">
+        <div class="toc-header">📑 Contents</div>
+        <ul class="toc-list">
+          <li><a href="#table-of-contents">Table of Contents</a></li>
+          <li><a href="#system-overview">System Overview</a></li>
+          <li class="toc-indent">
+            <a href="#high-level-architecture">High-Level Architecture</a>
+          </li>
+          <li><a href="#design-principles">Design Principles</a></li>
+          <li class="toc-indent">
+            <a href="#1-separation-of-concerns">1. Separation of Concerns</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#2-unidirectional-data-flow"
+              >2. Unidirectional Data Flow</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#3-command-pattern-for-time-travel"
+              >3. Command Pattern for Time Travel</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#4-immutability-where-possible"
+              >4. Immutability Where Possible</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#5-progressive-enhancement">5. Progressive Enhancement</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#6-centralized-error-handling-phase-2"
+              >6. Centralized Error Handling (Phase 2)</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#7-dispatch-pattern-for-state-phase-2"
+              >7. Dispatch Pattern for State (Phase 2)</a
+            >
+          </li>
+          <li><a href="#module-architecture">Module Architecture</a></li>
+          <li class="toc-indent"><a href="#core-modules">Core Modules</a></li>
+          <li>
+            <a href="#data-flow-state-management"
+              >Data Flow & State Management</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#shuffle-flow-complete-walkthrough"
+              >Shuffle Flow (Complete Walkthrough)</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#toggle-flow-gravity-example"
+              >Toggle Flow (Gravity Example)</a
+            >
+          </li>
+          <li><a href="#key-algorithms">Key Algorithms</a></li>
+          <li class="toc-indent">
+            <a href="#1-chaos-probability-scaling"
+              >1. Chaos Probability Scaling</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#2-url-compression-pipeline"
+              >2. URL Compression Pipeline</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#3-toggle-state-persistence"
+              >3. Toggle State Persistence</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#4-debouncing-for-performance"
+              >4. Debouncing for Performance</a
+            >
+          </li>
+          <li>
+            <a href="#performance-considerations">Performance Considerations</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#1-event-delegation">1. Event Delegation</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#2-lazy-loading-indicators">2. Lazy Loading Indicators</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#3-structured-clone-instead-of-json"
+              >3. Structured Clone Instead of JSON</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#4-css-transitions-over-javascript-animations"
+              >4. CSS Transitions Over JavaScript Animations</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#5-reduced-motion-support">5. Reduced Motion Support</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#6-memory-leak-prevention">6. Memory Leak Prevention</a>
+          </li>
+          <li><a href="#security-privacy">Security & Privacy</a></li>
+          <li class="toc-indent"><a href="#data-privacy">Data Privacy</a></li>
+          <li class="toc-indent">
+            <a href="#content-security-policy">Content Security Policy</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#input-validation">Input Validation</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#url-decompression-safety">URL Decompression Safety</a>
+          </li>
+          <li><a href="#extension-points">Extension Points</a></li>
+          <li class="toc-indent">
+            <a href="#adding-a-new-shuffle-category"
+              >Adding a New Shuffle Category</a
+            >
+          </li>
+          <li class="toc-indent">
+            <a href="#adding-a-new-toggle">Adding a New Toggle</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#adding-a-new-keyboard-shortcut"
+              >Adding a New Keyboard Shortcut</a
+            >
+          </li>
+          <li><a href="#testing-strategy">Testing Strategy</a></li>
+          <li class="toc-indent">
+            <a href="#manual-testing-checklist">Manual Testing Checklist</a>
+          </li>
+          <li class="toc-indent">
+            <a href="#automated-testing-current-next"
+              >Automated Testing (Current + Next)</a
+            >
+          </li>
+          <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+      </nav>
+      <main id="main-content">
+        <article class="content">
+          <h1 id="-tsdice-architecture-guide">🏛️ tsDice Architecture Guide</h1>
+          <blockquote>
+            <p>
+              A comprehensive deep dive into the design decisions, patterns, and
+              technical implementation of tsDice.
+            </p>
+          </blockquote>
+          <hr />
+          <h2 id="table-of-contents">Table of Contents</h2>
+          <ol>
+            <li><a href="#system-overview">System Overview</a></li>
+            <li><a href="#design-principles">Design Principles</a></li>
+            <li><a href="#module-architecture">Module Architecture</a></li>
+            <li>
+              <a href="#data-flow--state-management"
+                >Data Flow &amp; State Management</a
+              >
+            </li>
+            <li><a href="#key-algorithms">Key Algorithms</a></li>
+            <li>
+              <a href="#performance-considerations"
+                >Performance Considerations</a
+              >
+            </li>
+            <li><a href="#security--privacy">Security &amp; Privacy</a></li>
+            <li><a href="#extension-points">Extension Points</a></li>
+          </ol>
+          <hr />
+          <h2 id="system-overview">System Overview</h2>
+          <h3 id="high-level-architecture">High-Level Architecture</h3>
+          <pre><code>┌─────────────────────────────────────────────────────────────┐
 │                         User Interface                      │
 │  (index.html + CSS Variables + Glassmorphism Design)        │
 └────────────────────┬────────────────────────────────────────┘
@@ -367,87 +998,92 @@
 │  • Interaction Handling  • Canvas Management                │
 └─────────────────────────────────────────────────────────────┘
 </code></pre>
-<hr>
-<h2>Design Principles</h2>
-<h3>1. Separation of Concerns</h3>
-<p>Each module has a single, well-defined responsibility:</p>
-<table>
-<thead>
-<tr>
-<th>Module</th>
-<th>Responsibility</th>
-<th>Dependencies</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>main.js</code></td>
-<td>Application orchestration, event binding</td>
-<td>All modules</td>
-</tr>
-<tr>
-<td><code>state.js</code></td>
-<td>State storage (no logic)</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>uiManager.js</code></td>
-<td>DOM manipulation, accessibility</td>
-<td>State</td>
-</tr>
-<tr>
-<td><code>commandManager.js</code></td>
-<td>Undo/redo logic</td>
-<td>UI Manager</td>
-</tr>
-<tr>
-<td><code>configGenerator.js</code></td>
-<td>Randomization algorithms</td>
-<td>State, Constants, Utils</td>
-</tr>
-<tr>
-<td><code>particlesService.js</code></td>
-<td>tsParticles API abstraction</td>
-<td>State, Config Generator</td>
-</tr>
-<tr>
-<td><code>modalManager.js</code></td>
-<td>Modal lifecycle &amp; focus management</td>
-<td>UI Manager</td>
-</tr>
-<tr>
-<td><code>tooltipManager.js</code></td>
-<td>Tooltip positioning &amp; timing</td>
-<td>Constants</td>
-</tr>
-<tr>
-<td><code>keyboardShortcuts.js</code></td>
-<td>Global keyboard event handling</td>
-<td>Constants, Modal Manager</td>
-</tr>
-<tr>
-<td><code>utils.js</code></td>
-<td>Pure utility functions</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>constants.js</code></td>
-<td>Static data arrays</td>
-<td>None</td>
-</tr>
-<tr>
-<td><code>errorHandler.js</code></td>
-<td>Centralized error handling &amp; validation</td>
-<td>UI Manager</td>
-</tr>
-<tr>
-<td><code>stateManager.js</code></td>
-<td>State mutations &amp; dispatch pattern</td>
-<td>State, UI Manager, Error</td>
-</tr>
-</tbody></table>
-<h3>2. Unidirectional Data Flow</h3>
-<p>Data always flows in one direction, preventing circular dependencies:</p>
-<pre><code>User Input → Event Handler → Command Factory → Command Manager
+          <hr />
+          <h2 id="design-principles">Design Principles</h2>
+          <h3 id="1-separation-of-concerns">1. Separation of Concerns</h3>
+          <p>Each module has a single, well-defined responsibility:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Responsibility</th>
+                <th>Dependencies</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>main.js</code></td>
+                <td>Application orchestration, event binding</td>
+                <td>All modules</td>
+              </tr>
+              <tr>
+                <td><code>state.js</code></td>
+                <td>State storage (no logic)</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td><code>uiManager.js</code></td>
+                <td>DOM manipulation, accessibility</td>
+                <td>State</td>
+              </tr>
+              <tr>
+                <td><code>commandManager.js</code></td>
+                <td>Undo/redo logic</td>
+                <td>UI Manager</td>
+              </tr>
+              <tr>
+                <td><code>configGenerator.js</code></td>
+                <td>Randomization algorithms</td>
+                <td>State, Constants, Utils</td>
+              </tr>
+              <tr>
+                <td><code>particlesService.js</code></td>
+                <td>tsParticles API abstraction</td>
+                <td>State, Config Generator</td>
+              </tr>
+              <tr>
+                <td><code>modalManager.js</code></td>
+                <td>Modal lifecycle &amp; focus management</td>
+                <td>UI Manager</td>
+              </tr>
+              <tr>
+                <td><code>tooltipManager.js</code></td>
+                <td>Tooltip positioning &amp; timing</td>
+                <td>Constants</td>
+              </tr>
+              <tr>
+                <td><code>keyboardShortcuts.js</code></td>
+                <td>Global keyboard event handling</td>
+                <td>Constants, Modal Manager</td>
+              </tr>
+              <tr>
+                <td><code>utils.js</code></td>
+                <td>Pure utility functions</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td><code>constants.js</code></td>
+                <td>Static data arrays</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td><code>errorHandler.js</code></td>
+                <td>Centralized error handling &amp; validation</td>
+                <td>UI Manager</td>
+              </tr>
+              <tr>
+                <td><code>stateManager.js</code></td>
+                <td>State mutations &amp; dispatch pattern</td>
+                <td>State, UI Manager, Error</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3 id="2-unidirectional-data-flow">2. Unidirectional Data Flow</h3>
+          <p>
+            Data always flows in one direction, preventing circular
+            dependencies:
+          </p>
+          <pre><code>User Input → Event Handler → Command Factory → Command Manager
                                                      ↓
                                               Execute Command
                                                      ↓
@@ -461,55 +1097,110 @@
                                                      ↓
                                               Visual Feedback
 </code></pre>
-<p><strong>New in Phase 2:</strong> State mutations now go through <code>StateManager.dispatch()</code> for validation and centralized control.</p>
-<h3>3. Command Pattern for Time Travel</h3>
-<p>Every stateful action implements the Command interface:</p>
-<pre><code class="language-javascript">interface Command {
+          <p>
+            <strong>New in Phase 2:</strong> State mutations now go through
+            <code>StateManager.dispatch()</code> for validation and centralized
+            control.
+          </p>
+          <h3 id="3-command-pattern-for-time-travel">
+            3. Command Pattern for Time Travel
+          </h3>
+          <p>Every stateful action implements the Command interface:</p>
+          <pre><code class="language-javascript">interface Command {
   execute(): Promise&lt;void&gt;; // Apply the change
   undo(): Promise&lt;void&gt;; // Revert the change
 }
 </code></pre>
-<p>This enables:</p>
-<ul>
-<li><strong>Undo/Redo</strong>: Infinite history stack</li>
-<li><strong>Deduplication</strong>: Identical consecutive configs are skipped</li>
-<li><strong>Encapsulation</strong>: Each command captures its own before/after state</li>
-</ul>
-<h3>4. Immutability Where Possible</h3>
-<ul>
-<li>Configs are deep-cloned using <code>structuredClone()</code> before mutation</li>
-<li>Original interaction modes stored separately for restoration</li>
-<li>No direct mutation of <code>AppState</code> outside designated functions</li>
-</ul>
-<h3>5. Progressive Enhancement</h3>
-<ul>
-<li>Works without JavaScript (shows basic HTML)</li>
-<li>Keyboard shortcuts enhance mouse interaction</li>
-<li>Tooltips provide context but aren&#39;t required</li>
-<li>Reduced motion preferences honored automatically</li>
-</ul>
-<h3>6. Centralized Error Handling (Phase 2)</h3>
-<p>All error-prone operations are wrapped with <code>ErrorHandler</code>:</p>
-<ul>
-<li><strong>Typed Errors</strong>: Classify errors by type for appropriate handling</li>
-<li><strong>User Feedback</strong>: Show user-friendly messages via toast notifications</li>
-<li><strong>Recovery</strong>: Distinguish between recoverable and fatal errors</li>
-<li><strong>Validation</strong>: Centralized config validation before operations</li>
-</ul>
-<h3>7. Dispatch Pattern for State (Phase 2)</h3>
-<p>State mutations follow a dispatch pattern:</p>
-<ul>
-<li><strong>Action Creators</strong>: Type-safe functions for creating actions</li>
-<li><strong>Validation</strong>: StateManager validates changes before applying</li>
-<li><strong>Persistence</strong>: Automatic localStorage sync</li>
-<li><strong>Immutability</strong>: State changes return new objects, not mutations</li>
-</ul>
-<hr>
-<h2>Module Architecture</h2>
-<h3>Core Modules</h3>
-<h4><code>errorHandler.js</code> — Centralized Error Handling (Phase 2)</h4>
-<p><strong>Purpose:</strong> Provide consistent error handling with user-friendly feedback and automatic recovery.</p>
-<pre><code class="language-javascript">// Error Types
+          <p>This enables:</p>
+          <ul>
+            <li><strong>Undo/Redo</strong>: Infinite history stack</li>
+            <li>
+              <strong>Deduplication</strong>: Identical consecutive configs are
+              skipped
+            </li>
+            <li>
+              <strong>Encapsulation</strong>: Each command captures its own
+              before/after state
+            </li>
+          </ul>
+          <h3 id="4-immutability-where-possible">
+            4. Immutability Where Possible
+          </h3>
+          <ul>
+            <li>
+              Configs are deep-cloned using
+              <code>structuredClone()</code> before mutation
+            </li>
+            <li>
+              Original interaction modes stored separately for restoration
+            </li>
+            <li>
+              No direct mutation of <code>AppState</code> outside designated
+              functions
+            </li>
+          </ul>
+          <h3 id="5-progressive-enhancement">5. Progressive Enhancement</h3>
+          <ul>
+            <li>Works without JavaScript (shows basic HTML)</li>
+            <li>Keyboard shortcuts enhance mouse interaction</li>
+            <li>Tooltips provide context but aren&#39;t required</li>
+            <li>Reduced motion preferences honored automatically</li>
+          </ul>
+          <h3 id="6-centralized-error-handling-phase-2">
+            6. Centralized Error Handling (Phase 2)
+          </h3>
+          <p>
+            All error-prone operations are wrapped with
+            <code>ErrorHandler</code>:
+          </p>
+          <ul>
+            <li>
+              <strong>Typed Errors</strong>: Classify errors by type for
+              appropriate handling
+            </li>
+            <li>
+              <strong>User Feedback</strong>: Show user-friendly messages via
+              toast notifications
+            </li>
+            <li>
+              <strong>Recovery</strong>: Distinguish between recoverable and
+              fatal errors
+            </li>
+            <li>
+              <strong>Validation</strong>: Centralized config validation before
+              operations
+            </li>
+          </ul>
+          <h3 id="7-dispatch-pattern-for-state-phase-2">
+            7. Dispatch Pattern for State (Phase 2)
+          </h3>
+          <p>State mutations follow a dispatch pattern:</p>
+          <ul>
+            <li>
+              <strong>Action Creators</strong>: Type-safe functions for creating
+              actions
+            </li>
+            <li>
+              <strong>Validation</strong>: StateManager validates changes before
+              applying
+            </li>
+            <li><strong>Persistence</strong>: Automatic localStorage sync</li>
+            <li>
+              <strong>Immutability</strong>: State changes return new objects,
+              not mutations
+            </li>
+          </ul>
+          <hr />
+          <h2 id="module-architecture">Module Architecture</h2>
+          <h3 id="core-modules">Core Modules</h3>
+          <h4 id="errorhandlerjs-centralized-error-handling-phase-2">
+            `errorHandler.js` — Centralized Error Handling (Phase 2)
+          </h4>
+          <p>
+            <strong>Purpose:</strong> Provide consistent error handling with
+            user-friendly feedback and automatic recovery.
+          </p>
+          <pre><code class="language-javascript">// Error Types
 export const ErrorType = {
   LIBRARY_LOAD: &#39;LIBRARY_LOAD&#39;, // tsParticles loading failure
   CONFIG_INVALID: &#39;CONFIG_INVALID&#39;, // Invalid particle configuration
@@ -525,15 +1216,26 @@ ErrorHandler.handle(error, errorType); // Handle and log error
 ErrorHandler.wrap(asyncFn, errorType); // Wrap async function
 ErrorHandler.validateConfig(config); // Validate particle config
 </code></pre>
-<p><strong>Features:</strong></p>
-<ul>
-<li><strong>User-Friendly Messages</strong>: Shows toast notifications with helpful error messages</li>
-<li><strong>Accessibility</strong>: Announces errors to screen readers</li>
-<li><strong>Recovery Classification</strong>: Distinguishes fatal vs. recoverable errors</li>
-<li><strong>Console Logging</strong>: Detailed error info for debugging</li>
-</ul>
-<p><strong>Example Usage:</strong></p>
-<pre><code class="language-javascript">// Wrap an async function with automatic error handling
+          <p><strong>Features:</strong></p>
+          <ul>
+            <li>
+              <strong>User-Friendly Messages</strong>: Shows toast notifications
+              with helpful error messages
+            </li>
+            <li>
+              <strong>Accessibility</strong>: Announces errors to screen readers
+            </li>
+            <li>
+              <strong>Recovery Classification</strong>: Distinguishes fatal vs.
+              recoverable errors
+            </li>
+            <li>
+              <strong>Console Logging</strong>: Detailed error info for
+              debugging
+            </li>
+          </ul>
+          <p><strong>Example Usage:</strong></p>
+          <pre><code class="language-javascript">// Wrap an async function with automatic error handling
 const safeLoadParticles = ErrorHandler.wrap(
   loadParticles,
   ErrorType.PARTICLES_LOAD
@@ -545,9 +1247,16 @@ if (!ErrorHandler.validateConfig(config)) {
   // Handle invalid config
 }
 </code></pre>
-<h4><code>stateManager.js</code> — State Management with Dispatch Pattern (Phase 2)</h4>
-<p><strong>Purpose:</strong> Centralize state mutations with validation and automatic persistence.</p>
-<pre><code class="language-javascript">// Action Types
+          <h4
+            id="statemanagerjs-state-management-with-dispatch-pattern-phase-2"
+          >
+            `stateManager.js` — State Management with Dispatch Pattern (Phase 2)
+          </h4>
+          <p>
+            <strong>Purpose:</strong> Centralize state mutations with validation
+            and automatic persistence.
+          </p>
+          <pre><code class="language-javascript">// Action Types
 export const ActionType = {
   SET_THEME: &#39;SET_THEME&#39;, // Dark/light mode
   SET_CHAOS_LEVEL: &#39;SET_CHAOS_LEVEL&#39;, // Chaos slider value
@@ -566,8 +1275,8 @@ StateManager.getState(); // Get immutable copy
 StateManager.persist(); // Save to localStorage
 StateManager.validate(); // Validate state integrity
 </code></pre>
-<p><strong>Action Creators:</strong></p>
-<pre><code class="language-javascript">// Convenient functions for creating actions
+          <p><strong>Action Creators:</strong></p>
+          <pre><code class="language-javascript">// Convenient functions for creating actions
 Actions.setTheme(isDark); // Set theme
 Actions.setChaosLevel(level); // Set chaos level (1-10)
 Actions.toggleGravity(); // Toggle gravity
@@ -576,8 +1285,8 @@ Actions.toggleCursor(); // Toggle cursor mode
 Actions.togglePause(); // Toggle pause
 Actions.setConfig(config); // Set particle config
 </code></pre>
-<p><strong>Example Usage:</strong></p>
-<pre><code class="language-javascript">// Dispatch an action to change theme
+          <p><strong>Example Usage:</strong></p>
+          <pre><code class="language-javascript">// Dispatch an action to change theme
 StateManager.dispatch(Actions.setTheme(false));
 
 // Persist changes to localStorage
@@ -591,16 +1300,33 @@ if (!StateManager.validate()) {
   console.error(&#39;State validation failed&#39;);
 }
 </code></pre>
-<p><strong>Benefits:</strong></p>
-<ul>
-<li><strong>Type-Safe Actions</strong>: Action creators prevent typos and ensure correct payloads</li>
-<li><strong>Centralized Validation</strong>: All state changes validated in one place</li>
-<li><strong>Automatic UI Sync</strong>: UIManager.syncUI() called after mutations</li>
-<li><strong>Easy Debugging</strong>: All state changes logged with action type</li>
-<li><strong>Immutability</strong>: getState() returns deep copies, preventing accidental mutations</li>
-</ul>
-<h4><code>state.js</code> — The Single Source of Truth</h4>
-<pre><code class="language-javascript">export const AppState = {
+          <p><strong>Benefits:</strong></p>
+          <ul>
+            <li>
+              <strong>Type-Safe Actions</strong>: Action creators prevent typos
+              and ensure correct payloads
+            </li>
+            <li>
+              <strong>Centralized Validation</strong>: All state changes
+              validated in one place
+            </li>
+            <li>
+              <strong>Automatic UI Sync</strong>: UIManager.syncUI() called
+              after mutations
+            </li>
+            <li>
+              <strong>Easy Debugging</strong>: All state changes logged with
+              action type
+            </li>
+            <li>
+              <strong>Immutability</strong>: getState() returns deep copies,
+              preventing accidental mutations
+            </li>
+          </ul>
+          <h4 id="statejs-the-single-source-of-truth">
+            `state.js` — The Single Source of Truth
+          </h4>
+          <pre><code class="language-javascript">export const AppState = {
   ui: {
     isDarkMode: boolean,
     isCursorParticle: boolean,
@@ -619,23 +1345,30 @@ if (!StateManager.validate()) {
   },
 };
 </code></pre>
-<p><strong>Why this structure?</strong></p>
-<ul>
-<li>Clear namespace separation between UI state and particle state</li>
-<li>Easy to serialize for debugging</li>
-<li>Single import point for all modules</li>
-</ul>
-<h4><code>configGenerator.js</code> — The Randomization Engine</h4>
-<p>Four pure functions that generate particle config sections:</p>
-<pre><code class="language-javascript">ConfigGenerator = {
+          <p><strong>Why this structure?</strong></p>
+          <ul>
+            <li>
+              Clear namespace separation between UI state and particle state
+            </li>
+            <li>Easy to serialize for debugging</li>
+            <li>Single import point for all modules</li>
+          </ul>
+          <h4 id="configgeneratorjs-the-randomization-engine">
+            `configGenerator.js` — The Randomization Engine
+          </h4>
+          <p>Four pure functions that generate particle config sections:</p>
+          <pre><code class="language-javascript">ConfigGenerator = {
   generateAppearance(): object
   generateMovement(): object
   generateInteraction(): object
   generateSpecialFX(currentFx?: object): object
 }
 </code></pre>
-<p><strong>Key Insight</strong>: Each generator uses chaos level to scale randomness:</p>
-<pre><code class="language-javascript">// Base probability increases with chaos
+          <p>
+            <strong>Key Insight</strong>: Each generator uses chaos level to
+            scale randomness:
+          </p>
+          <pre><code class="language-javascript">// Base probability increases with chaos
 getChaosProbability(baseProb, chaosLevel);
 
 // Example: Collision probability
@@ -644,9 +1377,11 @@ enable: getRandomBool(getChaosProbability(0.6, chaosLevel));
 // Chaos 5 → 60% chance
 // Chaos 10 → 100% chance
 </code></pre>
-<h4><code>particlesService.js</code> — The tsParticles Abstraction Layer</h4>
-<p>Isolates all tsParticles interactions behind a clean API:</p>
-<pre><code class="language-javascript">export const particlesService = {
+          <h4 id="particlesservicejs-the-tsparticles-abstraction-layer">
+            `particlesService.js` — The tsParticles Abstraction Layer
+          </h4>
+          <p>Isolates all tsParticles interactions behind a clean API:</p>
+          <pre><code class="language-javascript">export const particlesService = {
   buildConfig(shuffleOptions): object,
   loadParticles(config): Promise&lt;void&gt;,
   reapplyToggleStates(config): void,
@@ -656,15 +1391,17 @@ enable: getRandomBool(getChaosProbability(0.6, chaosLevel));
   updateThemeAndReload(): Promise&lt;void&gt;
 };
 </code></pre>
-<p><strong>Why abstract tsParticles?</strong></p>
-<ul>
-<li>Future-proof against API changes</li>
-<li>Centralize error handling</li>
-<li>Enable configuration validation</li>
-<li>Provide loading indicators for async operations</li>
-</ul>
-<h4><code>commandManager.js</code> — Time Travel Implementation</h4>
-<pre><code class="language-javascript">CommandManager = {
+          <p><strong>Why abstract tsParticles?</strong></p>
+          <ul>
+            <li>Future-proof against API changes</li>
+            <li>Centralize error handling</li>
+            <li>Enable configuration validation</li>
+            <li>Provide loading indicators for async operations</li>
+          </ul>
+          <h4 id="commandmanagerjs-time-travel-implementation">
+            `commandManager.js` — Time Travel Implementation
+          </h4>
+          <pre><code class="language-javascript">CommandManager = {
   undoStack: Command[],  // Infinite history
   redoStack: Command[],
 
@@ -673,17 +1410,21 @@ enable: getRandomBool(getChaosProbability(0.6, chaosLevel));
   redo(): void              // Pop redo, push to undo
 };
 </code></pre>
-<p><strong>Deduplication Logic</strong>:</p>
-<pre><code class="language-javascript">// Only deduplicate shuffle commands with configs
+          <p><strong>Deduplication Logic</strong>:</p>
+          <pre><code class="language-javascript">// Only deduplicate shuffle commands with configs
 if (lastCommand.newConfig &amp;&amp; newCommand.newConfig) {
   if (JSON.stringify(lastConfig) === JSON.stringify(newConfig)) {
     return; // Skip duplicate
   }
 }
 </code></pre>
-<h4><code>uiManager.js</code> — The View Layer</h4>
-<p>Centralized DOM manipulation prevents scattered jQuery-style code:</p>
-<pre><code class="language-javascript">UIManager = {
+          <h4 id="uimanagerjs-the-view-layer">
+            `uiManager.js` — The View Layer
+          </h4>
+          <p>
+            Centralized DOM manipulation prevents scattered jQuery-style code:
+          </p>
+          <pre><code class="language-javascript">UIManager = {
   announce(message: string): void,              // Screen reader
   showToast(message: string): void,             // Visual feedback
   updateFullscreenIcons(): void,                // Icon swap
@@ -695,20 +1436,27 @@ if (lastCommand.newConfig &amp;&amp; newCommand.newConfig) {
   syncUI(): void                                // Complete state sync
 };
 </code></pre>
-<p><strong>The <code>syncUI()</code> Pattern</strong>:
-Instead of ad-hoc DOM updates, one function syncs <strong>everything</strong>:</p>
-<ul>
-<li>Theme class toggle</li>
-<li>Button active states</li>
-<li>Slider position</li>
-<li>ARIA attributes</li>
-<li>History button states</li>
-</ul>
-<p>Called after <strong>every state change</strong>, guaranteeing UI consistency.</p>
-<hr>
-<h2>Data Flow &amp; State Management</h2>
-<h3>Shuffle Flow (Complete Walkthrough)</h3>
-<pre><code class="language-javascript">// 1. USER CLICKS &quot;Shuffle All&quot;
+          <p>
+            <strong>The <code>syncUI()</code> Pattern</strong>: Instead of
+            ad-hoc DOM updates, one function syncs <strong>everything</strong>:
+          </p>
+          <ul>
+            <li>Theme class toggle</li>
+            <li>Button active states</li>
+            <li>Slider position</li>
+            <li>ARIA attributes</li>
+            <li>History button states</li>
+          </ul>
+          <p>
+            Called after <strong>every state change</strong>, guaranteeing UI
+            consistency.
+          </p>
+          <hr />
+          <h2 id="data-flow-state-management">Data Flow & State Management</h2>
+          <h3 id="shuffle-flow-complete-walkthrough">
+            Shuffle Flow (Complete Walkthrough)
+          </h3>
+          <pre><code class="language-javascript">// 1. USER CLICKS &quot;Shuffle All&quot;
 subMenu.addEventListener(&#39;click&#39;, (e) =&gt; {
   if (button.id === BUTTON_IDS.SHUFFLE_ALL) {
     // 2. CREATE SHUFFLE COMMAND
@@ -799,8 +1547,10 @@ const loadParticles = async (config) =&gt; {
   UIManager.hideLoadingIndicator();
 };
 </code></pre>
-<h3>Toggle Flow (Gravity Example)</h3>
-<pre><code class="language-javascript">// 1. USER CLICKS GRAVITY BUTTON
+          <h3 id="toggle-flow-gravity-example">
+            Toggle Flow (Gravity Example)
+          </h3>
+          <pre><code class="language-javascript">// 1. USER CLICKS GRAVITY BUTTON
 case BUTTON_IDS.GRAVITY:
   CommandManager.execute(
     createToggleCommand(&#39;isGravityOn&#39;, async () =&gt; {
@@ -829,10 +1579,10 @@ const applyGravityMode = () =&gt; {
   config.particles.move.gravity.acceleration = AppState.ui.isGravityOn ? 20 : 0;
 };
 </code></pre>
-<hr>
-<h2>Key Algorithms</h2>
-<h3>1. Chaos Probability Scaling</h3>
-<pre><code class="language-javascript">/**
+          <hr />
+          <h2 id="key-algorithms">Key Algorithms</h2>
+          <h3 id="1-chaos-probability-scaling">1. Chaos Probability Scaling</h3>
+          <pre><code class="language-javascript">/**
  * Scales a base probability by the chaos level.
  * Formula: min(baseProb * (chaosLevel / 5), 1)
  *
@@ -851,14 +1601,17 @@ wobble: {
   // Chaos 10: 100% chance (capped at 1.0)
 }
 </code></pre>
-<p><strong>Why this formula?</strong></p>
-<ul>
-<li>Linear scaling keeps user expectations consistent</li>
-<li>Division by 5 makes chaos 5 the &quot;neutral&quot; point (100% of base probability)</li>
-<li>Cap at 1.0 prevents probabilities &gt; 100%</li>
-</ul>
-<h3>2. URL Compression Pipeline</h3>
-<pre><code class="language-javascript">/**
+          <p><strong>Why this formula?</strong></p>
+          <ul>
+            <li>Linear scaling keeps user expectations consistent</li>
+            <li>
+              Division by 5 makes chaos 5 the &quot;neutral&quot; point (100% of
+              base probability)
+            </li>
+            <li>Cap at 1.0 prevents probabilities &gt; 100%</li>
+          </ul>
+          <h3 id="2-url-compression-pipeline">2. URL Compression Pipeline</h3>
+          <pre><code class="language-javascript">/**
  * Share flow: Config → JSON → Compressed → Base64 → Short URL
  */
 const shareConfig = async () =&gt; {
@@ -911,11 +1664,17 @@ const loadFromUrl = () =&gt; {
   }
 };
 </code></pre>
-<p><strong>Compression Ratio</strong>: Typical config (5KB) → Compressed (1-2KB) → ~60-75% size reduction</p>
-<h3>3. Toggle State Persistence</h3>
-<p>The challenge: How do we preserve gravity/walls/cursor settings across shuffles?</p>
-<p><strong>Solution: Shadow State Pattern</strong></p>
-<pre><code class="language-javascript">/**
+          <p>
+            <strong>Compression Ratio</strong>: Typical config (5KB) →
+            Compressed (1-2KB) → ~60-75% size reduction
+          </p>
+          <h3 id="3-toggle-state-persistence">3. Toggle State Persistence</h3>
+          <p>
+            The challenge: How do we preserve gravity/walls/cursor settings
+            across shuffles?
+          </p>
+          <p><strong>Solution: Shadow State Pattern</strong></p>
+          <pre><code class="language-javascript">/**
  * Before applying a toggle, store the original config value.
  * When toggle is disabled, restore the original value.
  */
@@ -947,8 +1706,10 @@ const applyWallsMode = () =&gt; {
 // - Shuffle → Walls On → Shuffle → Walls still on + new particles respect walls
 // - Shuffle → Walls On → Shuffle → Walls Off → Original out mode restored
 </code></pre>
-<h3>4. Debouncing for Performance</h3>
-<pre><code class="language-javascript">/**
+          <h3 id="4-debouncing-for-performance">
+            4. Debouncing for Performance
+          </h3>
+          <pre><code class="language-javascript">/**
  * Debounce prevents excessive function calls during rapid input.
  * Only executes after user stops interacting for `wait` milliseconds.
  */
@@ -975,11 +1736,14 @@ chaosSlider.addEventListener(&#39;input&#39;, (e) =&gt; {
   debouncedSave(chaosLevel);
 });
 </code></pre>
-<hr>
-<h2>Performance Considerations</h2>
-<h3>1. Event Delegation</h3>
-<p>Instead of 17 individual click listeners, <strong>one listener</strong> handles all buttons:</p>
-<pre><code class="language-javascript">subMenu.addEventListener(&#39;click&#39;, (e) =&gt; {
+          <hr />
+          <h2 id="performance-considerations">Performance Considerations</h2>
+          <h3 id="1-event-delegation">1. Event Delegation</h3>
+          <p>
+            Instead of 17 individual click listeners,
+            <strong>one listener</strong> handles all buttons:
+          </p>
+          <pre><code class="language-javascript">subMenu.addEventListener(&#39;click&#39;, (e) =&gt; {
   const button = e.target.closest(&#39;.menu-button&#39;);
   if (!button) return;
 
@@ -990,15 +1754,15 @@ chaosSlider.addEventListener(&#39;input&#39;, (e) =&gt; {
   }
 });
 </code></pre>
-<p><strong>Benefits</strong>:</p>
-<ul>
-<li>Fewer memory allocations</li>
-<li>Dynamic button additions don&#39;t need new listeners</li>
-<li>Easier to debug (single entry point)</li>
-</ul>
-<h3>2. Lazy Loading Indicators</h3>
-<p>Loading spinners only appear if operation takes &gt; 300ms:</p>
-<pre><code class="language-javascript">const loadingTimeout = setTimeout(() =&gt; {
+          <p><strong>Benefits</strong>:</p>
+          <ul>
+            <li>Fewer memory allocations</li>
+            <li>Dynamic button additions don&#39;t need new listeners</li>
+            <li>Easier to debug (single entry point)</li>
+          </ul>
+          <h3 id="2-lazy-loading-indicators">2. Lazy Loading Indicators</h3>
+          <p>Loading spinners only appear if operation takes &gt; 300ms:</p>
+          <pre><code class="language-javascript">const loadingTimeout = setTimeout(() =&gt; {
   UIManager.showLoadingIndicator();
 }, 300);
 
@@ -1007,17 +1771,25 @@ await tsParticles.load(config);
 clearTimeout(loadingTimeout);
 UIManager.hideLoadingIndicator();
 </code></pre>
-<p><strong>Why 300ms?</strong><br>Research shows users perceive delays &gt; 300ms as &quot;slow&quot;. Below that, spinners are distracting.</p>
-<h3>3. Structured Clone Instead of JSON</h3>
-<pre><code class="language-javascript">// ❌ Slow: JSON stringify/parse loses functions, regexes, undefined
+          <p>
+            <strong>Why 300ms?</strong><br />Research shows users perceive
+            delays &gt; 300ms as &quot;slow&quot;. Below that, spinners are
+            distracting.
+          </p>
+          <h3 id="3-structured-clone-instead-of-json">
+            3. Structured Clone Instead of JSON
+          </h3>
+          <pre><code class="language-javascript">// ❌ Slow: JSON stringify/parse loses functions, regexes, undefined
 const copy = JSON.parse(JSON.stringify(obj));
 
 // ✅ Fast: Native structured clone (Chrome 98+)
 const copy = structuredClone(obj);
 </code></pre>
-<h3>4. CSS Transitions Over JavaScript Animations</h3>
-<p>All UI animations use CSS transitions:</p>
-<pre><code class="language-css">.glass-button {
+          <h3 id="4-css-transitions-over-javascript-animations">
+            4. CSS Transitions Over JavaScript Animations
+          </h3>
+          <p>All UI animations use CSS transitions:</p>
+          <pre><code class="language-css">.glass-button {
   transition: all 0.3s ease;
 }
 
@@ -1025,54 +1797,63 @@ const copy = structuredClone(obj);
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 </code></pre>
-<p><strong>Benefits</strong>:</p>
-<ul>
-<li>Hardware accelerated (GPU)</li>
-<li>Automatically handles interruptions</li>
-<li>Respects <code>prefers-reduced-motion</code></li>
-</ul>
-<h3>5. Reduced Motion Support</h3>
-<pre><code class="language-javascript">const motionQuery = window.matchMedia(&#39;(prefers-reduced-motion: reduce)&#39;);
+          <p><strong>Benefits</strong>:</p>
+          <ul>
+            <li>Hardware accelerated (GPU)</li>
+            <li>Automatically handles interruptions</li>
+            <li>Respects <code>prefers-reduced-motion</code></li>
+          </ul>
+          <h3 id="5-reduced-motion-support">5. Reduced Motion Support</h3>
+          <pre><code class="language-javascript">const motionQuery = window.matchMedia(&#39;(prefers-reduced-motion: reduce)&#39;);
 if (motionQuery.matches) {
   // Auto-pause animations
   container.pause();
 }
 </code></pre>
-<h3>6. Memory Leak Prevention</h3>
-<pre><code class="language-javascript">window.addEventListener(&#39;beforeunload&#39;, () =&gt; {
+          <h3 id="6-memory-leak-prevention">6. Memory Leak Prevention</h3>
+          <pre><code class="language-javascript">window.addEventListener(&#39;beforeunload&#39;, () =&gt; {
   if (AppState.ui.particlesContainer) {
     AppState.ui.particlesContainer.destroy();
   }
 });
 </code></pre>
-<hr>
-<h2>Security &amp; Privacy</h2>
-<h3>Data Privacy</h3>
-<ul>
-<li><strong>No Analytics</strong>: Zero tracking or telemetry</li>
-<li><strong>No Cookies</strong>: All state in localStorage (user-controlled)</li>
-<li><strong>No Server Communication</strong>: Except optional emoji URL shortening</li>
-<li><strong>No PII Collection</strong>: No user data ever leaves the browser</li>
-</ul>
-<h3>Content Security Policy</h3>
-<p>Could add to <code>index.html</code>:</p>
-<pre><code class="language-html">&lt;meta
+          <hr />
+          <h2 id="security-privacy">Security & Privacy</h2>
+          <h3 id="data-privacy">Data Privacy</h3>
+          <ul>
+            <li><strong>No Analytics</strong>: Zero tracking or telemetry</li>
+            <li>
+              <strong>No Cookies</strong>: All state in localStorage
+              (user-controlled)
+            </li>
+            <li>
+              <strong>No Server Communication</strong>: Except optional emoji
+              URL shortening
+            </li>
+            <li>
+              <strong>No PII Collection</strong>: No user data ever leaves the
+              browser
+            </li>
+          </ul>
+          <h3 id="content-security-policy">Content Security Policy</h3>
+          <p>Could add to <code>index.html</code>:</p>
+          <pre><code class="language-html">&lt;meta
   http-equiv=&quot;Content-Security-Policy&quot;
   content=&quot;default-src &#39;self&#39;; 
                script-src &#39;self&#39; https://cdn.jsdelivr.net; 
                style-src &#39;self&#39; &#39;unsafe-inline&#39;;&quot;
 /&gt;
 </code></pre>
-<h3>Input Validation</h3>
-<pre><code class="language-javascript">// Chaos slider validation
+          <h3 id="input-validation">Input Validation</h3>
+          <pre><code class="language-javascript">// Chaos slider validation
 const newValue = parseInt(e.target.value, 10);
 if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
   console.warn(&#39;Invalid chaos level:&#39;, newValue);
   return;
 }
 </code></pre>
-<h3>URL Decompression Safety</h3>
-<pre><code class="language-javascript">try {
+          <h3 id="url-decompression-safety">URL Decompression Safety</h3>
+          <pre><code class="language-javascript">try {
   const decodedString = LZString.decompressFromEncodedURIComponent(hash);
   const parsedConfig = JSON.parse(decodedString);
 
@@ -1093,14 +1874,20 @@ if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
   UIManager.showToast(&#39;Invalid shared configuration link&#39;);
 }
 </code></pre>
-<hr>
-<h2>Extension Points</h2>
-<h3>Adding a New Shuffle Category</h3>
-<p><strong>Example: Adding &quot;Audio Reactive&quot; Shuffle</strong></p>
-<ol>
-<li><strong>Add to <code>configGenerator.js</code>:</strong></li>
-</ol>
-<pre><code class="language-javascript">generateAudio: () =&gt; ({
+          <hr />
+          <h2 id="extension-points">Extension Points</h2>
+          <h3 id="adding-a-new-shuffle-category">
+            Adding a New Shuffle Category
+          </h3>
+          <p>
+            <strong>Example: Adding &quot;Audio Reactive&quot; Shuffle</strong>
+          </p>
+          <ol>
+            <li>
+              <strong>Add to <code>configGenerator.js</code>:</strong>
+            </li>
+          </ol>
+          <pre><code class="language-javascript">generateAudio: () =&gt; ({
   responsive: [
     {
       maxWidth: 768,
@@ -1113,10 +1900,12 @@ if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
   // (Would require tsParticles audio plugin)
 });
 </code></pre>
-<ol start="2">
-<li><strong>Add Button to <code>index.html</code>:</strong></li>
-</ol>
-<pre><code class="language-html">&lt;div
+          <ol start="2">
+            <li>
+              <strong>Add Button to <code>index.html</code>:</strong>
+            </li>
+          </ol>
+          <pre><code class="language-html">&lt;div
   class=&quot;glass-button menu-button&quot;
   id=&quot;btn-shuffle-audio&quot;
   title=&quot;Shuffle Audio (Alt+U): Randomizes audio-reactive properties&quot;
@@ -1124,34 +1913,45 @@ if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
   &lt;!-- Add icon SVG --&gt;
 &lt;/div&gt;
 </code></pre>
-<ol start="3">
-<li><strong>Add Event Handler in <code>main.js</code>:</strong></li>
-</ol>
-<pre><code class="language-javascript">case BUTTON_IDS.SHUFFLE_AUDIO:
+          <ol start="3">
+            <li>
+              <strong>Add Event Handler in <code>main.js</code>:</strong>
+            </li>
+          </ol>
+          <pre><code class="language-javascript">case BUTTON_IDS.SHUFFLE_AUDIO:
   CommandManager.execute(createShuffleCommand({ audio: true }));
   break;
 </code></pre>
-<ol start="4">
-<li><strong>Update <code>buildConfig()</code> in <code>particlesService.js</code>:</strong></li>
-</ol>
-<pre><code class="language-javascript">if (shuffleOptions.audio) {
+          <ol start="4">
+            <li>
+              <strong
+                >Update <code>buildConfig()</code> in
+                <code>particlesService.js</code>:</strong
+              >
+            </li>
+          </ol>
+          <pre><code class="language-javascript">if (shuffleOptions.audio) {
   Object.assign(newConfig, ConfigGenerator.generateAudio());
 }
 </code></pre>
-<h3>Adding a New Toggle</h3>
-<p><strong>Example: Adding &quot;Fullscreen&quot; Toggle</strong></p>
-<ol>
-<li><strong>Add to <code>state.js</code>:</strong></li>
-</ol>
-<pre><code class="language-javascript">ui: {
+          <h3 id="adding-a-new-toggle">Adding a New Toggle</h3>
+          <p><strong>Example: Adding &quot;Fullscreen&quot; Toggle</strong></p>
+          <ol>
+            <li>
+              <strong>Add to <code>state.js</code>:</strong>
+            </li>
+          </ol>
+          <pre><code class="language-javascript">ui: {
   // ... existing properties
   isFullscreen: false;
 }
 </code></pre>
-<ol start="2">
-<li><strong>Add Button &amp; Handler in <code>main.js</code>:</strong></li>
-</ol>
-<pre><code class="language-javascript">case BUTTON_IDS.FULLSCREEN_TOGGLE:
+          <ol start="2">
+            <li>
+              <strong>Add Button &amp; Handler in <code>main.js</code>:</strong>
+            </li>
+          </ol>
+          <pre><code class="language-javascript">case BUTTON_IDS.FULLSCREEN_TOGGLE:
   CommandManager.execute(
     createToggleCommand(&#39;isFullscreen&#39;, async () =&gt; {
       if (AppState.ui.isFullscreen) {
@@ -1163,91 +1963,304 @@ if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
   );
   break;
 </code></pre>
-<ol start="3">
-<li><strong>Update <code>UIManager.syncUI()</code>:</strong></li>
-</ol>
-<pre><code class="language-javascript">document
+          <ol start="3">
+            <li>
+              <strong>Update <code>UIManager.syncUI()</code>:</strong>
+            </li>
+          </ol>
+          <pre><code class="language-javascript">document
   .getElementById(BUTTON_IDS.FULLSCREEN_TOGGLE)
   .classList.toggle(&#39;active&#39;, AppState.ui.isFullscreen);
 </code></pre>
-<h3>Adding a New Keyboard Shortcut</h3>
-<p>In <code>keyboardShortcuts.js</code>:</p>
-<pre><code class="language-javascript">const btnId = {
+          <h3 id="adding-a-new-keyboard-shortcut">
+            Adding a New Keyboard Shortcut
+          </h3>
+          <p>In <code>keyboardShortcuts.js</code>:</p>
+          <pre><code class="language-javascript">const btnId = {
   // ... existing shortcuts
   u: BUTTON_IDS.SHUFFLE_AUDIO, // Alt+U for audio shuffle
 }[e.key.toLowerCase()];
 </code></pre>
-<hr>
-<h2>Testing Strategy</h2>
-<h3>Manual Testing Checklist</h3>
-<ul>
-<li><input disabled="" type="checkbox"> All shuffle buttons generate different configs</li>
-<li><input disabled="" type="checkbox"> Undo/redo preserves exact state</li>
-<li><input disabled="" type="checkbox"> Toggles persist across shuffles</li>
-<li><input disabled="" type="checkbox"> Share URLs decompress correctly</li>
-<li><input disabled="" type="checkbox"> Keyboard shortcuts work</li>
-<li><input disabled="" type="checkbox"> Mobile touch events responsive</li>
-<li><input disabled="" type="checkbox"> Reduced motion honors user preference</li>
-<li><input disabled="" type="checkbox"> Screen reader announces state changes</li>
-<li><input disabled="" type="checkbox"> Focus trap works in modals</li>
-</ul>
-<h3>Automated Testing (Current + Next)</h3>
-<ul>
-<li><strong>Vitest suite (111 specs)</strong> — Exercises <code>commandManager</code>, <code>state.js</code>, <code>stateManager</code>, <code>configGenerator</code>, <code>utils</code>, and <code>errorHandler</code> with happy-path and edge-case coverage. Run with <code>npm run test</code> or <code>npm run test:coverage</code> (current coverage: 76% statements / 71% branches via v8).</li>
-<li><strong>Happy DOM environment</strong> — Browser APIs such as <code>document</code>, <code>localStorage</code>, and <code>navigator.clipboard</code> are shimmed for deterministic runs.</li>
-</ul>
-<p>Future additions on the roadmap:</p>
-<ul>
-<li>Playwright visual regression smoke tests for UI states</li>
-<li>Integration tests that spin up tsParticles to validate real canvas mutations</li>
-<li>Performance benchmarking for config generation under different chaos levels</li>
-</ul>
-<hr>
-<h2>Conclusion</h2>
-<p>tsDice&#39;s architecture balances <strong>simplicity</strong> with <strong>sophistication</strong>:</p>
-<ul>
-<li>Modular design enables easy maintenance</li>
-<li>Command pattern provides powerful undo/redo</li>
-<li>Pure functions ensure predictability</li>
-<li>Accessibility baked in from the start</li>
-<li>Performance optimizations where they matter</li>
-</ul>
-<p>The codebase serves as a <strong>teaching tool</strong> for modern JavaScript patterns and a <strong>production-ready</strong> creative application.</p>
-<hr>
-<p><strong>Questions? Open a GitHub Discussion!</strong></p>
+          <hr />
+          <h2 id="testing-strategy">Testing Strategy</h2>
+          <h3 id="manual-testing-checklist">Manual Testing Checklist</h3>
+          <ul>
+            <li>
+              <input disabled="" type="checkbox" /> All shuffle buttons generate
+              different configs
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Undo/redo preserves exact
+              state
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Toggles persist across
+              shuffles
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Share URLs decompress
+              correctly
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Keyboard shortcuts work
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Mobile touch events
+              responsive
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Reduced motion honors user
+              preference
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Screen reader announces
+              state changes
+            </li>
+            <li>
+              <input disabled="" type="checkbox" /> Focus trap works in modals
+            </li>
+          </ul>
+          <h3 id="automated-testing-current-next">
+            Automated Testing (Current + Next)
+          </h3>
+          <ul>
+            <li>
+              <strong>Vitest suite (111 specs)</strong> — Exercises
+              <code>commandManager</code>, <code>state.js</code>,
+              <code>stateManager</code>, <code>configGenerator</code>,
+              <code>utils</code>, and <code>errorHandler</code> with happy-path
+              and edge-case coverage. Run with <code>npm run test</code> or
+              <code>npm run test:coverage</code> (current coverage: 76%
+              statements / 71% branches via v8).
+            </li>
+            <li>
+              <strong>Happy DOM environment</strong> — Browser APIs such as
+              <code>document</code>, <code>localStorage</code>, and
+              <code>navigator.clipboard</code> are shimmed for deterministic
+              runs.
+            </li>
+          </ul>
+          <p>Future additions on the roadmap:</p>
+          <ul>
+            <li>Playwright visual regression smoke tests for UI states</li>
+            <li>
+              Integration tests that spin up tsParticles to validate real canvas
+              mutations
+            </li>
+            <li>
+              Performance benchmarking for config generation under different
+              chaos levels
+            </li>
+          </ul>
+          <hr />
+          <h2 id="conclusion">Conclusion</h2>
+          <p>
+            tsDice&#39;s architecture balances <strong>simplicity</strong> with
+            <strong>sophistication</strong>:
+          </p>
+          <ul>
+            <li>Modular design enables easy maintenance</li>
+            <li>Command pattern provides powerful undo/redo</li>
+            <li>Pure functions ensure predictability</li>
+            <li>Accessibility baked in from the start</li>
+            <li>Performance optimizations where they matter</li>
+          </ul>
+          <p>
+            The codebase serves as a <strong>teaching tool</strong> for modern
+            JavaScript patterns and a <strong>production-ready</strong> creative
+            application.
+          </p>
+          <hr />
+          <p><strong>Questions? Open a GitHub Discussion!</strong></p>
+        </article>
+      </main>
+    </div>
 
-    </article>
-  </main>
+    <button
+      class="scroll-to-top"
+      id="scroll-to-top"
+      onclick="scrollToTop()"
+      aria-label="Scroll to top"
+    >
+      ↑
+    </button>
 
-  <footer>
-    <p>Generated from markdown • <a href="https://github.com/zophiezlan/tsdice" target="_blank" rel="noopener">View on GitHub</a></p>
-  </footer>
+    <footer>
+      <p>
+        Generated from markdown •
+        <a
+          href="https://github.com/zophiezlan/tsdice"
+          target="_blank"
+          rel="noopener"
+          >GitHub</a
+        >
+        •
+        <a href="../index.html">Back to App</a>
+      </p>
+    </footer>
 
-  <script>
-    // Theme toggle functionality
-    function toggleTheme() {
-      document.body.classList.toggle('light-mode');
-      localStorage.setItem('tsDiceDocsTheme',
-        document.body.classList.contains('light-mode') ? 'light' : 'dark'
-      );
-    }
-
-    // Load saved theme preference
-    const savedTheme = localStorage.getItem('tsDiceDocsTheme');
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-mode');
-    }
-
-    // Sync with main app's theme if available
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'tsDiceTheme') {
-        if (e.newValue === 'light') {
-          document.body.classList.add('light-mode');
-        } else {
-          document.body.classList.remove('light-mode');
-        }
+    <script>
+      // Theme toggle functionality
+      function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const theme = document.body.classList.contains('light-mode')
+          ? 'light'
+          : 'dark';
+        localStorage.setItem('tsDiceDocsTheme', theme);
       }
-    });
-  </script>
-</body>
+
+      // Load saved theme preference
+      const savedTheme = localStorage.getItem('tsDiceDocsTheme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+      }
+
+      // Sync with main app's theme if available
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'tsDiceTheme') {
+          if (e.newValue === 'light') {
+            document.body.classList.add('light-mode');
+          } else {
+            document.body.classList.remove('light-mode');
+          }
+        }
+      });
+
+      // Mobile menu toggle
+      function toggleMobileMenu() {
+        const nav = document.getElementById('main-nav');
+        const btn = document.querySelector('.mobile-menu-toggle');
+        const isOpen = nav.classList.toggle('mobile-open');
+        btn.setAttribute('aria-expanded', isOpen);
+      }
+
+      // Close mobile menu when clicking outside or on a link
+      document.addEventListener('click', (e) => {
+        const nav = document.getElementById('main-nav');
+        const btn = document.querySelector('.mobile-menu-toggle');
+        if (
+          nav.classList.contains('mobile-open') &&
+          !nav.contains(e.target) &&
+          e.target !== btn
+        ) {
+          nav.classList.remove('mobile-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close mobile menu when clicking on a nav link
+      document.querySelectorAll('.nav-link').forEach((link) => {
+        link.addEventListener('click', () => {
+          const nav = document.getElementById('main-nav');
+          const btn = document.querySelector('.mobile-menu-toggle');
+          nav.classList.remove('mobile-open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Reading progress bar
+      function updateProgressBar() {
+        const winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        const height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById('progress-bar').style.width = scrolled + '%';
+      }
+
+      window.addEventListener('scroll', updateProgressBar);
+
+      // Scroll to top button
+      const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+      window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+          scrollToTopBtn.classList.add('visible');
+        } else {
+          scrollToTopBtn.classList.remove('visible');
+        }
+      });
+
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+
+      // Keyboard shortcut for scroll to top (Home key)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Home' && !e.ctrlKey && !e.shiftKey) {
+          e.preventDefault();
+          scrollToTop();
+        }
+      });
+
+      // Add copy buttons to code blocks
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((pre) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-block-wrapper';
+          pre.parentNode.insertBefore(wrapper, pre);
+          wrapper.appendChild(pre);
+
+          const button = document.createElement('button');
+          button.className = 'copy-code-btn';
+          button.textContent = 'Copy';
+          button.setAttribute('aria-label', 'Copy code to clipboard');
+
+          button.addEventListener('click', async () => {
+            const code =
+              pre.querySelector('code')?.textContent || pre.textContent;
+            try {
+              await navigator.clipboard.writeText(code);
+              button.textContent = 'Copied!';
+              button.classList.add('copied');
+              setTimeout(() => {
+                button.textContent = 'Copy';
+                button.classList.remove('copied');
+              }, 2000);
+            } catch (err) {
+              button.textContent = 'Failed';
+              setTimeout(() => {
+                button.textContent = 'Copy';
+              }, 2000);
+            }
+          });
+
+          wrapper.appendChild(button);
+        });
+
+        // Highlight active TOC item on scroll
+        const observerOptions = {
+          rootMargin: '-80px 0px -80% 0px',
+          threshold: 0,
+        };
+
+        const headings = document.querySelectorAll('h2[id], h3[id]');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              tocLinks.forEach((link) => {
+                link.style.fontWeight = 'normal';
+                link.style.color = 'var(--text-secondary)';
+              });
+              const activeLink = document.querySelector(
+                `.toc-list a[href="#${entry.target.id}"]`
+              );
+              if (activeLink) {
+                activeLink.style.fontWeight = '600';
+                activeLink.style.color = 'var(--link-color)';
+              }
+            }
+          });
+        }, observerOptions);
+
+        headings.forEach((heading) => observer.observe(heading));
+      });
+    </script>
+  </body>
 </html>
