@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏗️ Architecture - tsDice</title>
+  <meta name="description" content="Technical architecture and design decisions">
+
+  <style>
+    /* --- CSS Theming matching tsDice --- */
+    :root {
+      /* Backgrounds */
+      --bg-primary: #111;
+      --bg-content: rgba(255, 255, 255, 0.05);
+      --bg-code: rgba(0, 0, 0, 0.3);
+      --bg-code-block: rgba(0, 0, 0, 0.5);
+
+      /* Text */
+      --text-primary: white;
+      --text-secondary: #eee;
+      --text-strong: #fff;
+      --text-muted: #aaa;
+
+      /* Borders */
+      --border-color: rgba(255, 255, 255, 0.2);
+      --border-accent: rgba(255, 255, 255, 0.3);
+
+      /* Interactive */
+      --link-color: #87ceeb;
+      --link-color-hover: #9370db;
+      --focus-outline: #87ceeb;
+    }
+
+    body.light-mode {
+      /* Backgrounds */
+      --bg-primary: #f0f0f0;
+      --bg-content: rgba(0, 0, 0, 0.03);
+      --bg-code: rgba(0, 0, 0, 0.05);
+      --bg-code-block: rgba(0, 0, 0, 0.08);
+
+      /* Text */
+      --text-primary: #333;
+      --text-secondary: #444;
+      --text-strong: #000;
+      --text-muted: #666;
+
+      /* Borders */
+      --border-color: rgba(0, 0, 0, 0.2);
+      --border-accent: rgba(0, 0, 0, 0.3);
+
+      /* Interactive */
+      --link-color: #4361ee;
+      --link-color-hover: #7209b7;
+      --focus-outline: #4361ee;
+    }
+
+    /* --- Base Styles --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* --- Header --- */
+    header {
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--link-color);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--link-color-hover);
+    }
+
+    .theme-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- Main Content --- */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .content {
+      background: var(--bg-content);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 2rem;
+    }
+
+    /* --- Typography --- */
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-strong);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    h1 { font-size: 2.5rem; margin-top: 0; }
+    h2 { font-size: 2rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border-color); }
+    h3 { font-size: 1.5rem; }
+    h4 { font-size: 1.25rem; }
+    h5 { font-size: 1.1rem; }
+    h6 { font-size: 1rem; }
+
+    p {
+      margin: 1rem 0;
+      color: var(--text-secondary);
+    }
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--link-color-hover);
+      text-decoration: underline;
+    }
+
+    /* --- Lists --- */
+    ul, ol {
+      margin: 1rem 0;
+      padding-left: 2rem;
+      color: var(--text-secondary);
+    }
+
+    li {
+      margin: 0.5rem 0;
+    }
+
+    /* --- Code --- */
+    code {
+      background: var(--bg-code);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9em;
+      color: var(--text-primary);
+    }
+
+    pre {
+      background: var(--bg-code-block);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--text-secondary);
+    }
+
+    /* --- Blockquotes --- */
+    blockquote {
+      border-left: 4px solid var(--link-color);
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      background: var(--bg-code);
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    blockquote p {
+      margin: 0.5rem 0;
+    }
+
+    /* --- Tables --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+      color: var(--text-strong);
+    }
+
+    tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* --- Horizontal Rule --- */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 2rem 0;
+    }
+
+    /* --- Images --- */
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+
+    /* --- Footer --- */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: 4rem;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      main {
+        padding: 1rem;
+      }
+
+      .content {
+        padding: 1rem;
+      }
+
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.75rem; }
+      h3 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-title">🏗️ Architecture</div>
+    <nav class="header-nav">
+      <a href="../index.html" class="nav-link">← Back to tsDice</a>
+      <a href="user-guide.html" class="nav-link">User Guide</a>
+      <a href="architecture.html" class="nav-link">Architecture</a>
+      <a href="analysis.html" class="nav-link">Analysis</a>
+      <a href="quick-reference.html" class="nav-link">Quick Ref</a>
+      <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+    </nav>
+  </header>
+
+  <main>
+    <article class="content">
+      <h1>🏛️ tsDice Architecture Guide</h1>
+<blockquote>
+<p>A comprehensive deep dive into the design decisions, patterns, and technical implementation of tsDice.</p>
+</blockquote>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#system-overview">System Overview</a></li>
+<li><a href="#design-principles">Design Principles</a></li>
+<li><a href="#module-architecture">Module Architecture</a></li>
+<li><a href="#data-flow--state-management">Data Flow &amp; State Management</a></li>
+<li><a href="#key-algorithms">Key Algorithms</a></li>
+<li><a href="#performance-considerations">Performance Considerations</a></li>
+<li><a href="#security--privacy">Security &amp; Privacy</a></li>
+<li><a href="#extension-points">Extension Points</a></li>
+</ol>
+<hr>
+<h2>System Overview</h2>
+<h3>High-Level Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                         User Interface                      │
+│  (index.html + CSS Variables + Glassmorphism Design)        │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Application Layer (main.js)              │
+│  • Event Orchestration    • Lifecycle Management            │
+│  • Command Factory        • Modal Coordination              │
+└────────┬─────────────────────┬──────────────────────────────┘
+         │                     │
+         ▼                     ▼
+┌────────────────────┐  ┌────────────────────────────────────┐
+│  UI Manager        │  │     Command Manager                │
+│  • DOM Updates     │  │     • Undo/Redo Stack              │
+│  • Feedback        │  │     • Command Execution            │
+│  • Accessibility   │  │     • History Deduplication        │
+└────────────────────┘  └────────────────────────────────────┘
+         │                     │
+         ▼                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    State Management (state.js)              │
+│  • Single Source of Truth    • Reactive State Updates       │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────────────────────┐
+│             Business Logic Layer                           │
+│  ┌───────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │  Config       │  │  Particles   │  │  Utilities      │  │
+│  │  Generator    │  │  Service     │  │  (utils.js)     │  │
+│  └───────────────┘  └──────────────┘  └─────────────────┘  │
+└────────────────────┬───────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│              tsParticles Engine (External)                  │
+│  • Particle Rendering    • Physics Engine                   │
+│  • Interaction Handling  • Canvas Management                │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2>Design Principles</h2>
+<h3>1. Separation of Concerns</h3>
+<p>Each module has a single, well-defined responsibility:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+<th>Dependencies</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>main.js</code></td>
+<td>Application orchestration, event binding</td>
+<td>All modules</td>
+</tr>
+<tr>
+<td><code>state.js</code></td>
+<td>State storage (no logic)</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>uiManager.js</code></td>
+<td>DOM manipulation, accessibility</td>
+<td>State</td>
+</tr>
+<tr>
+<td><code>commandManager.js</code></td>
+<td>Undo/redo logic</td>
+<td>UI Manager</td>
+</tr>
+<tr>
+<td><code>configGenerator.js</code></td>
+<td>Randomization algorithms</td>
+<td>State, Constants, Utils</td>
+</tr>
+<tr>
+<td><code>particlesService.js</code></td>
+<td>tsParticles API abstraction</td>
+<td>State, Config Generator</td>
+</tr>
+<tr>
+<td><code>modalManager.js</code></td>
+<td>Modal lifecycle &amp; focus management</td>
+<td>UI Manager</td>
+</tr>
+<tr>
+<td><code>tooltipManager.js</code></td>
+<td>Tooltip positioning &amp; timing</td>
+<td>Constants</td>
+</tr>
+<tr>
+<td><code>keyboardShortcuts.js</code></td>
+<td>Global keyboard event handling</td>
+<td>Constants, Modal Manager</td>
+</tr>
+<tr>
+<td><code>utils.js</code></td>
+<td>Pure utility functions</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>constants.js</code></td>
+<td>Static data arrays</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>errorHandler.js</code></td>
+<td>Centralized error handling &amp; validation</td>
+<td>UI Manager</td>
+</tr>
+<tr>
+<td><code>stateManager.js</code></td>
+<td>State mutations &amp; dispatch pattern</td>
+<td>State, UI Manager, Error</td>
+</tr>
+</tbody></table>
+<h3>2. Unidirectional Data Flow</h3>
+<p>Data always flows in one direction, preventing circular dependencies:</p>
+<pre><code>User Input → Event Handler → Command Factory → Command Manager
+                                                     ↓
+                                              Execute Command
+                                                     ↓
+                                     StateManager.dispatch(action)
+                                                     ↓
+                                        Update AppState (state.js)
+                                                     ↓
+                                        Generate/Apply Config (configGenerator + particlesService)
+                                                     ↓
+                                        Sync UI (uiManager.js)
+                                                     ↓
+                                              Visual Feedback
+</code></pre>
+<p><strong>New in Phase 2:</strong> State mutations now go through <code>StateManager.dispatch()</code> for validation and centralized control.</p>
+<h3>3. Command Pattern for Time Travel</h3>
+<p>Every stateful action implements the Command interface:</p>
+<pre><code class="language-javascript">interface Command {
+  execute(): Promise&lt;void&gt;; // Apply the change
+  undo(): Promise&lt;void&gt;; // Revert the change
+}
+</code></pre>
+<p>This enables:</p>
+<ul>
+<li><strong>Undo/Redo</strong>: Infinite history stack</li>
+<li><strong>Deduplication</strong>: Identical consecutive configs are skipped</li>
+<li><strong>Encapsulation</strong>: Each command captures its own before/after state</li>
+</ul>
+<h3>4. Immutability Where Possible</h3>
+<ul>
+<li>Configs are deep-cloned using <code>structuredClone()</code> before mutation</li>
+<li>Original interaction modes stored separately for restoration</li>
+<li>No direct mutation of <code>AppState</code> outside designated functions</li>
+</ul>
+<h3>5. Progressive Enhancement</h3>
+<ul>
+<li>Works without JavaScript (shows basic HTML)</li>
+<li>Keyboard shortcuts enhance mouse interaction</li>
+<li>Tooltips provide context but aren&#39;t required</li>
+<li>Reduced motion preferences honored automatically</li>
+</ul>
+<h3>6. Centralized Error Handling (Phase 2)</h3>
+<p>All error-prone operations are wrapped with <code>ErrorHandler</code>:</p>
+<ul>
+<li><strong>Typed Errors</strong>: Classify errors by type for appropriate handling</li>
+<li><strong>User Feedback</strong>: Show user-friendly messages via toast notifications</li>
+<li><strong>Recovery</strong>: Distinguish between recoverable and fatal errors</li>
+<li><strong>Validation</strong>: Centralized config validation before operations</li>
+</ul>
+<h3>7. Dispatch Pattern for State (Phase 2)</h3>
+<p>State mutations follow a dispatch pattern:</p>
+<ul>
+<li><strong>Action Creators</strong>: Type-safe functions for creating actions</li>
+<li><strong>Validation</strong>: StateManager validates changes before applying</li>
+<li><strong>Persistence</strong>: Automatic localStorage sync</li>
+<li><strong>Immutability</strong>: State changes return new objects, not mutations</li>
+</ul>
+<hr>
+<h2>Module Architecture</h2>
+<h3>Core Modules</h3>
+<h4><code>errorHandler.js</code> — Centralized Error Handling (Phase 2)</h4>
+<p><strong>Purpose:</strong> Provide consistent error handling with user-friendly feedback and automatic recovery.</p>
+<pre><code class="language-javascript">// Error Types
+export const ErrorType = {
+  LIBRARY_LOAD: &#39;LIBRARY_LOAD&#39;, // tsParticles loading failure
+  CONFIG_INVALID: &#39;CONFIG_INVALID&#39;, // Invalid particle configuration
+  PARTICLES_LOAD: &#39;PARTICLES_LOAD&#39;, // Particle initialization failure
+  SHARE_FAILED: &#39;SHARE_FAILED&#39;, // Share functionality error
+  STORAGE_ERROR: &#39;STORAGE_ERROR&#39;, // localStorage operation failure
+  NETWORK_ERROR: &#39;NETWORK_ERROR&#39;, // Network request failure
+  UNKNOWN: &#39;UNKNOWN&#39;, // Catch-all for unexpected errors
+};
+
+// API
+ErrorHandler.handle(error, errorType); // Handle and log error
+ErrorHandler.wrap(asyncFn, errorType); // Wrap async function
+ErrorHandler.validateConfig(config); // Validate particle config
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li><strong>User-Friendly Messages</strong>: Shows toast notifications with helpful error messages</li>
+<li><strong>Accessibility</strong>: Announces errors to screen readers</li>
+<li><strong>Recovery Classification</strong>: Distinguishes fatal vs. recoverable errors</li>
+<li><strong>Console Logging</strong>: Detailed error info for debugging</li>
+</ul>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="language-javascript">// Wrap an async function with automatic error handling
+const safeLoadParticles = ErrorHandler.wrap(
+  loadParticles,
+  ErrorType.PARTICLES_LOAD
+);
+await safeLoadParticles(config);
+
+// Validate configuration before using
+if (!ErrorHandler.validateConfig(config)) {
+  // Handle invalid config
+}
+</code></pre>
+<h4><code>stateManager.js</code> — State Management with Dispatch Pattern (Phase 2)</h4>
+<p><strong>Purpose:</strong> Centralize state mutations with validation and automatic persistence.</p>
+<pre><code class="language-javascript">// Action Types
+export const ActionType = {
+  SET_THEME: &#39;SET_THEME&#39;, // Dark/light mode
+  SET_CHAOS_LEVEL: &#39;SET_CHAOS_LEVEL&#39;, // Chaos slider value
+  TOGGLE_GRAVITY: &#39;TOGGLE_GRAVITY&#39;, // Gravity on/off
+  TOGGLE_WALLS: &#39;TOGGLE_WALLS&#39;, // Wall collisions
+  TOGGLE_CURSOR: &#39;TOGGLE_CURSOR&#39;, // Cursor particle mode
+  TOGGLE_PAUSE: &#39;TOGGLE_PAUSE&#39;, // Animation pause
+  SET_CONFIG: &#39;SET_CONFIG&#39;, // Particle configuration
+  SAVE_INTERACTION: &#39;SAVE_INTERACTION&#39;, // Save interaction modes
+  SAVE_OUT_MODES: &#39;SAVE_OUT_MODES&#39;, // Save out modes
+};
+
+// API
+StateManager.dispatch(action); // Apply state change
+StateManager.getState(); // Get immutable copy
+StateManager.persist(); // Save to localStorage
+StateManager.validate(); // Validate state integrity
+</code></pre>
+<p><strong>Action Creators:</strong></p>
+<pre><code class="language-javascript">// Convenient functions for creating actions
+Actions.setTheme(isDark); // Set theme
+Actions.setChaosLevel(level); // Set chaos level (1-10)
+Actions.toggleGravity(); // Toggle gravity
+Actions.toggleWalls(); // Toggle walls
+Actions.toggleCursor(); // Toggle cursor mode
+Actions.togglePause(); // Toggle pause
+Actions.setConfig(config); // Set particle config
+</code></pre>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="language-javascript">// Dispatch an action to change theme
+StateManager.dispatch(Actions.setTheme(false));
+
+// Persist changes to localStorage
+StateManager.persist();
+
+// Get immutable state snapshot
+const currentState = StateManager.getState();
+
+// Validate state integrity
+if (!StateManager.validate()) {
+  console.error(&#39;State validation failed&#39;);
+}
+</code></pre>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Type-Safe Actions</strong>: Action creators prevent typos and ensure correct payloads</li>
+<li><strong>Centralized Validation</strong>: All state changes validated in one place</li>
+<li><strong>Automatic UI Sync</strong>: UIManager.syncUI() called after mutations</li>
+<li><strong>Easy Debugging</strong>: All state changes logged with action type</li>
+<li><strong>Immutability</strong>: getState() returns deep copies, preventing accidental mutations</li>
+</ul>
+<h4><code>state.js</code> — The Single Source of Truth</h4>
+<pre><code class="language-javascript">export const AppState = {
+  ui: {
+    isDarkMode: boolean,
+    isCursorParticle: boolean,
+    isGravityOn: boolean,
+    areWallsOn: boolean,
+    isPaused: boolean,
+    lastFocusedElement: HTMLElement | null,
+    particlesContainer: Container | null,
+  },
+  particleState: {
+    chaosLevel: 1 - 10,
+    currentConfig: object,
+    originalInteractionModes: object,
+    originalOutModes: object,
+    initialConfigFromUrl: object | null,
+  },
+};
+</code></pre>
+<p><strong>Why this structure?</strong></p>
+<ul>
+<li>Clear namespace separation between UI state and particle state</li>
+<li>Easy to serialize for debugging</li>
+<li>Single import point for all modules</li>
+</ul>
+<h4><code>configGenerator.js</code> — The Randomization Engine</h4>
+<p>Four pure functions that generate particle config sections:</p>
+<pre><code class="language-javascript">ConfigGenerator = {
+  generateAppearance(): object
+  generateMovement(): object
+  generateInteraction(): object
+  generateSpecialFX(currentFx?: object): object
+}
+</code></pre>
+<p><strong>Key Insight</strong>: Each generator uses chaos level to scale randomness:</p>
+<pre><code class="language-javascript">// Base probability increases with chaos
+getChaosProbability(baseProb, chaosLevel);
+
+// Example: Collision probability
+enable: getRandomBool(getChaosProbability(0.6, chaosLevel));
+// Chaos 1 → 12% chance
+// Chaos 5 → 60% chance
+// Chaos 10 → 100% chance
+</code></pre>
+<h4><code>particlesService.js</code> — The tsParticles Abstraction Layer</h4>
+<p>Isolates all tsParticles interactions behind a clean API:</p>
+<pre><code class="language-javascript">export const particlesService = {
+  buildConfig(shuffleOptions): object,
+  loadParticles(config): Promise&lt;void&gt;,
+  reapplyToggleStates(config): void,
+  applyCursorMode(): void,
+  applyWallsMode(): void,
+  applyGravityMode(): void,
+  updateThemeAndReload(): Promise&lt;void&gt;
+};
+</code></pre>
+<p><strong>Why abstract tsParticles?</strong></p>
+<ul>
+<li>Future-proof against API changes</li>
+<li>Centralize error handling</li>
+<li>Enable configuration validation</li>
+<li>Provide loading indicators for async operations</li>
+</ul>
+<h4><code>commandManager.js</code> — Time Travel Implementation</h4>
+<pre><code class="language-javascript">CommandManager = {
+  undoStack: Command[],  // Infinite history
+  redoStack: Command[],
+
+  execute(command): void,   // Run + add to undo stack
+  undo(): void,             // Pop undo, push to redo
+  redo(): void              // Pop redo, push to undo
+};
+</code></pre>
+<p><strong>Deduplication Logic</strong>:</p>
+<pre><code class="language-javascript">// Only deduplicate shuffle commands with configs
+if (lastCommand.newConfig &amp;&amp; newCommand.newConfig) {
+  if (JSON.stringify(lastConfig) === JSON.stringify(newConfig)) {
+    return; // Skip duplicate
+  }
+}
+</code></pre>
+<h4><code>uiManager.js</code> — The View Layer</h4>
+<p>Centralized DOM manipulation prevents scattered jQuery-style code:</p>
+<pre><code class="language-javascript">UIManager = {
+  announce(message: string): void,              // Screen reader
+  showToast(message: string): void,             // Visual feedback
+  updateFullscreenIcons(): void,                // Icon swap
+  populateInfoModal(): void,                    // Dynamic content
+  openModal(modal: Element, opener: Element): void,
+  closeModal(modal: Element): void,
+  showLoadingIndicator(): void,
+  hideLoadingIndicator(): void,
+  syncUI(): void                                // Complete state sync
+};
+</code></pre>
+<p><strong>The <code>syncUI()</code> Pattern</strong>:
+Instead of ad-hoc DOM updates, one function syncs <strong>everything</strong>:</p>
+<ul>
+<li>Theme class toggle</li>
+<li>Button active states</li>
+<li>Slider position</li>
+<li>ARIA attributes</li>
+<li>History button states</li>
+</ul>
+<p>Called after <strong>every state change</strong>, guaranteeing UI consistency.</p>
+<hr>
+<h2>Data Flow &amp; State Management</h2>
+<h3>Shuffle Flow (Complete Walkthrough)</h3>
+<pre><code class="language-javascript">// 1. USER CLICKS &quot;Shuffle All&quot;
+subMenu.addEventListener(&#39;click&#39;, (e) =&gt; {
+  if (button.id === BUTTON_IDS.SHUFFLE_ALL) {
+    // 2. CREATE SHUFFLE COMMAND
+    const command = createShuffleCommand({ all: true });
+
+    // 3. EXECUTE VIA COMMAND MANAGER
+    CommandManager.execute(command);
+  }
+});
+
+// Inside createShuffleCommand:
+const createShuffleCommand = (shuffleOptions) =&gt; {
+  const oldConfig = structuredClone(AppState.particleState.currentConfig);
+  const oldUIStates = {
+    /* capture gravity, walls, cursor states */
+  };
+
+  return {
+    async execute() {
+      // 4. GENERATE NEW CONFIG
+      newConfig = buildConfig(shuffleOptions);
+
+      // 5. VISUAL EFFECT (optional burst)
+      container.style.filter = &#39;brightness(1.3)&#39;;
+      setTimeout(() =&gt; (container.style.filter = &#39;&#39;), 150);
+
+      // 6. LOAD INTO tsParticles
+      await loadParticles(newConfig);
+
+      // 7. ANNOUNCE TO SCREEN READERS
+      UIManager.announce(&#39;New scene generated.&#39;);
+    },
+
+    async undo() {
+      // 8. RESTORE OLD STATE
+      AppState.particleState.currentConfig = oldConfig;
+      await loadParticles(oldConfig);
+      UIManager.showToast(&#39;Undid shuffle&#39;);
+    },
+  };
+};
+
+// Inside buildConfig:
+const buildConfig = (shuffleOptions) =&gt; {
+  let config = {};
+
+  // 9. CALL APPROPRIATE GENERATORS
+  if (shuffleOptions.all) {
+    config.particles = {
+      ...ConfigGenerator.generateAppearance(),
+      move: ConfigGenerator.generateMovement(),
+      ...ConfigGenerator.generateSpecialFX(),
+    };
+    config.interactivity = ConfigGenerator.generateInteraction();
+  }
+
+  // 10. APPLY THEME &amp; PARTICLE COUNT
+  config.background = { color: { value: isDarkMode ? &#39;#111&#39; : &#39;#f0f0f0&#39; } };
+  config.particles.number = { value: 20 + chaosLevel * 20 };
+
+  // 11. REAPPLY UI TOGGLES
+  reapplyToggleStates(config);
+
+  return config;
+};
+
+// Inside loadParticles:
+const loadParticles = async (config) =&gt; {
+  // 12. SHOW LOADING (IF &gt; 300ms)
+  const loadingTimeout = setTimeout(
+    () =&gt; UIManager.showLoadingIndicator(),
+    300
+  );
+
+  // 13. SAVE TO LOCAL STORAGE
+  localStorage.setItem(&#39;tsDiceLastConfig&#39;, JSON.stringify(config));
+
+  // 14. INITIALIZE tsParticles
+  AppState.ui.particlesContainer = await tsParticles.load({
+    id: &#39;tsparticles&#39;,
+    options: config,
+  });
+
+  // 15. SYNC UI STATE
+  UIManager.syncUI();
+
+  clearTimeout(loadingTimeout);
+  UIManager.hideLoadingIndicator();
+};
+</code></pre>
+<h3>Toggle Flow (Gravity Example)</h3>
+<pre><code class="language-javascript">// 1. USER CLICKS GRAVITY BUTTON
+case BUTTON_IDS.GRAVITY:
+  CommandManager.execute(
+    createToggleCommand(&#39;isGravityOn&#39;, async () =&gt; {
+
+      // 2. UPDATE STATE
+      AppState.ui.isGravityOn = !AppState.ui.isGravityOn;
+
+      // 3. APPLY TO CONFIG
+      applyGravityMode();
+
+      // 4. RELOAD PARTICLES
+      await loadParticles(AppState.particleState.currentConfig);
+
+      // 5. SHOW FEEDBACK
+      UIManager.showToast(`Gravity ${AppState.ui.isGravityOn ? &#39;enabled&#39; : &#39;disabled&#39;}`);
+    })
+  );
+
+// Inside applyGravityMode:
+const applyGravityMode = () =&gt; {
+  const config = AppState.particleState.currentConfig;
+  if (!config.particles.move.gravity) config.particles.move.gravity = {};
+
+  // 6. SET GRAVITY CONFIG
+  config.particles.move.gravity.enable = AppState.ui.isGravityOn;
+  config.particles.move.gravity.acceleration = AppState.ui.isGravityOn ? 20 : 0;
+};
+</code></pre>
+<hr>
+<h2>Key Algorithms</h2>
+<h3>1. Chaos Probability Scaling</h3>
+<pre><code class="language-javascript">/**
+ * Scales a base probability by the chaos level.
+ * Formula: min(baseProb * (chaosLevel / 5), 1)
+ *
+ * @param {number} baseProb - Base probability (0.0 to 1.0)
+ * @param {number} chaosLevel - User&#39;s chaos setting (1 to 10)
+ * @returns {number} Scaled probability (0.0 to 1.0)
+ */
+const getChaosProbability = (baseProb, chaosLevel) =&gt;
+  Math.min(baseProb * (chaosLevel / 5), 1);
+
+// Example: Enable wobble effect
+wobble: {
+  enable: getRandomBool(getChaosProbability(0.5, chaosLevel)),
+  // Chaos 1: 10% chance (0.5 * 0.2)
+  // Chaos 5: 50% chance (0.5 * 1.0)
+  // Chaos 10: 100% chance (capped at 1.0)
+}
+</code></pre>
+<p><strong>Why this formula?</strong></p>
+<ul>
+<li>Linear scaling keeps user expectations consistent</li>
+<li>Division by 5 makes chaos 5 the &quot;neutral&quot; point (100% of base probability)</li>
+<li>Cap at 1.0 prevents probabilities &gt; 100%</li>
+</ul>
+<h3>2. URL Compression Pipeline</h3>
+<pre><code class="language-javascript">/**
+ * Share flow: Config → JSON → Compressed → Base64 → Short URL
+ */
+const shareConfig = async () =&gt; {
+  // 1. Prepare shareable config (includes UI state)
+  const sharableConfig = {
+    ...currentConfig,
+    uiState: { chaosLevel, isDarkMode, isGravityOn, areWallsOn, isCursorParticle }
+  };
+
+  // 2. Serialize to JSON
+  const jsonString = JSON.stringify(sharableConfig);
+
+  // 3. Compress using lz-string (LZMA algorithm)
+  const compressed = LZString.compressToEncodedURIComponent(jsonString);
+
+  // 4. Build full URL
+  const fullUrl = `${window.location.href.split(&#39;#&#39;)[0]}#config=${compressed}`;
+
+  // 5. Shorten via API (8 random emojis)
+  const shortUrl = await createEmojiShortUrl(fullUrl);
+
+  // 6. Copy to clipboard
+  await copyToClipboard(shortUrl || fullUrl);
+};
+
+/**
+ * Load flow: Short URL → Full URL → Decompress → Parse → Apply
+ */
+const loadFromUrl = () =&gt; {
+  if (window.location.hash.startsWith(&#39;#config=&#39;)) {
+    // 1. Extract compressed string
+    const compressed = window.location.hash.substring(8);
+
+    // 2. Decompress
+    const jsonString = LZString.decompressFromEncodedURIComponent(compressed);
+
+    // 3. Parse JSON
+    const config = JSON.parse(jsonString);
+
+    // 4. Extract UI state
+    if (config.uiState) {
+      AppState.particleState.chaosLevel = config.uiState.chaosLevel || 5;
+      AppState.ui.isDarkMode = config.uiState.isDarkMode !== false;
+      // ... restore other UI states
+      delete config.uiState;
+    }
+
+    // 5. Load particles
+    await loadParticles(config);
+  }
+};
+</code></pre>
+<p><strong>Compression Ratio</strong>: Typical config (5KB) → Compressed (1-2KB) → ~60-75% size reduction</p>
+<h3>3. Toggle State Persistence</h3>
+<p>The challenge: How do we preserve gravity/walls/cursor settings across shuffles?</p>
+<p><strong>Solution: Shadow State Pattern</strong></p>
+<pre><code class="language-javascript">/**
+ * Before applying a toggle, store the original config value.
+ * When toggle is disabled, restore the original value.
+ */
+
+// WALLS TOGGLE EXAMPLE:
+const applyWallsMode = () =&gt; {
+  if (AppState.ui.areWallsOn) {
+    // 1. Store original out modes (if not already stored)
+    if (!AppState.particleState.originalOutModes.default) {
+      AppState.particleState.originalOutModes = structuredClone(
+        config.particles.move.outModes
+      );
+    }
+
+    // 2. Override with bounce
+    config.particles.move.outModes = { default: &#39;bounce&#39; };
+  } else {
+    // 3. Restore original out modes
+    config.particles.move.outModes = structuredClone(
+      AppState.particleState.originalOutModes
+    );
+
+    // 4. Clear stored state
+    AppState.particleState.originalOutModes = {};
+  }
+};
+
+// This pattern ensures:
+// - Shuffle → Walls On → Shuffle → Walls still on + new particles respect walls
+// - Shuffle → Walls On → Shuffle → Walls Off → Original out mode restored
+</code></pre>
+<h3>4. Debouncing for Performance</h3>
+<pre><code class="language-javascript">/**
+ * Debounce prevents excessive function calls during rapid input.
+ * Only executes after user stops interacting for `wait` milliseconds.
+ */
+const debounce = (func, wait) =&gt; {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () =&gt; {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+// Usage: Chaos slider
+chaosSlider.addEventListener(&#39;input&#39;, (e) =&gt; {
+  AppState.particleState.chaosLevel = parseInt(e.target.value);
+
+  // Announce after 300ms of no changes (prevents spam)
+  debouncedAnnounce(chaosLevel);
+
+  // Save to localStorage after 500ms (prevents excessive writes)
+  debouncedSave(chaosLevel);
+});
+</code></pre>
+<hr>
+<h2>Performance Considerations</h2>
+<h3>1. Event Delegation</h3>
+<p>Instead of 17 individual click listeners, <strong>one listener</strong> handles all buttons:</p>
+<pre><code class="language-javascript">subMenu.addEventListener(&#39;click&#39;, (e) =&gt; {
+  const button = e.target.closest(&#39;.menu-button&#39;);
+  if (!button) return;
+
+  switch (button.id) {
+    case BUTTON_IDS.SHUFFLE_ALL: /* ... */
+    case BUTTON_IDS.SHUFFLE_APPEARANCE: /* ... */
+    // ... etc
+  }
+});
+</code></pre>
+<p><strong>Benefits</strong>:</p>
+<ul>
+<li>Fewer memory allocations</li>
+<li>Dynamic button additions don&#39;t need new listeners</li>
+<li>Easier to debug (single entry point)</li>
+</ul>
+<h3>2. Lazy Loading Indicators</h3>
+<p>Loading spinners only appear if operation takes &gt; 300ms:</p>
+<pre><code class="language-javascript">const loadingTimeout = setTimeout(() =&gt; {
+  UIManager.showLoadingIndicator();
+}, 300);
+
+await tsParticles.load(config);
+
+clearTimeout(loadingTimeout);
+UIManager.hideLoadingIndicator();
+</code></pre>
+<p><strong>Why 300ms?</strong><br>Research shows users perceive delays &gt; 300ms as &quot;slow&quot;. Below that, spinners are distracting.</p>
+<h3>3. Structured Clone Instead of JSON</h3>
+<pre><code class="language-javascript">// ❌ Slow: JSON stringify/parse loses functions, regexes, undefined
+const copy = JSON.parse(JSON.stringify(obj));
+
+// ✅ Fast: Native structured clone (Chrome 98+)
+const copy = structuredClone(obj);
+</code></pre>
+<h3>4. CSS Transitions Over JavaScript Animations</h3>
+<p>All UI animations use CSS transitions:</p>
+<pre><code class="language-css">.glass-button {
+  transition: all 0.3s ease;
+}
+
+.modal-content {
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+</code></pre>
+<p><strong>Benefits</strong>:</p>
+<ul>
+<li>Hardware accelerated (GPU)</li>
+<li>Automatically handles interruptions</li>
+<li>Respects <code>prefers-reduced-motion</code></li>
+</ul>
+<h3>5. Reduced Motion Support</h3>
+<pre><code class="language-javascript">const motionQuery = window.matchMedia(&#39;(prefers-reduced-motion: reduce)&#39;);
+if (motionQuery.matches) {
+  // Auto-pause animations
+  container.pause();
+}
+</code></pre>
+<h3>6. Memory Leak Prevention</h3>
+<pre><code class="language-javascript">window.addEventListener(&#39;beforeunload&#39;, () =&gt; {
+  if (AppState.ui.particlesContainer) {
+    AppState.ui.particlesContainer.destroy();
+  }
+});
+</code></pre>
+<hr>
+<h2>Security &amp; Privacy</h2>
+<h3>Data Privacy</h3>
+<ul>
+<li><strong>No Analytics</strong>: Zero tracking or telemetry</li>
+<li><strong>No Cookies</strong>: All state in localStorage (user-controlled)</li>
+<li><strong>No Server Communication</strong>: Except optional emoji URL shortening</li>
+<li><strong>No PII Collection</strong>: No user data ever leaves the browser</li>
+</ul>
+<h3>Content Security Policy</h3>
+<p>Could add to <code>index.html</code>:</p>
+<pre><code class="language-html">&lt;meta
+  http-equiv=&quot;Content-Security-Policy&quot;
+  content=&quot;default-src &#39;self&#39;; 
+               script-src &#39;self&#39; https://cdn.jsdelivr.net; 
+               style-src &#39;self&#39; &#39;unsafe-inline&#39;;&quot;
+/&gt;
+</code></pre>
+<h3>Input Validation</h3>
+<pre><code class="language-javascript">// Chaos slider validation
+const newValue = parseInt(e.target.value, 10);
+if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
+  console.warn(&#39;Invalid chaos level:&#39;, newValue);
+  return;
+}
+</code></pre>
+<h3>URL Decompression Safety</h3>
+<pre><code class="language-javascript">try {
+  const decodedString = LZString.decompressFromEncodedURIComponent(hash);
+  const parsedConfig = JSON.parse(decodedString);
+
+  // Validate structure
+  if (!parsedConfig || typeof parsedConfig !== &#39;object&#39;) {
+    throw new Error(&#39;Invalid config structure&#39;);
+  }
+
+  if (!parsedConfig.particles || !parsedConfig.interactivity) {
+    throw new Error(&#39;Missing required config properties&#39;);
+  }
+
+  // Safe to use
+  await loadParticles(parsedConfig);
+} catch (e) {
+  console.error(&#39;Failed to parse config from URL:&#39;, e);
+  window.location.hash = &#39;&#39;;
+  UIManager.showToast(&#39;Invalid shared configuration link&#39;);
+}
+</code></pre>
+<hr>
+<h2>Extension Points</h2>
+<h3>Adding a New Shuffle Category</h3>
+<p><strong>Example: Adding &quot;Audio Reactive&quot; Shuffle</strong></p>
+<ol>
+<li><strong>Add to <code>configGenerator.js</code>:</strong></li>
+</ol>
+<pre><code class="language-javascript">generateAudio: () =&gt; ({
+  responsive: [
+    {
+      maxWidth: 768,
+      options: {
+        /* mobile-specific settings */
+      },
+    },
+  ],
+  // Add audio-reactive settings here
+  // (Would require tsParticles audio plugin)
+});
+</code></pre>
+<ol start="2">
+<li><strong>Add Button to <code>index.html</code>:</strong></li>
+</ol>
+<pre><code class="language-html">&lt;div
+  class=&quot;glass-button menu-button&quot;
+  id=&quot;btn-shuffle-audio&quot;
+  title=&quot;Shuffle Audio (Alt+U): Randomizes audio-reactive properties&quot;
+&gt;
+  &lt;!-- Add icon SVG --&gt;
+&lt;/div&gt;
+</code></pre>
+<ol start="3">
+<li><strong>Add Event Handler in <code>main.js</code>:</strong></li>
+</ol>
+<pre><code class="language-javascript">case BUTTON_IDS.SHUFFLE_AUDIO:
+  CommandManager.execute(createShuffleCommand({ audio: true }));
+  break;
+</code></pre>
+<ol start="4">
+<li><strong>Update <code>buildConfig()</code> in <code>particlesService.js</code>:</strong></li>
+</ol>
+<pre><code class="language-javascript">if (shuffleOptions.audio) {
+  Object.assign(newConfig, ConfigGenerator.generateAudio());
+}
+</code></pre>
+<h3>Adding a New Toggle</h3>
+<p><strong>Example: Adding &quot;Fullscreen&quot; Toggle</strong></p>
+<ol>
+<li><strong>Add to <code>state.js</code>:</strong></li>
+</ol>
+<pre><code class="language-javascript">ui: {
+  // ... existing properties
+  isFullscreen: false;
+}
+</code></pre>
+<ol start="2">
+<li><strong>Add Button &amp; Handler in <code>main.js</code>:</strong></li>
+</ol>
+<pre><code class="language-javascript">case BUTTON_IDS.FULLSCREEN_TOGGLE:
+  CommandManager.execute(
+    createToggleCommand(&#39;isFullscreen&#39;, async () =&gt; {
+      if (AppState.ui.isFullscreen) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    })
+  );
+  break;
+</code></pre>
+<ol start="3">
+<li><strong>Update <code>UIManager.syncUI()</code>:</strong></li>
+</ol>
+<pre><code class="language-javascript">document
+  .getElementById(BUTTON_IDS.FULLSCREEN_TOGGLE)
+  .classList.toggle(&#39;active&#39;, AppState.ui.isFullscreen);
+</code></pre>
+<h3>Adding a New Keyboard Shortcut</h3>
+<p>In <code>keyboardShortcuts.js</code>:</p>
+<pre><code class="language-javascript">const btnId = {
+  // ... existing shortcuts
+  u: BUTTON_IDS.SHUFFLE_AUDIO, // Alt+U for audio shuffle
+}[e.key.toLowerCase()];
+</code></pre>
+<hr>
+<h2>Testing Strategy</h2>
+<h3>Manual Testing Checklist</h3>
+<ul>
+<li><input disabled="" type="checkbox"> All shuffle buttons generate different configs</li>
+<li><input disabled="" type="checkbox"> Undo/redo preserves exact state</li>
+<li><input disabled="" type="checkbox"> Toggles persist across shuffles</li>
+<li><input disabled="" type="checkbox"> Share URLs decompress correctly</li>
+<li><input disabled="" type="checkbox"> Keyboard shortcuts work</li>
+<li><input disabled="" type="checkbox"> Mobile touch events responsive</li>
+<li><input disabled="" type="checkbox"> Reduced motion honors user preference</li>
+<li><input disabled="" type="checkbox"> Screen reader announces state changes</li>
+<li><input disabled="" type="checkbox"> Focus trap works in modals</li>
+</ul>
+<h3>Automated Testing (Current + Next)</h3>
+<ul>
+<li><strong>Vitest suite (111 specs)</strong> — Exercises <code>commandManager</code>, <code>state.js</code>, <code>stateManager</code>, <code>configGenerator</code>, <code>utils</code>, and <code>errorHandler</code> with happy-path and edge-case coverage. Run with <code>npm run test</code> or <code>npm run test:coverage</code> (current coverage: 76% statements / 71% branches via v8).</li>
+<li><strong>Happy DOM environment</strong> — Browser APIs such as <code>document</code>, <code>localStorage</code>, and <code>navigator.clipboard</code> are shimmed for deterministic runs.</li>
+</ul>
+<p>Future additions on the roadmap:</p>
+<ul>
+<li>Playwright visual regression smoke tests for UI states</li>
+<li>Integration tests that spin up tsParticles to validate real canvas mutations</li>
+<li>Performance benchmarking for config generation under different chaos levels</li>
+</ul>
+<hr>
+<h2>Conclusion</h2>
+<p>tsDice&#39;s architecture balances <strong>simplicity</strong> with <strong>sophistication</strong>:</p>
+<ul>
+<li>Modular design enables easy maintenance</li>
+<li>Command pattern provides powerful undo/redo</li>
+<li>Pure functions ensure predictability</li>
+<li>Accessibility baked in from the start</li>
+<li>Performance optimizations where they matter</li>
+</ul>
+<p>The codebase serves as a <strong>teaching tool</strong> for modern JavaScript patterns and a <strong>production-ready</strong> creative application.</p>
+<hr>
+<p><strong>Questions? Open a GitHub Discussion!</strong></p>
+
+    </article>
+  </main>
+
+  <footer>
+    <p>Generated from markdown • <a href="https://github.com/zophiezlan/tsdice" target="_blank" rel="noopener">View on GitHub</a></p>
+  </footer>
+
+  <script>
+    // Theme toggle functionality
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem('tsDiceDocsTheme',
+        document.body.classList.contains('light-mode') ? 'light' : 'dark'
+      );
+    }
+
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('tsDiceDocsTheme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-mode');
+    }
+
+    // Sync with main app's theme if available
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'tsDiceTheme') {
+        if (e.newValue === 'light') {
+          document.body.classList.add('light-mode');
+        } else {
+          document.body.classList.remove('light-mode');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
