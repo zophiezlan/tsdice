@@ -6,11 +6,14 @@ import { AppState, DEFAULT_ADVANCED_SETTINGS } from './state.js';
 import { SafeStorage } from './storage.js';
 import { UIManager } from './uiManager.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
+import { STORAGE_KEYS } from './constants/storage.js';
+
+/** Debounce delay for persist operations (ms) */
+const PERSIST_DEBOUNCE_MS = 300;
 
 /**
  * Action types for state mutations
  */
-const ADVANCED_STORAGE_KEY = 'tsDiceAdvancedSettings';
 export const ActionType = {
   SET_THEME: 'SET_THEME',
   SET_CHAOS_LEVEL: 'SET_CHAOS_LEVEL',
@@ -25,10 +28,36 @@ export const ActionType = {
   RESET_ADVANCED_SETTINGS: 'RESET_ADVANCED_SETTINGS',
 };
 
+/** Timeout ID for debounced persist */
+let persistTimeout = null;
+
 /**
  * State manager with dispatch pattern
  */
 export const StateManager = {
+  /**
+   * Schedule a debounced persist operation.
+   * Multiple calls within PERSIST_DEBOUNCE_MS will be batched into one persist.
+   */
+  schedulePersist() {
+    if (persistTimeout) {
+      clearTimeout(persistTimeout);
+    }
+    persistTimeout = setTimeout(() => {
+      this.persist();
+      persistTimeout = null;
+    }, PERSIST_DEBOUNCE_MS);
+  },
+
+  /**
+   * Cancel any pending persist operation (useful for testing)
+   */
+  cancelPendingPersist() {
+    if (persistTimeout) {
+      clearTimeout(persistTimeout);
+      persistTimeout = null;
+    }
+  },
   /**
    * Dispatch an action to mutate state
    * @param {Object} action - Action object with type and payload
@@ -112,13 +141,13 @@ export const StateManager = {
     try {
       // Persist theme
       SafeStorage.setItem(
-        'tsDiceTheme',
+        STORAGE_KEYS.THEME,
         AppState.ui.isDarkMode ? 'dark' : 'light'
       );
 
       // Persist chaos level
       SafeStorage.setItem(
-        'tsDiceChaos',
+        STORAGE_KEYS.CHAOS,
         String(AppState.particleState.chaosLevel)
       );
 
@@ -128,13 +157,13 @@ export const StateManager = {
         Object.keys(AppState.particleState.currentConfig).length > 0
       ) {
         SafeStorage.setItem(
-          'tsDiceLastConfig',
+          STORAGE_KEYS.LAST_CONFIG,
           JSON.stringify(AppState.particleState.currentConfig)
         );
       }
 
       SafeStorage.setItem(
-        ADVANCED_STORAGE_KEY,
+        STORAGE_KEYS.ADVANCED_SETTINGS,
         JSON.stringify(AppState.advanced)
       );
     } catch (error) {
@@ -159,15 +188,17 @@ export const StateManager = {
     if (
       AppState.particleState.chaosLevel < 1 ||
       AppState.particleState.chaosLevel > 10
-    )
+    ) {
       return false;
+    }
 
     if (
       Object.entries(AppState.advanced).some(
         ([, value]) => typeof value !== 'boolean'
       )
-    )
+    ) {
       return false;
+    }
 
     return true;
   },
@@ -175,13 +206,13 @@ export const StateManager = {
   // Private mutation methods
   _setTheme(isDark) {
     AppState.ui.isDarkMode = Boolean(isDark);
-    this.persist();
+    this.schedulePersist();
   },
 
   _setChaosLevel(level) {
     const validLevel = Math.max(1, Math.min(10, Number(level)));
     AppState.particleState.chaosLevel = validLevel;
-    this.persist();
+    this.schedulePersist();
   },
 
   _toggleGravity() {
@@ -205,7 +236,7 @@ export const StateManager = {
       throw new Error('Invalid particle configuration');
     }
     AppState.particleState.currentConfig = config;
-    this.persist();
+    this.schedulePersist();
   },
 
   _setOriginalModes(modes) {
@@ -222,13 +253,13 @@ export const StateManager = {
   _initFromStorage() {
     try {
       // Load theme
-      const savedTheme = SafeStorage.getItem('tsDiceTheme');
+      const savedTheme = SafeStorage.getItem(STORAGE_KEYS.THEME);
       if (savedTheme) {
         AppState.ui.isDarkMode = savedTheme === 'dark';
       }
 
       // Load chaos level
-      const savedChaos = SafeStorage.getItem('tsDiceChaos');
+      const savedChaos = SafeStorage.getItem(STORAGE_KEYS.CHAOS);
       if (savedChaos) {
         const chaos = parseInt(savedChaos, 10);
         if (!isNaN(chaos) && chaos >= 1 && chaos <= 10) {
@@ -237,7 +268,7 @@ export const StateManager = {
       }
 
       // Load last config
-      const savedConfig = SafeStorage.getItem('tsDiceLastConfig');
+      const savedConfig = SafeStorage.getItem(STORAGE_KEYS.LAST_CONFIG);
       if (savedConfig) {
         try {
           const config = JSON.parse(savedConfig);
@@ -246,11 +277,11 @@ export const StateManager = {
           }
         } catch (parseError) {
           console.warn('Could not parse saved config', parseError);
-          SafeStorage.removeItem('tsDiceLastConfig');
+          SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
         }
       }
 
-      const savedAdvanced = SafeStorage.getItem(ADVANCED_STORAGE_KEY);
+      const savedAdvanced = SafeStorage.getItem(STORAGE_KEYS.ADVANCED_SETTINGS);
       if (savedAdvanced) {
         try {
           const parsed = JSON.parse(savedAdvanced);
@@ -261,7 +292,7 @@ export const StateManager = {
           });
         } catch (parseError) {
           console.warn('Could not parse advanced settings', parseError);
-          SafeStorage.removeItem(ADVANCED_STORAGE_KEY);
+          SafeStorage.removeItem(STORAGE_KEYS.ADVANCED_SETTINGS);
         }
       }
     } catch (error) {
@@ -275,12 +306,12 @@ export const StateManager = {
       return;
     }
     AppState.advanced[key] = Boolean(value);
-    this.persist();
+    this.schedulePersist();
   },
 
   _resetAdvancedSettings() {
     AppState.advanced = { ...DEFAULT_ADVANCED_SETTINGS };
-    this.persist();
+    this.schedulePersist();
   },
 };
 

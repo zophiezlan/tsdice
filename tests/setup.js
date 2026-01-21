@@ -1,5 +1,4 @@
 // Test setup file for Vitest
-/* global global */
 import { beforeAll, vi } from 'vitest';
 
 beforeAll(() => {
