@@ -1,6 +1,6 @@
 import { AppState } from './state.js';
 import { CommandManager } from './commandManager.js';
-import { BUTTON_IDS } from './constants.js';
+import { BUTTON_IDS } from './constants/ui.js';
 
 const infoModal = document.getElementById('info-modal');
 const toastNotification = document.getElementById('toast-notification');
@@ -76,7 +76,7 @@ export const UIManager = {
       textWrapper.className = 'info-text';
 
       const strong = document.createElement('strong');
-      strong.textContent = name + ' ';
+      strong.textContent = `${name} `;
 
       if (shortcutMatch) {
         const code = document.createElement('code');
