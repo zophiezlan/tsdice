@@ -3,9 +3,12 @@ import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
 import { getRandomItem } from './utils.js';
-import { darkColorPalette, lightColorPalette } from './constants.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
-import { THEME_BACKGROUNDS } from './constants/colors.js';
+import {
+  darkColorPalette,
+  lightColorPalette,
+  THEME_BACKGROUNDS,
+} from './constants/colors.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
 
@@ -13,13 +16,9 @@ import { Telemetry } from './telemetry.js';
 export const applyAdvancedPreferences = (options) => {
   if (!options) return;
 
-  if (AppState.advanced.autoPauseHidden) {
-    options.pauseOnBlur = true;
-    options.pauseOnOutsideViewport = true;
-  } else {
-    options.pauseOnBlur = false;
-    options.pauseOnOutsideViewport = false;
-  }
+  const autoPauseHidden = AppState.advanced.autoPauseHidden;
+  options.pauseOnBlur = autoPauseHidden;
+  options.pauseOnOutsideViewport = autoPauseHidden;
 
   if (!options.fpsLimit) {
     options.fpsLimit = PARTICLE_CONFIG.FPS_LIMIT;
@@ -129,15 +128,18 @@ export const buildConfig = (shuffleOptions) => {
     newConfig.interactivity = ConfigGenerator.generateInteraction();
   } else {
     newConfig.particles = { ...newConfig.particles };
-    if (shuffleOptions.appearance)
+    if (shuffleOptions.appearance) {
       Object.assign(newConfig.particles, ConfigGenerator.generateAppearance());
-    if (shuffleOptions.movement)
+    }
+    if (shuffleOptions.movement) {
       newConfig.particles.move = {
         ...newConfig.particles.move,
         ...ConfigGenerator.generateMovement(),
       };
-    if (shuffleOptions.interaction)
+    }
+    if (shuffleOptions.interaction) {
       newConfig.interactivity = ConfigGenerator.generateInteraction();
+    }
     if (shuffleOptions.fx) {
       const fx = ConfigGenerator.generateSpecialFX(newConfig.particles);
       Object.assign(newConfig.particles, fx);
@@ -325,12 +327,14 @@ export const updateThemeAndReload = async () => {
   config.background.color.value = AppState.ui.isDarkMode
     ? THEME_BACKGROUNDS.DARK
     : THEME_BACKGROUNDS.LIGHT;
-  if (config.particles.color.value !== 'random')
+  if (config.particles.color.value !== 'random') {
     config.particles.color.value = getRandomItem(newPalette);
-  if (config.particles.links.enable)
+  }
+  if (config.particles.links.enable) {
     config.particles.links.color.value = AppState.ui.isDarkMode
       ? '#ffffff'
       : '#333333';
+  }
   // Trail fill is empty to inherit the individual particle's color instead of using the background color
 
   await loadParticles(config);

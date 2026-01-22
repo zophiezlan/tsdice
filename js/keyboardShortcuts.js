@@ -1,4 +1,4 @@
-import { BUTTON_IDS } from './constants.js';
+import { BUTTON_IDS } from './constants/ui.js';
 import { ModalManager } from './modalManager.js';
 
 /**

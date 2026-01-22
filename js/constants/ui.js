@@ -46,8 +46,3 @@ export const UI_VALUES = {
   TOOLTIP_PADDING: 15, // Tooltip positioning padding
   BURST_BRIGHTNESS: 1.3, // Brightness multiplier for burst effect
 };
-
-// Backward compatibility exports
-export const AUTO_HIDE_DELAY = TIMING.AUTO_HIDE_DELAY;
-export const TOOLTIP_DELAY = TIMING.TOOLTIP_DELAY;
-export const TOOLTIP_AUTO_HIDE = TIMING.TOOLTIP_AUTO_HIDE;

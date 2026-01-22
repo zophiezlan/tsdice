@@ -8,13 +8,15 @@ import {
 import {
   darkColorPalette,
   lightColorPalette,
+  emojiOptions,
+} from './constants/colors.js';
+import {
   shapeOptions,
   directionOptions,
   hoverModeOptions,
   safeClickModes,
-  emojiOptions,
-} from './constants.js';
-import { PARTICLE_CONFIG } from './constants/particles.js';
+  PARTICLE_CONFIG,
+} from './constants/particles.js';
 
 const { MIN_POLYGON_SIDES, MAX_POLYGON_SIDES } = PARTICLE_CONFIG;
 
@@ -36,16 +38,17 @@ export const ConfigGenerator = {
     const isDarkMode = options.isDarkMode ?? AppState.ui.isDarkMode;
 
     const shapeType = getRandomItem(shapeOptions);
+    const useRandomColor = getRandomBool(getChaosProbability(0.12, chaosLevel));
     const appearance = {
       color: {
-        value: getRandomBool(0.2)
+        value: useRandomColor
           ? 'random'
           : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette),
       },
       shape: { type: shapeType, options: {} },
       opacity: { value: { min: 0.3, max: 1 } },
       size: {
-        value: { min: 1, max: 1 + chaosLevel * 1.5 },
+        value: { min: 2, max: 2 + chaosLevel * 1.8 },
       },
       stroke: {
         width: getRandomBool(getChaosProbability(0.5, chaosLevel))

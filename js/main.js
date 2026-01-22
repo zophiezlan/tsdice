@@ -8,12 +8,9 @@ import { CommandManager } from './commandManager.js';
 import { copyToClipboard, getRandomItem, debounce } from './utils.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { StateManager, Actions } from './stateManager.js';
-import {
-  emojiOptions,
-  BUTTON_IDS,
-  AUTO_HIDE_DELAY,
-  STORAGE_KEYS,
-} from './constants.js';
+import { BUTTON_IDS, TIMING } from './constants/ui.js';
+import { emojiOptions } from './constants/colors.js';
+import { STORAGE_KEYS } from './constants/storage.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
 import {
@@ -175,7 +172,7 @@ import {
         if (menuContainer.classList.contains('active')) {
           mainMenuBtn.click(); // Close the menu
         }
-      }, AUTO_HIDE_DELAY);
+      }, TIMING.AUTO_HIDE_DELAY);
     }
   };
 

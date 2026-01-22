@@ -1,4 +1,4 @@
-import { TOOLTIP_DELAY, TOOLTIP_AUTO_HIDE } from './constants.js';
+import { TIMING, UI_VALUES } from './constants/ui.js';
 import { SafeStorage } from './storage.js';
 
 /**
@@ -37,7 +37,7 @@ export function initTooltipManager(subMenuEl) {
   // Get user preference for tooltips (defaults to disabled on touch devices)
   const tooltipPreference = SafeStorage.getItem('tsDiceTooltipsEnabled');
   const tooltipsEnabled =
-    tooltipPreference !== null ? tooltipPreference === 'true' : !isTouch; // Disabled by default on touch devices
+    tooltipPreference === null ? !isTouch : tooltipPreference === 'true'; // Disabled by default on touch devices
 
   // If tooltips are disabled and it's a touch device, skip setup
   if (!tooltipsEnabled && isTouch) {
@@ -53,14 +53,15 @@ export function initTooltipManager(subMenuEl) {
 
   function updateTooltipPosition(mouseX, mouseY) {
     const tooltipRect = tooltip.getBoundingClientRect();
-    const padding = 15;
+    const padding = UI_VALUES.TOOLTIP_PADDING;
     let top = mouseY - tooltipRect.height - padding;
     let left = mouseX - tooltipRect.width / 2;
 
     if (top < padding) top = mouseY + padding;
     if (left < padding) left = padding;
-    if (left + tooltipRect.width > window.innerWidth - padding)
+    if (left + tooltipRect.width > window.innerWidth - padding) {
       left = window.innerWidth - tooltipRect.width - padding;
+    }
 
     tooltip.style.left = `${left}px`;
     tooltip.style.top = `${top}px`;
@@ -99,7 +100,7 @@ export function initTooltipManager(subMenuEl) {
 
     tooltip.innerHTML = ''; // Clear previous content
     const strong = document.createElement('strong');
-    strong.textContent = name + ' ';
+    strong.textContent = `${name} `;
 
     if (shortcutMatch) {
       const code = document.createElement('code');
@@ -121,8 +122,8 @@ export function initTooltipManager(subMenuEl) {
       // Auto-hide after a while (helpful for touch devices)
       tooltipHideTimeout = setTimeout(() => {
         hideTooltip();
-      }, TOOLTIP_AUTO_HIDE);
-    }, TOOLTIP_DELAY);
+      }, TIMING.TOOLTIP_AUTO_HIDE);
+    }, TIMING.TOOLTIP_DELAY);
   });
 
   subMenuEl.addEventListener('mouseout', (e) => {
@@ -152,7 +153,8 @@ export function initTooltipManager(subMenuEl) {
   );
 
   subMenuEl.addEventListener('mousemove', (e) => {
-    if (tooltip.classList.contains('visible'))
+    if (tooltip.classList.contains('visible')) {
       updateTooltipPosition(e.clientX, e.clientY);
+    }
   });
 }
