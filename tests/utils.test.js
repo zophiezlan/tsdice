@@ -5,6 +5,7 @@ import {
   getRandomItem,
   getChaosProbability,
   debounce,
+  copyToClipboard,
 } from '../js/utils.js';
 
 describe('utils', () => {
@@ -209,6 +210,145 @@ describe('utils', () => {
       vi.advanceTimersByTime(100);
 
       expect(func).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('copyToClipboard', () => {
+    let originalNavigator;
+    let originalDocument;
+
+    beforeEach(() => {
+      originalNavigator = global.navigator;
+      originalDocument = global.document;
+
+      // Setup document mock
+      global.document = {
+        createElement: vi.fn(() => ({
+          value: '',
+          style: {},
+          focus: vi.fn(),
+          select: vi.fn(),
+        })),
+        body: {
+          appendChild: vi.fn(),
+          removeChild: vi.fn(),
+        },
+        execCommand: vi.fn(() => true),
+      };
+    });
+
+    afterEach(() => {
+      global.navigator = originalNavigator;
+      global.document = originalDocument;
+    });
+
+    it('should use navigator.clipboard when available', async () => {
+      const writeTextMock = vi.fn().mockResolvedValue(undefined);
+      global.navigator = {
+        clipboard: {
+          writeText: writeTextMock,
+        },
+      };
+
+      await copyToClipboard('test text');
+
+      expect(writeTextMock).toHaveBeenCalledWith('test text');
+    });
+
+    it('should use fallback textarea method when clipboard API fails', async () => {
+      // Make clipboard API fail
+      global.navigator = {
+        clipboard: {
+          writeText: vi.fn().mockRejectedValue(new Error('Not allowed')),
+        },
+      };
+
+      const mockTextArea = {
+        value: '',
+        style: {},
+        focus: vi.fn(),
+        select: vi.fn(),
+      };
+      global.document.createElement = vi.fn(() => mockTextArea);
+
+      await copyToClipboard('fallback text');
+
+      expect(global.document.createElement).toHaveBeenCalledWith('textarea');
+      expect(mockTextArea.value).toBe('fallback text');
+      expect(mockTextArea.focus).toHaveBeenCalled();
+      expect(mockTextArea.select).toHaveBeenCalled();
+      expect(global.document.execCommand).toHaveBeenCalledWith('copy');
+      expect(global.document.body.appendChild).toHaveBeenCalledWith(
+        mockTextArea
+      );
+      expect(global.document.body.removeChild).toHaveBeenCalledWith(
+        mockTextArea
+      );
+    });
+
+    it('should use fallback when navigator.clipboard is undefined', async () => {
+      global.navigator = {};
+
+      const mockTextArea = {
+        value: '',
+        style: {},
+        focus: vi.fn(),
+        select: vi.fn(),
+      };
+      global.document.createElement = vi.fn(() => mockTextArea);
+
+      await copyToClipboard('no clipboard API');
+
+      expect(global.document.createElement).toHaveBeenCalledWith('textarea');
+      expect(global.document.execCommand).toHaveBeenCalledWith('copy');
+    });
+
+    it('should position textarea off-screen', async () => {
+      global.navigator = {
+        clipboard: {
+          writeText: vi.fn().mockRejectedValue(new Error('Not allowed')),
+        },
+      };
+
+      const mockTextArea = {
+        value: '',
+        style: {},
+        focus: vi.fn(),
+        select: vi.fn(),
+      };
+      global.document.createElement = vi.fn(() => mockTextArea);
+
+      await copyToClipboard('test');
+
+      expect(mockTextArea.style.position).toBe('fixed');
+      expect(mockTextArea.style.top).toBe('-9999px');
+    });
+
+    it('should handle execCommand failure gracefully', async () => {
+      global.navigator = {
+        clipboard: {
+          writeText: vi.fn().mockRejectedValue(new Error('Not allowed')),
+        },
+      };
+
+      const mockTextArea = {
+        value: '',
+        style: {},
+        focus: vi.fn(),
+        select: vi.fn(),
+      };
+      global.document.createElement = vi.fn(() => mockTextArea);
+      global.document.execCommand = vi.fn(() => {
+        throw new Error('execCommand failed');
+      });
+
+      // Should not throw
+      await expect(copyToClipboard('test')).resolves.not.toThrow();
+
+      // Should still clean up
+      expect(global.document.body.removeChild).toHaveBeenCalledWith(
+        mockTextArea
+      );
     });
   });
 });

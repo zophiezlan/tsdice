@@ -27,6 +27,10 @@ vi.mock('../js/errorHandler.js', () => ({
 
 describe('StateManager', () => {
   beforeEach(() => {
+    // Use fake timers for debounced persist tests
+    vi.useFakeTimers();
+    // Cancel any pending persist from previous tests
+    StateManager.cancelPendingPersist();
     // Reset AppState
     AppState.ui.isDarkMode = true;
     AppState.ui.isCursorParticle = false;
@@ -44,13 +48,18 @@ describe('StateManager', () => {
     vi.clearAllMocks();
 
     // Mock localStorage
-    // eslint-disable-next-line no-undef
+
     global.localStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),
       removeItem: vi.fn(),
       clear: vi.fn(),
     };
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   describe('dispatch', () => {
@@ -135,6 +144,10 @@ describe('StateManager', () => {
 
       expect(result).toBe(true);
       expect(AppState.advanced.autoPauseHidden).toBe(true);
+
+      // Advance timers to trigger debounced persist
+      vi.advanceTimersByTime(500);
+
       expect(localStorage.setItem).toHaveBeenCalledWith(
         'tsDiceAdvancedSettings',
         expect.any(String)

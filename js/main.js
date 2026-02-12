@@ -8,7 +8,12 @@ import { CommandManager } from './commandManager.js';
 import { copyToClipboard, getRandomItem, debounce } from './utils.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { StateManager, Actions } from './stateManager.js';
-import { emojiOptions, BUTTON_IDS, AUTO_HIDE_DELAY } from './constants.js';
+import {
+  emojiOptions,
+  BUTTON_IDS,
+  AUTO_HIDE_DELAY,
+  STORAGE_KEYS,
+} from './constants.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
 import {
@@ -20,6 +25,11 @@ import {
   updateThemeAndReload,
 } from './particlesService.js';
 import { initKeyboardShortcuts } from './keyboardShortcuts.js';
+import {
+  createShuffleCommand,
+  createToggleCommand,
+  createThemeCommand,
+} from './commandFactory.js';
 
 // Main async function to encapsulate the entire application logic.
 (async () => {
@@ -85,8 +95,9 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
           emojies: generateRandomEmojiString(8),
         }),
       });
-      if (!response.ok)
+      if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
+      }
       const payload = await response.json();
       Telemetry.log('share:shorten:success', {
         hasUrl: Boolean(payload.short_url),
@@ -128,128 +139,29 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
   // ModalManager now imported as a module
 
   // --- 4. COMMAND PATTERN IMPLEMENTATION ---
+  // Command factories are now in commandFactory.js for testability
 
-  /** Helper to get human-readable shuffle type name */
-  const getShuffleTypeName = (shuffleOptions) => {
-    if (shuffleOptions.all) return 'All';
-    if (shuffleOptions.appearance) return 'Appearance';
-    if (shuffleOptions.movement) return 'Movement';
-    if (shuffleOptions.interaction) return 'Interaction';
-    if (shuffleOptions.fx) return 'Special FX';
-    return 'Configuration';
-  };
+  /** Helper to create shuffle command with injected dependencies */
+  const makeShuffleCommand = (shuffleOptions) =>
+    createShuffleCommand({
+      shuffleOptions,
+      appState: AppState,
+      uiManager: UIManager,
+      buildConfig,
+      loadParticles,
+    });
 
-  /** Factory function to create a shuffle command object. */
-  const createShuffleCommand = (shuffleOptions) => {
-    const shuffleType = getShuffleTypeName(shuffleOptions);
-    const oldConfig = structuredClone(AppState.particleState.currentConfig);
-    const oldUIStates = {
-      isGravityOn: AppState.ui.isGravityOn,
-      areWallsOn: AppState.ui.areWallsOn,
-      isCursorParticle: AppState.ui.isCursorParticle,
-      originalOutModes: AppState.particleState.originalOutModes
-        ? structuredClone(AppState.particleState.originalOutModes)
-        : null,
-      originalInteractionModes: structuredClone(
-        AppState.particleState.originalInteractionModes
-      ),
-    };
-    let newConfig = null;
-    let newUIStates = null;
+  /** Helper to create toggle command with injected dependencies */
+  const makeToggleCommand = (stateKey, applyFn) =>
+    createToggleCommand({
+      stateKey,
+      appState: AppState,
+      uiManager: UIManager,
+      applyFn,
+    });
 
-    return {
-      async execute() {
-        if (!newConfig) {
-          newConfig = buildConfig(shuffleOptions);
-          // Capture UI states after shuffle (they should be same, but let's be explicit)
-          newUIStates = {
-            isGravityOn: AppState.ui.isGravityOn,
-            areWallsOn: AppState.ui.areWallsOn,
-            isCursorParticle: AppState.ui.isCursorParticle,
-            originalOutModes: AppState.particleState.originalOutModes
-              ? structuredClone(AppState.particleState.originalOutModes)
-              : null,
-            originalInteractionModes: structuredClone(
-              AppState.particleState.originalInteractionModes
-            ),
-          };
-        } else {
-          // Restore new UI states on redo
-          AppState.ui.isGravityOn = newUIStates.isGravityOn;
-          AppState.ui.areWallsOn = newUIStates.areWallsOn;
-          AppState.ui.isCursorParticle = newUIStates.isCursorParticle;
-          AppState.particleState.originalOutModes = newUIStates.originalOutModes
-            ? structuredClone(newUIStates.originalOutModes)
-            : {};
-          AppState.particleState.originalInteractionModes = structuredClone(
-            newUIStates.originalInteractionModes
-          );
-          const redoMessage = `Redid ${shuffleType} shuffle`;
-          UIManager.showToast(redoMessage);
-          UIManager.announce(redoMessage);
-        }
-
-        // Add subtle burst effect on shuffle
-        const container = document.getElementById('tsparticles');
-        if (container) {
-          container.style.filter = 'brightness(1.3)';
-          setTimeout(() => {
-            container.style.filter = '';
-          }, 150);
-        }
-
-        await loadParticles(newConfig);
-        UIManager.announce('New scene generated.');
-      },
-      async undo() {
-        // Restore old UI states
-        AppState.ui.isGravityOn = oldUIStates.isGravityOn;
-        AppState.ui.areWallsOn = oldUIStates.areWallsOn;
-        AppState.ui.isCursorParticle = oldUIStates.isCursorParticle;
-        AppState.particleState.originalOutModes = oldUIStates.originalOutModes
-          ? structuredClone(oldUIStates.originalOutModes)
-          : {};
-        AppState.particleState.originalInteractionModes = structuredClone(
-          oldUIStates.originalInteractionModes
-        );
-
-        await loadParticles(oldConfig);
-        const undoMessage = `Undid ${shuffleType} shuffle`;
-        UIManager.showToast(undoMessage);
-        UIManager.announce(undoMessage);
-      },
-    };
-  };
-
-  /** Factory function to create a command for simple boolean state toggles. */
-  const createToggleCommand = (stateKey, applyFn) => ({
-    async execute() {
-      AppState.ui[stateKey] = !AppState.ui[stateKey];
-      await applyFn();
-      const stateName = stateKey
-        .replace('is', '')
-        .replace('On', '')
-        .replace('Particle', '');
-      UIManager.announce(
-        `${stateName} ${AppState.ui[stateKey] ? 'enabled' : 'disabled'}`
-      );
-    },
-    async undo() {
-      await this.execute();
-    }, // Toggle is its own inverse
-  });
-
-  /** Factory function to create a command for toggling the theme. */
-  const createThemeCommand = () => ({
-    async execute() {
-      await updateTheme();
-    },
-    async undo() {
-      await updateTheme();
-    },
-  });
-
-  // Note: Legacy setupModal helper removed; ModalManager now centralizes modal handling
+  /** Helper to create theme command with injected dependencies */
+  const makeThemeCommand = () => createThemeCommand({ updateTheme });
 
   // --- 5. EVENT LISTENERS ---
 
@@ -296,19 +208,19 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
     switch (button.id) {
       case BUTTON_IDS.SHUFFLE_ALL:
-        CommandManager.execute(createShuffleCommand({ all: true }));
+        CommandManager.execute(makeShuffleCommand({ all: true }));
         break;
       case BUTTON_IDS.SHUFFLE_APPEARANCE:
-        CommandManager.execute(createShuffleCommand({ appearance: true }));
+        CommandManager.execute(makeShuffleCommand({ appearance: true }));
         break;
       case BUTTON_IDS.SHUFFLE_MOVEMENT:
-        CommandManager.execute(createShuffleCommand({ movement: true }));
+        CommandManager.execute(makeShuffleCommand({ movement: true }));
         break;
       case BUTTON_IDS.SHUFFLE_INTERACTION:
-        CommandManager.execute(createShuffleCommand({ interaction: true }));
+        CommandManager.execute(makeShuffleCommand({ interaction: true }));
         break;
       case BUTTON_IDS.SHUFFLE_FX:
-        CommandManager.execute(createShuffleCommand({ fx: true }));
+        CommandManager.execute(makeShuffleCommand({ fx: true }));
         break;
       case BUTTON_IDS.BACK:
         CommandManager.undo();
@@ -317,11 +229,11 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         CommandManager.redo();
         break;
       case BUTTON_IDS.THEME:
-        CommandManager.execute(createThemeCommand());
+        CommandManager.execute(makeThemeCommand());
         break;
       case BUTTON_IDS.GRAVITY:
         CommandManager.execute(
-          createToggleCommand('isGravityOn', async () => {
+          makeToggleCommand('isGravityOn', async () => {
             applyGravityMode();
             await loadParticles(AppState.particleState.currentConfig);
             UIManager.showToast(
@@ -332,7 +244,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         break;
       case BUTTON_IDS.WALLS:
         CommandManager.execute(
-          createToggleCommand('areWallsOn', async () => {
+          makeToggleCommand('areWallsOn', async () => {
             applyWallsMode();
             await loadParticles(AppState.particleState.currentConfig);
             UIManager.showToast(
@@ -343,7 +255,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         break;
       case BUTTON_IDS.CURSOR:
         CommandManager.execute(
-          createToggleCommand('isCursorParticle', async () => {
+          makeToggleCommand('isCursorParticle', async () => {
             applyCursorMode();
             await loadParticles(AppState.particleState.currentConfig);
             UIManager.showToast(
@@ -480,7 +392,7 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
   }, 300);
 
   const debouncedChaosSave = debounce((level) => {
-    SafeStorage.setItem('tsDiceChaos', String(level));
+    SafeStorage.setItem(STORAGE_KEYS.CHAOS, String(level));
   }, 500);
 
   chaosSlider.addEventListener('input', (e) => {
@@ -512,12 +424,12 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
     if (dontShowCheckbox && dontShowCheckbox.checked) {
       // Set a far future timestamp so it never shows again (1 year ahead)
       const farFuture = Date.now() + 365 * 24 * 60 * 60 * 1000;
-      SafeStorage.setItem('tsDiceWelcomeTimestamp', String(farFuture));
-      SafeStorage.setItem('tsDiceWelcomeDismissed', 'true');
+      SafeStorage.setItem(STORAGE_KEYS.WELCOME_TIMESTAMP, String(farFuture));
+      SafeStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, 'true');
     } else {
       // Set current timestamp for 24-hour reset
-      SafeStorage.setItem('tsDiceWelcomeTimestamp', String(Date.now()));
-      SafeStorage.removeItem('tsDiceWelcomeDismissed');
+      SafeStorage.setItem(STORAGE_KEYS.WELCOME_TIMESTAMP, String(Date.now()));
+      SafeStorage.removeItem(STORAGE_KEYS.WELCOME_DISMISSED);
     }
   };
 
@@ -525,7 +437,6 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
   const setupInfoModalTabs = () => {
     const tabButtons = infoModal.querySelectorAll('.modal-tab');
     const tabContents = infoModal.querySelectorAll('.modal-tab-content');
-    const LAST_TAB_KEY = 'tsDiceLastInfoTab';
 
     tabButtons.forEach((button) => {
       button.addEventListener('click', () => {
@@ -544,13 +455,14 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
         document.getElementById(`tab-${targetTab}`).classList.add('active');
 
         // Remember the last viewed tab
-        SafeStorage.setItem(LAST_TAB_KEY, targetTab);
+        SafeStorage.setItem(STORAGE_KEYS.LAST_INFO_TAB, targetTab);
       });
     });
 
     // Restore last viewed tab when modal opens
     const restoreLastTab = () => {
-      const lastTab = SafeStorage.getItem(LAST_TAB_KEY) || 'controls';
+      const lastTab =
+        SafeStorage.getItem(STORAGE_KEYS.LAST_INFO_TAB) || 'controls';
       const targetButton = Array.from(tabButtons).find(
         (btn) => btn.dataset.tab === lastTab
       );
@@ -775,31 +687,31 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
   // --- 7. INITIALISATION ---
   /** This section sets up the initial state of the application on load. */
-  const savedTheme = SafeStorage.getItem('tsDiceTheme');
+  const savedTheme = SafeStorage.getItem(STORAGE_KEYS.THEME);
   StateManager.dispatch(
     Actions.setTheme(savedTheme ? savedTheme === 'dark' : true)
   );
 
-  const savedChaos = SafeStorage.getItem('tsDiceChaos');
+  const savedChaos = SafeStorage.getItem(STORAGE_KEYS.CHAOS);
   StateManager.dispatch(
     Actions.setChaosLevel(savedChaos ? parseInt(savedChaos, 10) : 5)
   );
 
   let initialConfigFromStorage = null;
   try {
-    const savedConfigString = SafeStorage.getItem('tsDiceLastConfig');
+    const savedConfigString = SafeStorage.getItem(STORAGE_KEYS.LAST_CONFIG);
     if (savedConfigString) {
       initialConfigFromStorage = JSON.parse(savedConfigString);
       // Validate config using ErrorHandler
       if (!ErrorHandler.validateConfig(initialConfigFromStorage)) {
         console.warn('Saved config is malformed, ignoring.');
         initialConfigFromStorage = null;
-        SafeStorage.removeItem('tsDiceLastConfig');
+        SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
       }
     }
   } catch (e) {
     ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
-    SafeStorage.removeItem('tsDiceLastConfig');
+    SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
   }
 
   if (window.location.hash && window.location.hash.startsWith('#config=')) {
@@ -865,8 +777,8 @@ import { initKeyboardShortcuts } from './keyboardShortcuts.js';
 
   // Show the welcome modal on first visit or after 24 hours have passed
   // (unless permanently dismissed)
-  const welcomeTimestamp = SafeStorage.getItem('tsDiceWelcomeTimestamp');
-  const welcomeDismissed = SafeStorage.getItem('tsDiceWelcomeDismissed');
+  const welcomeTimestamp = SafeStorage.getItem(STORAGE_KEYS.WELCOME_TIMESTAMP);
+  const welcomeDismissed = SafeStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED);
   const now = Date.now();
   const twentyFourHours = 24 * 60 * 60 * 1000; // Milliseconds in 24 hours
 
