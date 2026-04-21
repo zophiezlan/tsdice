@@ -108,6 +108,17 @@ body {
   align-items: flex-end;
   gap: 8px;
   max-width: calc(100vw - 20px);
+  /* The collapsed sub-menu still reserves layout space (scaleX(0) doesn't
+     shrink the box). Make the container transparent to pointer events and
+     re-enable on interactive children so clicks pass through to the canvas. */
+  pointer-events: none;
+}
+
+/* Menu toggle button is always interactive. The sub-menu re-enables
+   pointer-events on itself via the existing `.menu-container.active .sub-menu`
+   rule below, so it stays click-through while collapsed. */
+.menu-container #main-menu-btn {
+  pointer-events: auto;
 }
 
 #main-menu-btn svg {
