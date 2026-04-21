@@ -50,3 +50,50 @@
   margin-top: 30px;
   opacity: 0.7;
 }
+
+/* --- User Guide Styles --- */
+.guide-intro {
+  text-align: center;
+  line-height: 1.8;
+}
+
+.guide-intro strong {
+  font-size: 1.2em;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.guide-container {
+  text-align: left;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.guide-card {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.guide-card strong {
+  font-size: 1.1em;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.guide-card a {
+  color: var(--link-color);
+}
+
+.guide-card span {
+  font-size: 0.95em;
+  opacity: 0.9;
+}
+
+.guide-tip {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.9em;
+  opacity: 0.8;
+}

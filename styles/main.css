@@ -273,8 +273,6 @@ body {
   overflow-y: auto;
   text-align: center;
   will-change: transform;
-  /* Smooth momentum scrolling on mobile */
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 .modal-overlay.visible .modal-content {
