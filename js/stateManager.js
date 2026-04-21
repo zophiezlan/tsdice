@@ -7,9 +7,10 @@ import { SafeStorage } from './storage.js';
 import { UIManager } from './uiManager.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { STORAGE_KEYS } from './constants/storage.js';
+import { TIMING } from './constants/ui.js';
 
 /** Debounce delay for persist operations (ms) */
-const PERSIST_DEBOUNCE_MS = 300;
+const PERSIST_DEBOUNCE_MS = TIMING.PERSIST_DEBOUNCE;
 
 /**
  * Action types for state mutations

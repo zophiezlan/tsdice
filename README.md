@@ -679,8 +679,8 @@ Use the Share URL feature to create bookmarkable presets:
 
 - **[tsParticles](https://particles.js.org/)** v3.9.1 — Particle animation engine
 - **[lz-string](https://pieroxy.net/blog/pages/lz-string/index.html)** v1.5.0 — URL compression
-- **[Vite](https://vitejs.dev/)** v7.2.2 — Build tool & dev server (Phase 2)
-- **[Vitest](https://vitest.dev/)** v4.0.8 — Test framework with 111 tests (Phase 2)
+- **[Vite](https://vitejs.dev/)** v8.0.9 — Build tool & dev server (Phase 2)
+- **[Vitest](https://vitest.dev/)** v4.0.16 — Test framework with 111 tests (Phase 2)
 - **Vanilla JavaScript** — ES6 modules, no framework bloat
 - **CSS3** — Custom properties, grid, flexbox, backdrop-filter
 - **HTML5** — Semantic, accessible markup

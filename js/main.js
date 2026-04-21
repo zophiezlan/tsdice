@@ -13,6 +13,7 @@ import {
   BUTTON_IDS,
   AUTO_HIDE_DELAY,
   STORAGE_KEYS,
+  TIMING,
 } from './constants.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
@@ -88,7 +89,10 @@ if (import.meta.env?.DEV) {
    */
   async function createEmojiShortUrl(longUrl) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      TIMING.SHARE_FETCH_TIMEOUT
+    );
     try {
       Telemetry.log('share:shorten:start', { urlLength: longUrl.length });
       const response = await fetch('https://my.ket.horse/emoji', {
@@ -793,14 +797,13 @@ if (import.meta.env?.DEV) {
   const welcomeTimestamp = SafeStorage.getItem(STORAGE_KEYS.WELCOME_TIMESTAMP);
   const welcomeDismissed = SafeStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED);
   const now = Date.now();
-  const twentyFourHours = 24 * 60 * 60 * 1000; // Milliseconds in 24 hours
 
   if (
     welcomeDismissed !== 'true' &&
     (!welcomeTimestamp ||
-      now - parseInt(welcomeTimestamp, 10) > twentyFourHours)
+      now - parseInt(welcomeTimestamp, 10) > TIMING.WELCOME_REDISPLAY_MS)
   ) {
-    setTimeout(() => ModalManager.open('welcome'), 500);
+    setTimeout(() => ModalManager.open('welcome'), TIMING.WELCOME_MODAL_DELAY);
   }
 
   // --- 8. REDUCED MOTION HANDLING ---

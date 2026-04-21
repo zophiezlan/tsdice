@@ -35,6 +35,10 @@ export const TIMING = {
   BURST_EFFECT: 150, // Particle burst animation duration
   FADE_TRANSITION: 200, // Opacity fade duration
   LOADING_DELAY: 300, // Delay before showing loading indicator
+  PERSIST_DEBOUNCE: 300, // Debounce for persisting state to storage
+  SHARE_FETCH_TIMEOUT: 4000, // Abort timeout for emoji-shorten fetch
+  WELCOME_MODAL_DELAY: 500, // Delay before opening welcome modal on load
+  WELCOME_REDISPLAY_MS: 24 * 60 * 60 * 1000, // Re-show welcome after 24h
 };
 
 /**

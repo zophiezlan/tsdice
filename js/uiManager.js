@@ -1,6 +1,6 @@
 import { AppState } from './state.js';
 import { CommandManager } from './commandManager.js';
-import { BUTTON_IDS } from './constants.js';
+import { BUTTON_IDS, TIMING } from './constants.js';
 
 const infoModal = document.getElementById('info-modal');
 const toastNotification = document.getElementById('toast-notification');
@@ -18,6 +18,25 @@ const iconPlay = document.getElementById('icon-play');
 const chaosSlider = document.getElementById('chaos-slider');
 const chaosDisplay = document.getElementById('chaos-display');
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function buildSliderIcon() {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('xmlns', SVG_NS);
+  svg.setAttribute('width', '24');
+  svg.setAttribute('height', '24');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', 'M2 9.5h20M7 4.5v15');
+  svg.appendChild(path);
+  return svg;
+}
+
 /**
  * @description Manages all direct DOM manipulation, UI feedback, and accessibility concerns.
  * This object keeps view-layer logic separate from core application logic.
@@ -34,7 +53,7 @@ export const UIManager = {
     toastNotification.classList.add('show');
     setTimeout(() => {
       toastNotification.classList.remove('show');
-    }, 3000);
+    }, TIMING.TOAST_DURATION);
   },
 
   /** Updates the fullscreen button icons based on the document's fullscreen state. */
@@ -69,14 +88,14 @@ export const UIManager = {
       if (icon) {
         iconWrapper.appendChild(icon);
       } else if (control.classList.contains('slider-container')) {
-        iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5h20M7 4.5v15"/></svg>`;
+        iconWrapper.appendChild(buildSliderIcon());
       }
 
       const textWrapper = document.createElement('div');
       textWrapper.className = 'info-text';
 
       const strong = document.createElement('strong');
-      strong.textContent = name + ' ';
+      strong.textContent = `${name} `;
 
       if (shortcutMatch) {
         const code = document.createElement('code');

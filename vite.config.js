@@ -11,17 +11,20 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
 
+    // Source maps for production debugging
+    sourcemap: true,
+
     // Minification
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: false, // Keep console for now, can enable in production
+        drop_console: true,
         drop_debugger: true,
       },
     },
 
     // Asset size warnings
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500,
   },
 
   // Server options for development
