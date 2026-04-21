@@ -39,6 +39,7 @@ export const TIMING = {
   SHARE_FETCH_TIMEOUT: 4000, // Abort timeout for emoji-shorten fetch
   WELCOME_MODAL_DELAY: 500, // Delay before opening welcome modal on load
   WELCOME_REDISPLAY_MS: 24 * 60 * 60 * 1000, // Re-show welcome after 24h
+  PARTICLES_LOAD_HANG: 10000, // Warn user if tsParticles.load() exceeds this
 };
 
 /**

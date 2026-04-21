@@ -13,8 +13,8 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint js/ tests/ --ext .js",
     "lint:fix": "eslint js/ tests/ --ext .js --fix",
-    "format": "prettier --write \"**/*.{js,json,md,html,css}\"",
-    "format:check": "prettier --check \"**/*.{js,json,md,html,css}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky"
   },
   "keywords": [

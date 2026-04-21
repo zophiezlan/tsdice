@@ -26,7 +26,8 @@
       "Bash(node -e \"const fs=require\\('fs'\\); console.log\\(fs.readFileSync\\('index.html','utf8'\\).split\\('\\\\n'\\).length\\);\")",
       "Bash(node -e \"const fs=require\\('fs'\\);const lines=fs.readFileSync\\('index.html','utf8'\\).split\\('\\\\n'\\);console.log\\('len',lines.length,'l42:',lines[41].substring\\(0,40\\),'l893:',lines[892].substring\\(0,40\\)\\);\")",
       "Bash(node -e \"const fs=require\\('fs'\\);const lines=fs.readFileSync\\('index.html','utf8'\\).split\\('\\\\n'\\);const out=[...lines.slice\\(0,41\\),...lines.slice\\(893\\)];fs.writeFileSync\\('index.html',out.join\\('\\\\n'\\)\\);console.log\\('wrote',out.length,'lines'\\);\")",
-      "Bash(node -e \"const fs=require\\('fs'\\);const lines=fs.readFileSync\\('index.html','utf8'\\).split\\('\\\\n'\\);let d=1;let found=-1;for\\(let i=473;i<lines.length;i++\\){const o=\\(lines[i].match\\(/<div\\\\b/g\\)||[]\\).length;const c=\\(lines[i].match\\(/<\\\\/div>/g\\)||[]\\).length;d+=o-c;if\\(d===0\\){found=i;break;}}console.log\\('close at',found+1,'content',JSON.stringify\\(lines[found]\\)\\);console.log\\('prev',JSON.stringify\\(lines[found-1]\\)\\);console.log\\('next',JSON.stringify\\(lines[found+1]\\)\\);\")"
+      "Bash(node -e \"const fs=require\\('fs'\\);const lines=fs.readFileSync\\('index.html','utf8'\\).split\\('\\\\n'\\);let d=1;let found=-1;for\\(let i=473;i<lines.length;i++\\){const o=\\(lines[i].match\\(/<div\\\\b/g\\)||[]\\).length;const c=\\(lines[i].match\\(/<\\\\/div>/g\\)||[]\\).length;d+=o-c;if\\(d===0\\){found=i;break;}}console.log\\('close at',found+1,'content',JSON.stringify\\(lines[found]\\)\\);console.log\\('prev',JSON.stringify\\(lines[found-1]\\)\\);console.log\\('next',JSON.stringify\\(lines[found+1]\\)\\);\")",
+      "Bash(npx vitest *)"
     ]
   }
 }

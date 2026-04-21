@@ -773,6 +773,11 @@ body.light-mode .advanced-setting {
   }
 }
 
+.keyboard-press {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Disable expensive blur effects and animations for users who prefer reduced motion */
   .glass-button,

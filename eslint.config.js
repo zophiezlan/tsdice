@@ -28,6 +28,8 @@ export default [
         LZString: 'readonly',
         AbortController: 'readonly',
         performance: 'readonly',
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
         // Node globals for tests
         process: 'readonly',
         // Test globals
@@ -41,23 +43,30 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-console': 'off',
-      'prefer-const': 'warn',
+      'prefer-const': 'error',
       'no-var': 'error',
       // Additional rules for code quality
-      curly: ['warn', 'multi-line'], // Require braces for multi-line blocks
-      eqeqeq: ['error', 'always', { null: 'ignore' }], // Require === except for null
-      'no-implicit-coercion': ['warn', { allow: ['!!'] }], // Warn on implicit type coercion
-      'no-throw-literal': 'error', // Require throwing Error objects
-      'no-return-await': 'warn', // Disallow unnecessary return await
-      'require-await': 'warn', // Warn on async functions without await
-      'no-param-reassign': ['warn', { props: false }], // Warn on parameter reassignment
-      'no-else-return': 'warn', // Prefer early returns
-      'object-shorthand': ['warn', 'always'], // Prefer {x} over {x: x}
-      'prefer-template': 'warn', // Prefer template literals over concatenation
-      'prefer-arrow-callback': 'warn', // Prefer arrow functions as callbacks
-      'no-useless-return': 'warn', // Disallow unnecessary return statements
+      curly: ['error', 'multi-line'],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'no-implicit-coercion': ['warn', { allow: ['!!'] }],
+      'no-throw-literal': 'error',
+      'no-return-await': 'error',
+      'require-await': 'error',
+      'no-param-reassign': ['warn', { props: false }],
+      'no-else-return': 'warn',
+      'object-shorthand': ['warn', 'always'],
+      'prefer-template': 'warn',
+      'prefer-arrow-callback': 'warn',
+      'no-useless-return': 'warn',
+      // Stricter correctness rules
+      'no-promise-executor-return': 'error',
+      'no-unreachable-loop': 'error',
+      'no-self-compare': 'error',
+      'no-constructor-return': 'error',
+      'no-duplicate-imports': 'error',
+      'no-await-in-loop': 'warn',
     },
   },
   {

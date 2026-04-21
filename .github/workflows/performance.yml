@@ -14,7 +14,7 @@ jobs:
   lighthouse:
     name: Lighthouse CI
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -39,7 +39,7 @@ jobs:
   bundle-size:
     name: Check Bundle Size
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -51,10 +51,10 @@ jobs:
           echo "" >> size-report.md
           echo "| File | Size |" >> size-report.md
           echo "|------|------|" >> size-report.md
-          
+
           index_size=$(stat -f%z index.html 2>/dev/null || stat -c%s index.html)
           echo "| index.html | $(numfmt --to=iec-i --suffix=B $index_size) |" >> size-report.md
-          
+
           total_js=0
           for file in js/*.js; do
             if [ -f "$file" ]; then
@@ -63,11 +63,11 @@ jobs:
               echo "| $file | $(numfmt --to=iec-i --suffix=B $size) |" >> size-report.md
             fi
           done
-          
+
           echo "" >> size-report.md
           echo "**Total JS Size:** $(numfmt --to=iec-i --suffix=B $total_js)" >> size-report.md
           echo "**Total App Size:** $(numfmt --to=iec-i --suffix=B $((index_size + total_js)))" >> size-report.md
-          
+
           cat size-report.md
 
       - name: Comment PR with size report
@@ -77,7 +77,7 @@ jobs:
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('size-report.md', 'utf8');
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

@@ -5,11 +5,10 @@ import { UIManager } from './uiManager.js';
 import { ModalManager } from './modalManager.js';
 import { initTooltipManager } from './tooltipManager.js';
 import { CommandManager } from './commandManager.js';
-import { copyToClipboard, getRandomItem, debounce } from './utils.js';
+import { debounce } from './utils.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { StateManager, Actions } from './stateManager.js';
 import {
-  emojiOptions,
   BUTTON_IDS,
   AUTO_HIDE_DELAY,
   STORAGE_KEYS,
@@ -31,6 +30,9 @@ import {
   createToggleCommand,
   createThemeCommand,
 } from './commandFactory.js';
+import { handleShareClick } from './shareManager.js';
+import { loadSavedConfig, loadConfigFromHash } from './configLoader.js';
+import { setupInfoModalTabs } from './infoModalManager.js';
 
 // Dev-only: expose key state on window for debugging in the console.
 // `import.meta.env.DEV` is replaced at build time by Vite, so this block
@@ -67,63 +69,6 @@ if (import.meta.env?.DEV) {
   initTooltipManager(subMenu);
 
   // --- 3. CORE LOGIC FUNCTIONS ---
-
-  /**
-   * Generates a random string of emojis for the short URL.
-   * @param {number} count - Number of emojis to generate
-   * @returns {string} Random emoji string
-   */
-  const generateRandomEmojiString = (count) => {
-    let emojiString = '';
-    for (let i = 0; i < count; i++) {
-      emojiString += getRandomItem(emojiOptions);
-    }
-    return emojiString;
-  };
-
-  /**
-   * Creates a short URL using the spoo.me API hosted on share.ket.horse.
-   * Generates an 8-emoji shortened link for easier sharing.
-   * @param {string} longUrl - The full URL to shorten
-   * @returns {Promise<string|null>} The shortened URL or null if shortening fails
-   */
-  async function createEmojiShortUrl(longUrl) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      TIMING.SHARE_FETCH_TIMEOUT
-    );
-    try {
-      Telemetry.log('share:shorten:start', { urlLength: longUrl.length });
-      const response = await fetch('https://my.ket.horse/emoji', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        signal: controller.signal,
-        body: new URLSearchParams({
-          url: longUrl,
-          emojies: generateRandomEmojiString(8),
-        }),
-      });
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-      const payload = await response.json();
-      Telemetry.log('share:shorten:success', {
-        hasUrl: Boolean(payload.short_url),
-      });
-      return payload.short_url;
-    } catch (error) {
-      const aborted = error && error.name === 'AbortError';
-      Telemetry.logError('share:shorten', error, { aborted });
-      console.error('Failed to create emoji short URL:', error);
-      return null;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
 
   /** Handles the logic for toggling the application's color theme. */
   const updateTheme = async () => {
@@ -278,16 +223,22 @@ if (import.meta.env?.DEV) {
           })
         );
         break;
-      case BUTTON_IDS.REFRESH:
-        (async () => {
-          const config = AppState.particleState.currentConfig;
-          if (config && Object.keys(config).length > 0) {
-            await loadParticles(config);
-            UIManager.showToast('Scene refreshed!');
-            UIManager.announce('Scene refreshed');
-          }
-        })();
+      case BUTTON_IDS.REFRESH: {
+        const config = AppState.particleState.currentConfig;
+        if (config && Object.keys(config).length > 0) {
+          loadParticles(config)
+            .then(() => {
+              UIManager.showToast('Scene refreshed!');
+              UIManager.announce('Scene refreshed');
+            })
+            .catch((error) => {
+              ErrorHandler.handle(error, ErrorType.PARTICLES_LOAD, {
+                action: 'refresh',
+              });
+            });
+        }
         break;
+      }
       case BUTTON_IDS.PAUSE:
         (() => {
           const container = AppState.ui.particlesContainer;
@@ -308,88 +259,9 @@ if (import.meta.env?.DEV) {
         })();
         break;
       case BUTTON_IDS.SHARE:
-        (async () => {
-          Telemetry.log('share:start', {
-            hasConfig:
-              AppState.particleState.currentConfig &&
-              Object.keys(AppState.particleState.currentConfig).length > 0,
-          });
-          const handleShare = ErrorHandler.wrap(async () => {
-            const sharableConfig = structuredClone(
-              AppState.particleState.currentConfig
-            );
-            sharableConfig.uiState = {
-              chaosLevel: AppState.particleState.chaosLevel,
-              isDarkMode: AppState.ui.isDarkMode,
-              isCursorParticle: AppState.ui.isCursorParticle,
-              isGravityOn: AppState.ui.isGravityOn,
-              areWallsOn: AppState.ui.areWallsOn,
-              originalOutModes: AppState.ui.areWallsOn
-                ? AppState.particleState.originalOutModes
-                : undefined,
-            };
-
-            button.classList.add('disabled');
-            UIManager.showToast('⏳ Creating shareable link...');
-            UIManager.announce('Creating shareable link');
-            Telemetry.log('share:compress:start', {
-              chaos: AppState.particleState.chaosLevel,
-            });
-
-            const compressedConfig = LZString.compressToEncodedURIComponent(
-              JSON.stringify(sharableConfig)
-            );
-            const fullUrl = `${
-              window.location.href.split('#')[0]
-            }#config=${compressedConfig}`;
-            Telemetry.log('share:compress:complete', {
-              size: compressedConfig.length,
-            });
-
-            // Try to create short URL, but don't block on failure
-            let finalUrl = fullUrl;
-            try {
-              const shortUrl = await createEmojiShortUrl(fullUrl);
-              if (shortUrl) {
-                finalUrl = shortUrl;
-              }
-            } catch (shortenError) {
-              console.warn(
-                'URL shortening failed, using full URL:',
-                shortenError
-              );
-              Telemetry.logError('share:shorten:unexpected', shortenError);
-            }
-
-            await copyToClipboard(finalUrl);
-
-            // Show different message based on URL type
-            const isShortenedUrl = finalUrl !== fullUrl;
-            if (isShortenedUrl) {
-              UIManager.showToast(
-                `✓ Short link copied! ${finalUrl.split('/').pop()}`
-              );
-              UIManager.announce('Short emoji link copied to clipboard');
-            } else {
-              UIManager.showToast('✓ Link copied to clipboard');
-              UIManager.announce('Full configuration link copied to clipboard');
-            }
-
-            Telemetry.log('share:copied', {
-              shortened: isShortenedUrl,
-              urlLength: finalUrl.length,
-            });
-
-            return { shortened: isShortenedUrl };
-          }, ErrorType.SHARE_FAILED);
-
-          const shareResult = await handleShare();
-          Telemetry.log('share:complete', {
-            status: shareResult ? 'success' : 'failed',
-            shortened: Boolean(shareResult && shareResult.shortened),
-          });
-          button.classList.remove('disabled');
-        })();
+        handleShareClick(button).catch((error) => {
+          ErrorHandler.handle(error, ErrorType.SHARE_FAILED);
+        });
         break;
       case BUTTON_IDS.INFO:
         UIManager.populateInfoModal();
@@ -443,74 +315,6 @@ if (import.meta.env?.DEV) {
       SafeStorage.setItem(STORAGE_KEYS.WELCOME_TIMESTAMP, String(Date.now()));
       SafeStorage.removeItem(STORAGE_KEYS.WELCOME_DISMISSED);
     }
-  };
-
-  /** Tab switcher for info modal */
-  const setupInfoModalTabs = () => {
-    const tabButtons = infoModal.querySelectorAll('.modal-tab');
-    const tabContents = infoModal.querySelectorAll('.modal-tab-content');
-
-    tabButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const targetTab = button.dataset.tab;
-
-        // Remove active class from all tabs and contents
-        tabButtons.forEach((btn) => {
-          btn.classList.remove('active');
-          btn.setAttribute('aria-selected', 'false');
-        });
-        tabContents.forEach((content) => content.classList.remove('active'));
-
-        // Add active class to clicked tab and corresponding content
-        button.classList.add('active');
-        button.setAttribute('aria-selected', 'true');
-        document.getElementById(`tab-${targetTab}`).classList.add('active');
-
-        // Remember the last viewed tab
-        SafeStorage.setItem(STORAGE_KEYS.LAST_INFO_TAB, targetTab);
-      });
-    });
-
-    // Restore last viewed tab when modal opens
-    const restoreLastTab = () => {
-      const lastTab =
-        SafeStorage.getItem(STORAGE_KEYS.LAST_INFO_TAB) || 'controls';
-      const targetButton = Array.from(tabButtons).find(
-        (btn) => btn.dataset.tab === lastTab
-      );
-
-      if (targetButton) {
-        targetButton.click();
-      }
-    };
-
-    // Listen for modal open and restore last tab
-    btnInfo.addEventListener('click', () => {
-      // Use setTimeout to ensure modal is open before restoring tab
-      setTimeout(restoreLastTab, 0);
-    });
-
-    // Add keyboard navigation for tabs (arrow keys)
-    const tabButtonsArray = Array.from(tabButtons);
-    tabButtons.forEach((button, index) => {
-      button.addEventListener('keydown', (e) => {
-        let targetIndex = -1;
-
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-          e.preventDefault();
-          targetIndex = (index + 1) % tabButtonsArray.length;
-        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          targetIndex =
-            (index - 1 + tabButtonsArray.length) % tabButtonsArray.length;
-        }
-
-        if (targetIndex !== -1) {
-          tabButtonsArray[targetIndex].click();
-          tabButtonsArray[targetIndex].focus();
-        }
-      });
-    });
   };
 
   /** Wire up the advanced settings toggles within the info modal. */
@@ -604,7 +408,7 @@ if (import.meta.env?.DEV) {
   ModalManager.register('info', infoModal, closeInfoModalBtn);
 
   // Setup tab functionality for info modal
-  setupInfoModalTabs();
+  setupInfoModalTabs(infoModal, btnInfo);
   setupAdvancedSettingsPanel();
 
   fullscreenBtn.addEventListener('click', toggleFullScreen);
@@ -709,75 +513,17 @@ if (import.meta.env?.DEV) {
     Actions.setChaosLevel(savedChaos ? parseInt(savedChaos, 10) : 5)
   );
 
-  let initialConfigFromStorage = null;
-  try {
-    const savedConfigString = SafeStorage.getItem(STORAGE_KEYS.LAST_CONFIG);
-    if (savedConfigString) {
-      initialConfigFromStorage = JSON.parse(savedConfigString);
-      // Validate config using ErrorHandler
-      if (!ErrorHandler.validateConfig(initialConfigFromStorage)) {
-        console.warn('Saved config is malformed, ignoring.');
-        initialConfigFromStorage = null;
-        SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
-      }
-    }
-  } catch (e) {
-    ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
-    SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
+  if (SafeStorage.usingFallback()) {
+    UIManager.announce(
+      'Storage is unavailable — your scene and settings will not persist after reload.'
+    );
+    console.warn(
+      'SafeStorage: localStorage unavailable, using in-memory fallback. Scene and settings will not persist.'
+    );
   }
 
-  if (window.location.hash && window.location.hash.startsWith('#config=')) {
-    try {
-      const decodedString = LZString.decompressFromEncodedURIComponent(
-        window.location.hash.substring(8)
-      );
-      if (decodedString) {
-        const parsedConfig = JSON.parse(decodedString);
-        // Validate config structure
-        if (!parsedConfig || typeof parsedConfig !== 'object') {
-          throw new Error('Invalid config structure');
-        }
-
-        if (parsedConfig.uiState) {
-          StateManager.dispatch(
-            Actions.setChaosLevel(parsedConfig.uiState.chaosLevel || 5)
-          );
-          StateManager.dispatch(
-            Actions.setTheme(parsedConfig.uiState.isDarkMode !== false)
-          );
-          if (parsedConfig.uiState.isCursorParticle) {
-            StateManager.dispatch(Actions.toggleCursor());
-          }
-          if (parsedConfig.uiState.isGravityOn) {
-            StateManager.dispatch(Actions.toggleGravity());
-          }
-          if (parsedConfig.uiState.areWallsOn) {
-            StateManager.dispatch(Actions.toggleWalls());
-            if (parsedConfig.uiState.originalOutModes) {
-              StateManager.dispatch(
-                Actions.setOriginalModes({
-                  outModes: parsedConfig.uiState.originalOutModes,
-                })
-              );
-            }
-          }
-          delete parsedConfig.uiState;
-        }
-
-        // Validate the particle config before using it
-        if (ErrorHandler.validateConfig(parsedConfig)) {
-          AppState.particleState.initialConfigFromUrl = parsedConfig;
-        } else {
-          throw new Error('Invalid particle configuration');
-        }
-      } else {
-        throw new Error('Decompression failed');
-      }
-    } catch (e) {
-      ErrorHandler.handle(e, ErrorType.CONFIG_INVALID);
-      window.location.hash = '';
-    }
-  }
+  const initialConfigFromStorage = loadSavedConfig();
+  loadConfigFromHash();
 
   // Determine initial config: URL config > saved config > fresh random shuffle
   let configToLoad =

@@ -8,6 +8,7 @@ import { PARTICLE_CONFIG } from './constants/particles.js';
 import { THEME_BACKGROUNDS } from './constants/colors.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
+import { TIMING } from './constants/ui.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
 export const applyAdvancedPreferences = (options) => {
@@ -188,11 +189,16 @@ export const loadParticles = async (config) => {
   };
   Telemetry.log('particles:load:start', metrics);
 
-  try {
-    const loadingTimeout = setTimeout(() => {
-      UIManager.showLoadingIndicator();
-    }, 300);
+  const loadingTimeout = setTimeout(() => {
+    UIManager.showLoadingIndicator();
+  }, TIMING.LOADING_DELAY);
+  const hangTimeout = setTimeout(() => {
+    UIManager.showToast('Still loading… this is taking longer than usual');
+    UIManager.announce('Particle load is taking longer than expected');
+    Telemetry.log('particles:load:slow', metrics);
+  }, TIMING.PARTICLES_LOAD_HANG);
 
+  try {
     AppState.particleState.currentConfig = config;
     SafeStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
 
@@ -227,7 +233,6 @@ export const loadParticles = async (config) => {
     AppState.ui.isPaused = false;
     UIManager.syncUI();
 
-    clearTimeout(loadingTimeout);
     UIManager.hideLoadingIndicator();
     const endTime =
       typeof performance !== 'undefined' ? performance.now() : Date.now();
@@ -261,6 +266,9 @@ export const loadParticles = async (config) => {
       UIManager.showToast('Failed to load particle configuration');
       UIManager.announce('Failed to load particle configuration');
     }
+  } finally {
+    clearTimeout(loadingTimeout);
+    clearTimeout(hangTimeout);
   }
 };
 

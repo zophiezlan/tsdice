@@ -75,72 +75,9 @@ Keyboard shortcuts, recipes, and workflows live in the [User Guide](USER_GUIDE.m
 
 ## 🎯 What Makes tsDice Special?
 
-### The Philosophy: Controlled Chaos
+tsDice is built on **granular randomization**: four shuffle categories (appearance, movement, interaction, FX) plus a master shuffle, all scaled by a single **Chaos Level** slider (1–10) that controls particle count, speed, and effect probability. The result is a creative dial that balances surprise with intention.
 
-tsDice is built on a unique **granular randomization architecture** that gives you both surprise and control:
-
-- 🎨 **Appearance Shuffler** — Randomizes colors, shapes, sizes, and strokes
-- 🌊 **Movement Shuffler** — Changes speed, direction, trails, and attractions
-- 🖱️ **Interaction Shuffler** — Modifies hover/click behaviors (repel, grab, bubble, etc.)
-- ✨ **Special FX Shuffler** — Toggles advanced effects (links, rotation, wobble, collisions)
-- 🎲 **Shuffle All** — Complete randomization for maximum surprise
-
-### The Chaos Level: Your Creative Dial
-
-The **Chaos Level** (1-10) is tsDice's secret sauce:
-
-- **Low Chaos (1-3)**: Calm, elegant, minimalist scenes
-- **Medium Chaos (4-7)**: Balanced energy and complexity
-- **High Chaos (8-10)**: Maximum particles, wild physics, visual extravaganza!
-
-This single slider controls particle count, speed multipliers, and the probability of enabling complex effects.
-
----
-
-## 🎮 Features That Spark Joy
-
-### 🎛️ Interactive Controls
-
-| Feature                 | What It Does                    | Keyboard Shortcut     |
-| ----------------------- | ------------------------------- | --------------------- |
-| **Shuffle All**         | Complete scene regeneration     | `Alt + A`             |
-| **Shuffle Appearance**  | Change particle visuals only    | `Alt + P`             |
-| **Shuffle Movement**    | Modify motion physics           | `Alt + V`             |
-| **Shuffle Interaction** | Alter mouse effects             | `Alt + I`             |
-| **Shuffle Special FX**  | Toggle advanced effects         | `Alt + F`             |
-| **Gravity Toggle**      | Pull particles downward         | `Alt + G`             |
-| **Walls Toggle**        | Make particles bounce at edges  | `Alt + W`             |
-| **Cursor Particle**     | Trail particles from your mouse | `Alt + C`             |
-| **Theme Toggle**        | Switch dark/light mode          | `Alt + T`             |
-| **Pause/Play**          | Freeze the animation            | `Space`               |
-| **Undo/Redo**           | Navigate through history        | `Alt + Z` / `Alt + Y` |
-| **Share**               | Generate shareable emoji URL    | `Alt + S`             |
-| **Info Modal**          | View all controls & shortcuts   | `Alt + ?`             |
-
-### 💾 Smart Persistence
-
-- **History System**: Infinite undo/redo stack remembers your journey
-- **Local Storage**: Your last configuration automatically saves
-- **URL Sharing**: Compress entire scenes into shareable emoji links 🐎🦄✨
-- **Theme Memory**: Preferences persist across sessions
-
-### 🎨 Accessibility First
-
-- Full keyboard navigation support
-- ARIA live regions for screen readers
-- Focus trapping in modals
-- Reduced motion support (auto-pauses for users with motion sensitivities)
-- Custom tooltips with keyboard shortcuts
-
-### 🧭 Guided Onboarding
-
-- First-time visitors see a welcome modal with quick-start tips; once dismissed it snoozes for 24 hours or indefinitely if you tick "Don't show again".
-- The control panel auto-hides after 10 seconds of inactivity to keep the canvas clean—any pointer movement or a tap on the main menu button brings it back instantly.
-- The Info modal is tabbed (Controls, Shortcuts, Guide) and remembers the last tab you viewed, so power users can jump straight to their favorite reference panel.
-
-### 🎭 Easter Eggs
-
-Try the **Konami Code** (↑ ↑ ↓ ↓ ← → ← → B A) for a surprise party mode! 🎉
+Full feature tour, keyboard shortcuts, recipes, and accessibility notes live in the **[User Guide](USER_GUIDE.md)**.
 
 ---
 
@@ -486,23 +423,7 @@ See [.github/CI_CD_GUIDE.md](.github/CI_CD_GUIDE.md) for detailed CI/CD document
 
 ## 🌟 Use Cases
 
-### For Developers
-
-- **Rapid Prototyping**: Discover particle configs for your own projects
-- **Learning Tool**: Study how different tsParticles options interact
-- **Design Inspiration**: Generate ideas for landing pages, backgrounds, interactive art
-
-### For Designers
-
-- **Creative Exploration**: Find unexpected visual combinations
-- **Client Presentations**: Quickly demo different particle styles
-- **Moodboard Generation**: Create and share particle scenes via URLs
-
-### For Fun
-
-- **Stress Relief**: Meditative, endlessly changing visuals
-- **Desktop Wallpaper**: Create dynamic backgrounds with Lively Wallpaper integration
-- **Party Visuals**: High chaos + fullscreen mode = instant ambiance
+Rapid prototyping for developers, creative exploration for designers, and dynamic desktop wallpapers via the Lively integration below. See the [User Guide](USER_GUIDE.md) for workflows and creative recipes.
 
 ---
 
@@ -745,30 +666,6 @@ Built with ❤️ by [zophiezlan](https://github.com/zophiezlan)
 
 ---
 
-## 🎁 Bonus: Tips & Tricks
-
-### Creating Specific Moods
-
-- **Zen Mode**: Chaos 1-2, enable gravity, shuffle appearance until you get circles
-- **Cosmic Mode**: Chaos 7-8, dark theme, shuffle until you get star shapes
-- **Matrix Mode**: Chaos 5, green particles with links enabled
-- **Confetti Mode**: Konami code or Chaos 10 with bounce walls
-- **Minimalist Mode**: Chaos 1, shuffle FX until links appear, disable everything else
-
-### Keyboard Ninja Shortcuts
-
-- **Rapid Exploration**: `Alt+A` (shuffle all) → `Space` (pause) → `Alt+Z` (undo) → repeat
-- **Fine-Tuning**: `Alt+P` (appearance) → `Alt+V` (movement) → `Alt+I` (interaction)
-- **Quick Share**: Create scene → `Alt+S` (share) → Paste in Discord/Slack
-
-### Best Practices
-
-1. Start with Chaos 5 to understand the middle ground
-2. Use category shuffles to isolate what you like
-3. Save favorite configs by sharing and bookmarking the URL
-4. Toggle gravity on/off dynamically for dramatic effect
-5. Use cursor particle mode for interactive presentations
-
----
-
 **Now go forth and create something beautiful!** ✨🎲🎨
+
+> Creative recipes, keyboard flows, and power-user techniques are documented in the **[User Guide](USER_GUIDE.md)**.

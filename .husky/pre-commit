@@ -1,2 +1,6 @@
 npx lint-staged
-npm test
+
+staged_js=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js')
+if [ -n "$staged_js" ]; then
+  npx vitest related --run --passWithNoTests --reporter=dot $staged_js
+fi

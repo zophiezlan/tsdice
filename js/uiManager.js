@@ -119,8 +119,19 @@ export const UIManager = {
   openModal: (modal, opener) => {
     AppState.ui.lastFocusedElement = opener || document.activeElement;
     modal.classList.add('visible');
-    const firstFocusableElement = modal.querySelector('button, [href]');
-    if (firstFocusableElement) firstFocusableElement.focus();
+    const explicit = modal.querySelector('[data-initial-focus], [autofocus]');
+    if (explicit) {
+      explicit.focus();
+      return;
+    }
+    const focusables = modal.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const target =
+      Array.from(focusables).find(
+        (el) => !el.classList.contains('modal-close-btn')
+      ) || focusables[0];
+    if (target) target.focus();
   },
 
   /** Closes a modal and returns focus to the element that opened it. */
@@ -182,12 +193,11 @@ export const UIManager = {
     iconPlay.style.display = AppState.ui.isPaused ? 'block' : 'none';
 
     // Slider
-    chaosSlider.value = AppState.particleState.chaosLevel;
-    chaosSlider.setAttribute(
-      'aria-valuenow',
-      AppState.particleState.chaosLevel
-    );
-    chaosDisplay.textContent = AppState.particleState.chaosLevel;
+    const chaos = AppState.particleState.chaosLevel;
+    chaosSlider.value = chaos;
+    chaosSlider.setAttribute('aria-valuenow', chaos);
+    chaosSlider.setAttribute('aria-valuetext', `Chaos level ${chaos} of 10`);
+    chaosDisplay.textContent = chaos;
 
     // History Buttons
     btnBack.classList.toggle('disabled', CommandManager.undoStack.length === 0);

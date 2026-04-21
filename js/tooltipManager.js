@@ -59,8 +59,9 @@ export function initTooltipManager(subMenuEl) {
 
     if (top < padding) top = mouseY + padding;
     if (left < padding) left = padding;
-    if (left + tooltipRect.width > window.innerWidth - padding)
+    if (left + tooltipRect.width > window.innerWidth - padding) {
       left = window.innerWidth - tooltipRect.width - padding;
+    }
 
     tooltip.style.left = `${left}px`;
     tooltip.style.top = `${top}px`;
@@ -99,7 +100,7 @@ export function initTooltipManager(subMenuEl) {
 
     tooltip.innerHTML = ''; // Clear previous content
     const strong = document.createElement('strong');
-    strong.textContent = name + ' ';
+    strong.textContent = `${name} `;
 
     if (shortcutMatch) {
       const code = document.createElement('code');
@@ -152,7 +153,8 @@ export function initTooltipManager(subMenuEl) {
   );
 
   subMenuEl.addEventListener('mousemove', (e) => {
-    if (tooltip.classList.contains('visible'))
+    if (tooltip.classList.contains('visible')) {
       updateTooltipPosition(e.clientX, e.clientY);
+    }
   });
 }

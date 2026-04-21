@@ -58,11 +58,8 @@ export function initKeyboardShortcuts(menuContainer) {
       if (btnId) {
         const button = document.getElementById(btnId);
         if (button) {
-          // Add visual feedback for keyboard activation
-          button.style.transform = 'scale(0.95)';
-          setTimeout(() => {
-            button.style.transform = '';
-          }, 150);
+          button.classList.add('keyboard-press');
+          setTimeout(() => button.classList.remove('keyboard-press'), 150);
           button.click();
         }
       }

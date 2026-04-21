@@ -14,13 +14,13 @@ jobs:
   stale:
     name: Mark Stale Issues and PRs
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Mark stale issues and pull requests
         uses: actions/stale@v10
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          
+
           # Issues
           stale-issue-message: |
             This issue has been automatically marked as stale because it has not had 
@@ -33,7 +33,7 @@ jobs:
           days-before-issue-close: 7
           stale-issue-label: 'stale'
           exempt-issue-labels: 'pinned,security,bug'
-          
+
           # Pull Requests
           stale-pr-message: |
             This pull request has been automatically marked as stale because it has 
@@ -46,7 +46,7 @@ jobs:
           days-before-pr-close: 14
           stale-pr-label: 'stale'
           exempt-pr-labels: 'pinned,security,work-in-progress'
-          
+
           # General settings
           operations-per-run: 30
           remove-stale-when-updated: true

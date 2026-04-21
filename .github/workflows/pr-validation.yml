@@ -12,7 +12,7 @@ jobs:
   validate:
     name: Validate PR
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -73,12 +73,12 @@ jobs:
           script: |
             const output = `
             #### PR Validation Results 🔍
-            
+
             ✅ Linting and tests completed
-            
+
             > **Note:** Check the workflow logs for detailed results.
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

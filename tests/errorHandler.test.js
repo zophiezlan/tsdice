@@ -107,7 +107,7 @@ describe('ErrorHandler', () => {
 
   describe('wrap', () => {
     it('should wrap async function with error handling', async () => {
-      const successFn = vi.fn(async () => 'success');
+      const successFn = vi.fn(() => Promise.resolve('success'));
       const wrapped = ErrorHandler.wrap(successFn, ErrorType.UNKNOWN);
 
       const result = await wrapped();
@@ -117,9 +117,7 @@ describe('ErrorHandler', () => {
     });
 
     it('should handle errors in wrapped function', async () => {
-      const errorFn = vi.fn(async () => {
-        throw new Error('Wrapped error');
-      });
+      const errorFn = vi.fn(() => Promise.reject(new Error('Wrapped error')));
       const wrapped = ErrorHandler.wrap(errorFn, ErrorType.CONFIG_INVALID);
 
       const result = await wrapped('arg1', 'arg2');
@@ -129,9 +127,9 @@ describe('ErrorHandler', () => {
     });
 
     it('should re-throw non-recoverable errors', async () => {
-      const fatalErrorFn = vi.fn(async () => {
-        throw new Error('Fatal error');
-      });
+      const fatalErrorFn = vi.fn(() =>
+        Promise.reject(new Error('Fatal error'))
+      );
       const wrapped = ErrorHandler.wrap(fatalErrorFn, ErrorType.LIBRARY_LOAD);
 
       await expect(wrapped()).rejects.toThrow('Fatal error');
