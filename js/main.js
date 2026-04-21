@@ -668,7 +668,7 @@ import {
           shuffleType: '🎉 Party Mode',
           async execute() {
             await loadParticles(partyConfig);
-            AppState.particleState.currentConfig = partyConfig;
+            StateManager.dispatch(Actions.setConfig(partyConfig));
             UIManager.syncUI();
             UIManager.showToast('🎉 Party Mode Activated! 🎊');
             UIManager.announce('Party mode activated with Konami code');
@@ -741,8 +741,13 @@ import {
           }
           if (parsedConfig.uiState.areWallsOn) {
             StateManager.dispatch(Actions.toggleWalls());
-            AppState.particleState.originalOutModes =
-              parsedConfig.uiState.originalOutModes;
+            if (parsedConfig.uiState.originalOutModes) {
+              StateManager.dispatch(
+                Actions.setOriginalModes({
+                  outModes: parsedConfig.uiState.originalOutModes,
+                })
+              );
+            }
           }
           delete parsedConfig.uiState;
         }
@@ -791,19 +796,17 @@ import {
   }
 
   // --- 8. REDUCED MOTION HANDLING ---
+  // tsDice is fundamentally a motion-based app — silently auto-pausing when
+  // the OS has `prefers-reduced-motion: reduce` makes it look broken (the user
+  // sees particles load and respond to hover/click but not drift).
+  // Instead: surface a one-time hint and let the user decide. Space toggles
+  // pause if they want it.
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const handleReducedMotion = () => {
-    const container = AppState.ui.particlesContainer;
-    if (motionQuery.matches && container && !AppState.ui.isPaused) {
-      container.pause();
-      StateManager.dispatch(Actions.togglePause());
-      UIManager.syncUI();
-      UIManager.announce('Animation paused due to reduced motion preference.');
-      UIManager.showToast('Animation paused due to reduced motion preference.');
-    }
-  };
-  handleReducedMotion();
-  motionQuery.addEventListener('change', handleReducedMotion);
+  if (motionQuery.matches) {
+    UIManager.announce(
+      'Reduced motion preference detected. Press Space to pause if desired.'
+    );
+  }
 
   // --- 9. DEBOUNCED WINDOW RESIZE ---
   const handleResize = debounce(() => {
@@ -815,8 +818,11 @@ import {
   window.addEventListener('resize', handleResize);
 
   // --- 10. MEMORY LEAK PREVENTION ---
-  /** Cleanup function to prevent memory leaks on page unload */
+  /** Cleanup function to prevent memory leaks on page unload. Also flushes
+   *  any pending debounced persist so the user's last change isn't lost. */
   window.addEventListener('beforeunload', () => {
+    StateManager.cancelPendingPersist();
+    StateManager.persist();
     const container = AppState.ui.particlesContainer;
     if (container) {
       container.destroy();

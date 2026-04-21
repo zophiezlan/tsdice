@@ -29,18 +29,6 @@ const DOCS_CONFIG = [
     title: '🏗️ Architecture - tsDice',
     description: 'Technical architecture and design decisions',
   },
-  {
-    source: 'ANALYSIS.md',
-    output: 'analysis.html',
-    title: '📊 Complete Analysis - tsDice',
-    description: 'Comprehensive technical analysis of the codebase',
-  },
-  {
-    source: 'QUICK_REFERENCE.md',
-    output: 'quick-reference.html',
-    title: '⚡ Quick Reference - tsDice',
-    description: 'Quick reference guide for tsDice features',
-  },
 ];
 
 // Configure marked for GitHub-flavored markdown with custom renderer for heading IDs

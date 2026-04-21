@@ -20,16 +20,6 @@ export default defineConfig({
       },
     },
 
-    // Code splitting
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Split vendor code
-          tsparticles: ['@tsparticles/engine', '@tsparticles/all'],
-        },
-      },
-    },
-
     // Asset size warnings
     chunkSizeWarningLimit: 1000,
   },
@@ -65,11 +55,6 @@ export default defineConfig({
       modernPolyfills: true,
     }),
   ],
-
-  // Optimization
-  optimizeDeps: {
-    include: ['lz-string'],
-  },
 
   // Define env variables
   define: {

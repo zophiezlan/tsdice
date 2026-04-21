@@ -102,27 +102,53 @@ export const ErrorHandler = {
   createFatalErrorUI(type, error) {
     const errorInfo = ERROR_MESSAGES[type] || ERROR_MESSAGES[ErrorType.UNKNOWN];
 
-    document.body.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui; text-align: center; padding: 20px;">
-        <div>
-          <h1 style="color: #ff6b6b; margin-bottom: 16px;">⚠️ ${errorInfo.title}</h1>
-          <p style="color: #666; margin-bottom: 20px;">${errorInfo.message}</p>
-          <button onclick="location.reload()" style="padding: 12px 24px; background: #4ecdc4; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
-            Reload Page
-          </button>
-          ${
-            process.env.NODE_ENV === 'development'
-              ? `
-            <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
-              <summary style="cursor: pointer; color: #999;">Developer Info</summary>
-              <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">${error.stack}</pre>
-            </details>
-          `
-              : ''
-          }
-        </div>
-      </div>
-    `;
+    const isDev =
+      (typeof import.meta !== 'undefined' && import.meta.env?.DEV) ||
+      (typeof process !== 'undefined' &&
+        process.env?.NODE_ENV === 'development');
+
+    // Replace body contents by building DOM nodes — avoids innerHTML with
+    // stack traces or error messages that could contain markup.
+    const outer = document.createElement('div');
+    outer.style.cssText =
+      'display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui;text-align:center;padding:20px;';
+
+    const inner = document.createElement('div');
+
+    const h1 = document.createElement('h1');
+    h1.style.cssText = 'color:#ff6b6b;margin-bottom:16px;';
+    h1.textContent = `⚠️ ${errorInfo.title}`;
+
+    const p = document.createElement('p');
+    p.style.cssText = 'color:#666;margin-bottom:20px;';
+    p.textContent = errorInfo.message;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Reload Page';
+    btn.style.cssText =
+      'padding:12px 24px;background:#4ecdc4;color:white;border:none;border-radius:8px;cursor:pointer;font-size:16px;';
+    btn.addEventListener('click', () => window.location.reload());
+
+    inner.append(h1, p, btn);
+
+    if (isDev && error && error.stack) {
+      const details = document.createElement('details');
+      details.style.cssText =
+        'margin-top:20px;text-align:left;max-width:600px;margin-left:auto;margin-right:auto;';
+      const summary = document.createElement('summary');
+      summary.style.cssText = 'cursor:pointer;color:#999;';
+      summary.textContent = 'Developer Info';
+      const pre = document.createElement('pre');
+      pre.style.cssText =
+        'background:#f5f5f5;padding:10px;border-radius:4px;overflow-x:auto;font-size:12px;';
+      pre.textContent = error.stack;
+      details.append(summary, pre);
+      inner.append(details);
+    }
+
+    outer.append(inner);
+    document.body.replaceChildren(outer);
   },
 
   /**

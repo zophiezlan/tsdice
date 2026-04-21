@@ -47,7 +47,8 @@ export const TRAIL_COLORS = {
 };
 
 /**
- * Emoji options for character-type particles
+ * Emoji pool used to build the shortened share-URL slug (see createEmojiShortUrl).
+ * Not used for particle rendering — the character/emoji particle shape was removed.
  */
 export const emojiOptions = [
   '🐎',

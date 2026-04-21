@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { StateManager, Actions, ActionType } from '../js/stateManager.js';
 import { AppState } from '../js/state.js';
 

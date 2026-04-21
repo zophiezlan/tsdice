@@ -70,20 +70,14 @@ describe('ConfigGenerator', () => {
       }
     });
 
-    it('should include character value when shape is character', () => {
-      const appearances = Array.from({ length: 50 }, () =>
+    it('should never use character/emoji shape', () => {
+      const appearances = Array.from({ length: 100 }, () =>
         ConfigGenerator.generateAppearance()
       );
-
       const characters = appearances.filter(
         (a) => a.shape.type === 'character'
       );
-      if (characters.length > 0) {
-        const character = characters[0];
-        expect(character.shape.options.character).toBeDefined();
-        expect(character.shape.options.character.value).toBeDefined();
-        expect(character.shape.options.character.fill).toBe(true);
-      }
+      expect(characters).toHaveLength(0);
     });
 
     it('should generate valid opacity range', () => {
@@ -252,8 +246,11 @@ describe('ConfigGenerator', () => {
       expect(withCollisions.length).toBeGreaterThan(0);
 
       if (withCollisions.length > 0) {
-        const fx = withCollisions[0];
-        expect(['bounce', 'destroy']).toContain(fx.collisions.mode);
+        // Collision mode is always 'bounce' — 'destroy' removes particles
+        // permanently, which drains the scene across repeated shuffles.
+        withCollisions.forEach((fx) => {
+          expect(fx.collisions.mode).toBe('bounce');
+        });
       }
     });
 

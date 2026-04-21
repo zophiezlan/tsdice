@@ -12,7 +12,6 @@ import {
   directionOptions,
   hoverModeOptions,
   safeClickModes,
-  emojiOptions,
 } from './constants.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
 
@@ -60,12 +59,6 @@ export const ConfigGenerator = {
         sides: Math.floor(
           getRandomInRange(MIN_POLYGON_SIDES, MAX_POLYGON_SIDES + 1)
         ),
-      };
-    }
-    if (shapeType === 'character') {
-      appearance.shape.options.character = {
-        value: getRandomItem(emojiOptions),
-        fill: true,
       };
     }
     if (Object.keys(appearance.shape.options).length === 0) {
@@ -180,8 +173,11 @@ export const ConfigGenerator = {
     return {
       life: { enable: false },
       collisions: {
+        // Always bounce. 'destroy' permanently removes particles on contact
+        // and tsParticles doesn't replace them, so repeated shuffles with
+        // destroy-mode collisions deplete the scene to nothing.
         enable: getRandomBool(getChaosProbability(0.6, chaosLevel)),
-        mode: getRandomBool(0.5) ? 'bounce' : 'destroy',
+        mode: 'bounce',
       },
       wobble: {
         enable: getRandomBool(getChaosProbability(0.5, chaosLevel)),

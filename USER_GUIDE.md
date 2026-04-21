@@ -845,14 +845,13 @@ Create dynamic scenes by rapidly toggling:
 
 Cycle these every 10 seconds for an evolving scene!
 
-### The Emoji Signature
+### Your Signature Style
 
-Create a personal particle style:
+Create a personal particle look:
 
-1. Find your favorite emoji shape (character type)
-2. Always use the same chaos level (your "signature chaos")
-3. Pick a color palette you love
-4. Save multiple URLs with this style
+1. Always use the same chaos level (your "signature chaos")
+2. Shuffle until you land on a shape you love
+3. Save multiple URLs with this style
 
 People will recognize your "particle aesthetic"!
 

@@ -69,26 +69,7 @@ Technical deep dive for developers:
 - Performance optimizations
 - Extension points for contributors
 
-### 📊 [**Complete Analysis**](ANALYSIS.md)
-
-Fresh technical overview of the entire codebase:
-
-- File structure & relationships
-- Module responsibilities
-- State management details
-- Security considerations
-- Testing strategies
-- Overall assessment (Grade: A+ 95/100)
-
-### ⚡ [**Quick Reference**](QUICK_REFERENCE.md)
-
-Fast lookup cheat sheet:
-
-- All keyboard shortcuts
-- API quick reference
-- Common workflows
-- Debugging commands
-- Quick recipes
+Keyboard shortcuts, recipes, and workflows live in the [User Guide](USER_GUIDE.md).
 
 ---
 

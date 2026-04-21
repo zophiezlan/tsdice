@@ -14,7 +14,6 @@ export const shapeOptions = [
   'line',
   'heart',
   'rounded-rectangle',
-  'character',
 ];
 
 /**
