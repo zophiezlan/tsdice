@@ -5,7 +5,20 @@
       "Bash(awk '{printf \"%s %s\\\\n\", $9, $5}')",
       "Bash(npm test *)",
       "Bash(npm run *)",
-      "Bash(npx prettier *)"
+      "Bash(npx prettier *)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(curl -s 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/browser/Core/Retina.js')",
+      "Bash(curl -s 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/browser/Core/Utils/Constants.js')",
+      "Bash(curl -sL 'https://cdn.jsdelivr.net/npm/@tsparticles/move-base@3.9.1/browser/move.js')",
+      "Bash(curl -sL 'https://data.jsdelivr.com/v1/package/npm/@tsparticles/move-base@3.9.1/flat')",
+      "Bash(curl -sL 'https://cdn.jsdelivr.net/npm/@tsparticles/move-base@3.9.1/browser/Utils.js')",
+      "Bash(curl -sL 'https://cdn.jsdelivr.net/npm/@tsparticles/move-base@3.9.1/browser/BaseMover.js')",
+      "Bash(curl -sL 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/browser/Core/Container.js')",
+      "Bash(curl -sL 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/browser/Core/Canvas.js')",
+      "Bash(curl -sL 'https://data.jsdelivr.com/v1/package/npm/@tsparticles/engine')",
+      "Bash(npm outdated *)",
+      "Bash(npm update *)",
+      "Bash(npm install *)"
     ]
   }
 }

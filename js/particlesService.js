@@ -129,15 +129,18 @@ export const buildConfig = (shuffleOptions) => {
     newConfig.interactivity = ConfigGenerator.generateInteraction();
   } else {
     newConfig.particles = { ...newConfig.particles };
-    if (shuffleOptions.appearance)
+    if (shuffleOptions.appearance) {
       Object.assign(newConfig.particles, ConfigGenerator.generateAppearance());
-    if (shuffleOptions.movement)
+    }
+    if (shuffleOptions.movement) {
       newConfig.particles.move = {
         ...newConfig.particles.move,
         ...ConfigGenerator.generateMovement(),
       };
-    if (shuffleOptions.interaction)
+    }
+    if (shuffleOptions.interaction) {
       newConfig.interactivity = ConfigGenerator.generateInteraction();
+    }
     if (shuffleOptions.fx) {
       const fx = ConfigGenerator.generateSpecialFX(newConfig.particles);
       Object.assign(newConfig.particles, fx);
@@ -206,6 +209,14 @@ export const loadParticles = async (config) => {
       id: 'tsparticles',
       options: optionsWithAdvanced,
     });
+
+    // Workaround: in tsParticles 3.9.1, container.retina.reduceFactor can
+    // settle at 0 after load even though Retina.init() sets it to 1. When 0,
+    // the base mover multiplies every per-frame displacement by 0, so
+    // particles hold position while engine/velocity/interactivity look healthy.
+    if (AppState.ui.particlesContainer?.retina) {
+      AppState.ui.particlesContainer.retina.reduceFactor = 1;
+    }
 
     if (containerEl) {
       setTimeout(() => {
@@ -325,12 +336,14 @@ export const updateThemeAndReload = async () => {
   config.background.color.value = AppState.ui.isDarkMode
     ? THEME_BACKGROUNDS.DARK
     : THEME_BACKGROUNDS.LIGHT;
-  if (config.particles.color.value !== 'random')
+  if (config.particles.color.value !== 'random') {
     config.particles.color.value = getRandomItem(newPalette);
-  if (config.particles.links.enable)
+  }
+  if (config.particles.links.enable) {
     config.particles.links.color.value = AppState.ui.isDarkMode
       ? '#ffffff'
       : '#333333';
+  }
   // Trail fill is empty to inherit the individual particle's color instead of using the background color
 
   await loadParticles(config);

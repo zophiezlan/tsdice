@@ -31,6 +31,14 @@ import {
   createThemeCommand,
 } from './commandFactory.js';
 
+// Dev-only: expose key state on window for debugging in the console.
+// `import.meta.env.DEV` is replaced at build time by Vite, so this block
+// is stripped from production bundles.
+if (import.meta.env?.DEV) {
+  window.AppState = AppState;
+  window.tsParticles = tsParticles;
+}
+
 // Main async function to encapsulate the entire application logic.
 (async () => {
   try {
