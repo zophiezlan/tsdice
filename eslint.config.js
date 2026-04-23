@@ -19,6 +19,8 @@ export default [
         console: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
         alert: 'readonly',

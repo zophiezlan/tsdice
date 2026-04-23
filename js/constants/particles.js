@@ -13,7 +13,21 @@ export const shapeOptions = [
   'polygon',
   'line',
   'heart',
-  'rounded-rectangle',
+  'rounded-rect',
+  'rounded-polygon',
+  'spiral',
+  'infinity',
+];
+
+/**
+ * Path generators from @tsparticles/all. Names match the `addPathGenerator`
+ * registration in each plugin's index.js, not the package name.
+ */
+export const pathGeneratorOptions = [
+  'perlinNoise',
+  'simplexNoise',
+  'curlNoise',
+  'zigZagPathGenerator',
 ];
 
 /**

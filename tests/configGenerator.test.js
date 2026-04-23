@@ -57,7 +57,7 @@ describe('ConfigGenerator', () => {
 
     it('should include polygon sides when shape is polygon', () => {
       // Generate multiple times to ensure we hit polygon
-      const appearances = Array.from({ length: 50 }, () =>
+      const appearances = Array.from({ length: 100 }, () =>
         ConfigGenerator.generateAppearance()
       );
 
@@ -67,6 +67,39 @@ describe('ConfigGenerator', () => {
         expect(polygon.shape.options.polygon).toBeDefined();
         expect(polygon.shape.options.polygon.sides).toBeGreaterThanOrEqual(3);
         expect(polygon.shape.options.polygon.sides).toBeLessThanOrEqual(12);
+      }
+    });
+
+    it('should cap rounded-polygon sides to prevent splat rendering', () => {
+      const appearances = Array.from({ length: 300 }, () =>
+        ConfigGenerator.generateAppearance()
+      );
+
+      const roundedPolys = appearances.filter(
+        (a) => a.shape.type === 'rounded-polygon'
+      );
+      roundedPolys.forEach((rp) => {
+        const opts = rp.shape.options['rounded-polygon'];
+        expect(opts).toBeDefined();
+        expect(opts.sides).toBeGreaterThanOrEqual(3);
+        expect(opts.sides).toBeLessThanOrEqual(6);
+        expect(opts.radius).toBeGreaterThanOrEqual(2);
+        expect(opts.radius).toBeLessThanOrEqual(5);
+      });
+    });
+
+    it('should include spiral options when shape is spiral', () => {
+      const appearances = Array.from({ length: 200 }, () =>
+        ConfigGenerator.generateAppearance()
+      );
+
+      const spirals = appearances.filter((a) => a.shape.type === 'spiral');
+      if (spirals.length > 0) {
+        const spiral = spirals[0];
+        expect(spiral.shape.options.spiral).toBeDefined();
+        expect(spiral.shape.options.spiral.innerRadius).toBeGreaterThan(0);
+        expect(spiral.shape.options.spiral.lineSpacing).toBeGreaterThan(0);
+        expect(spiral.shape.options.spiral.widthFactor).toBeGreaterThan(0);
       }
     });
 
@@ -108,7 +141,6 @@ describe('ConfigGenerator', () => {
       expect(movement).toHaveProperty('random');
       expect(movement).toHaveProperty('straight');
       expect(movement).toHaveProperty('outModes');
-      expect(movement).toHaveProperty('trail');
     });
 
     it('should always enable movement', () => {
@@ -137,16 +169,6 @@ describe('ConfigGenerator', () => {
       expect(movement.straight).toBe(false);
     });
 
-    it('should use empty trail fill to inherit particle color', () => {
-      AppState.ui.isDarkMode = true;
-      const darkMovement = ConfigGenerator.generateMovement();
-      expect(darkMovement.trail.fill).toEqual({});
-
-      AppState.ui.isDarkMode = false;
-      const lightMovement = ConfigGenerator.generateMovement();
-      expect(lightMovement.trail.fill).toEqual({});
-    });
-
     it('should sometimes include attract mode', () => {
       AppState.particleState.chaosLevel = 10;
       const movements = Array.from({ length: 20 }, () =>
@@ -162,6 +184,37 @@ describe('ConfigGenerator', () => {
         expect(movement.attract.rotate.x).toBeDefined();
         expect(movement.attract.rotate.y).toBeDefined();
       }
+    });
+
+    it('should never emit a path generator below chaos 6', () => {
+      for (let chaos = 1; chaos <= 5; chaos++) {
+        AppState.particleState.chaosLevel = chaos;
+        const movements = Array.from({ length: 100 }, () =>
+          ConfigGenerator.generateMovement()
+        );
+        const withPath = movements.filter((m) => m.path?.enable);
+        expect(withPath.length).toBe(0);
+      }
+    });
+
+    it('should occasionally include a path generator at chaos 10', () => {
+      AppState.particleState.chaosLevel = 10;
+      const movements = Array.from({ length: 400 }, () =>
+        ConfigGenerator.generateMovement()
+      );
+
+      const withPath = movements.filter((m) => m.path?.enable);
+      expect(withPath.length).toBeGreaterThan(0);
+
+      const validGenerators = [
+        'perlinNoise',
+        'simplexNoise',
+        'curlNoise',
+        'zigZagPathGenerator',
+      ];
+      withPath.forEach((m) => {
+        expect(validGenerators).toContain(m.path.generator);
+      });
     });
   });
 
@@ -229,6 +282,40 @@ describe('ConfigGenerator', () => {
       expect(fx).toHaveProperty('life');
       expect(fx).toHaveProperty('collisions');
       expect(fx).toHaveProperty('wobble');
+      expect(fx).toHaveProperty('tilt');
+      expect(fx).toHaveProperty('roll');
+    });
+
+    it('should randomly enable tilt based on chaos', () => {
+      AppState.particleState.chaosLevel = 10;
+      const fxList = Array.from({ length: 30 }, () =>
+        ConfigGenerator.generateSpecialFX()
+      );
+
+      const withTilt = fxList.filter((fx) => fx.tilt.enable);
+      expect(withTilt.length).toBeGreaterThan(0);
+
+      if (withTilt.length > 0) {
+        const tilt = withTilt[0].tilt;
+        expect(tilt.animation.enable).toBe(true);
+        expect(tilt.animation.speed).toBeGreaterThan(0);
+      }
+    });
+
+    it('should randomly enable roll based on chaos', () => {
+      AppState.particleState.chaosLevel = 10;
+      const fxList = Array.from({ length: 30 }, () =>
+        ConfigGenerator.generateSpecialFX()
+      );
+
+      const withRoll = fxList.filter((fx) => fx.roll.enable);
+      expect(withRoll.length).toBeGreaterThan(0);
+
+      if (withRoll.length > 0) {
+        const roll = withRoll[0].roll;
+        expect(roll.speed).toBeGreaterThan(0);
+        expect(['vertical', 'horizontal']).toContain(roll.mode);
+      }
     });
 
     it('should always disable life', () => {
@@ -300,7 +387,6 @@ describe('ConfigGenerator', () => {
       const lowChaosFeatures = lowChaosConfigs.reduce((sum, config) => {
         let features = 0;
         if (config.movement.attract) features++;
-        if (config.movement.trail.enable) features++;
         if (config.fx.collisions.enable) features++;
         if (config.fx.wobble.enable) features++;
         return sum + features;
@@ -309,7 +395,6 @@ describe('ConfigGenerator', () => {
       const highChaosFeatures = highChaosConfigs.reduce((sum, config) => {
         let features = 0;
         if (config.movement.attract) features++;
-        if (config.movement.trail.enable) features++;
         if (config.fx.collisions.enable) features++;
         if (config.fx.wobble.enable) features++;
         return sum + features;

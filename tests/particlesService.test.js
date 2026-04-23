@@ -19,7 +19,6 @@ function baseConfig() {
       move: {
         speed: 10,
         outModes: { default: 'out' },
-        trail: { enable: true },
       },
       links: { opacity: 0.8 },
     },
@@ -81,7 +80,6 @@ describe('applyAdvancedPreferences', () => {
     expect(opts.particles.move.speed).toBeLessThanOrEqual(
       PARTICLE_CONFIG.BATTERY_SAVER_MAX_SPEED
     );
-    expect(opts.particles.move.trail.enable).toBe(false);
     expect(opts.particles.links.opacity).toBeLessThanOrEqual(0.4);
   });
 

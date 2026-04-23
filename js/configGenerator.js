@@ -12,6 +12,7 @@ import {
   directionOptions,
   hoverModeOptions,
   safeClickModes,
+  pathGeneratorOptions,
 } from './constants.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
 
@@ -61,6 +62,23 @@ export const ConfigGenerator = {
         ),
       };
     }
+    // Cap rounded-polygon at 3-6 sides. Above ~7, the arcTo border radius on
+    // adjacent corners overlaps and the shape renders as an irregular splat
+    // of spikes — unrecognizable at particle sizes. Small borderRadius too,
+    // for the same reason.
+    if (shapeType === 'rounded-polygon') {
+      appearance.shape.options['rounded-polygon'] = {
+        sides: Math.floor(getRandomInRange(3, 7)),
+        radius: getRandomInRange(2, 5),
+      };
+    }
+    if (shapeType === 'spiral') {
+      appearance.shape.options.spiral = {
+        innerRadius: getRandomInRange(1, 3),
+        lineSpacing: getRandomInRange(1, 2 + chaosLevel / 4),
+        widthFactor: getRandomInRange(6, 12),
+      };
+    }
     if (Object.keys(appearance.shape.options).length === 0) {
       delete appearance.shape.options;
     }
@@ -83,11 +101,6 @@ export const ConfigGenerator = {
       random: true,
       straight: false,
       outModes: { default: 'out' },
-      trail: {
-        enable: getRandomBool(getChaosProbability(0.4, chaosLevel)),
-        length: getRandomInRange(3, 15),
-        fill: {},
-      },
     };
     if (getRandomBool(getChaosProbability(0.4, chaosLevel))) {
       movement.attract = {
@@ -97,6 +110,20 @@ export const ConfigGenerator = {
           y: getRandomInRange(600, 1500),
         },
       };
+    }
+    // Organic flow fields from @tsparticles/all. Paths (especially zig-zag)
+    // dominate the scene — only turn them on at chaos 6+, scaling ~1% → ~8%
+    // from chaos 6 to 10. Outside that range plain random movement wins.
+    if (chaosLevel >= 6) {
+      const pathProbability = 0.01 + (chaosLevel - 6) * 0.0175;
+      if (getRandomBool(pathProbability)) {
+        movement.path = {
+          enable: true,
+          delay: { value: 0 },
+          generator: getRandomItem(pathGeneratorOptions),
+          options: {},
+        };
+      }
     }
     return movement;
   },
@@ -178,6 +205,11 @@ export const ConfigGenerator = {
         // destroy-mode collisions deplete the scene to nothing.
         enable: getRandomBool(getChaosProbability(0.6, chaosLevel)),
         mode: 'bounce',
+        // Allow overlapping spawns. Without this, tsParticles recursively
+        // retries placement until every particle is non-overlapping; at high
+        // density (chaos 7+) that loop never terminates and tsParticles.load
+        // hangs. See @tsparticles/engine Particle._checkOverlap.
+        overlap: { enable: true, retries: 0 },
       },
       wobble: {
         enable: getRandomBool(getChaosProbability(0.5, chaosLevel)),
@@ -210,6 +242,21 @@ export const ConfigGenerator = {
           frequency: 0.05,
           opacity: 1,
         },
+      },
+      tilt: {
+        enable: getRandomBool(getChaosProbability(0.12, chaosLevel)),
+        value: { min: 0, max: 360 },
+        direction: getRandomItem(['clockwise', 'counter-clockwise']),
+        animation: {
+          enable: true,
+          speed: 10 + chaosLevel * 3,
+          sync: false,
+        },
+      },
+      roll: {
+        enable: getRandomBool(getChaosProbability(0.1, chaosLevel)),
+        speed: 5 + chaosLevel * 2,
+        mode: getRandomItem(['vertical', 'horizontal']),
       },
     };
   },

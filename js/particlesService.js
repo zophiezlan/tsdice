@@ -8,6 +8,7 @@ import { PARTICLE_CONFIG } from './constants/particles.js';
 import { THEME_BACKGROUNDS } from './constants/colors.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
+import { Diagnostics } from './diagnostics.js';
 import { TIMING } from './constants/ui.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
@@ -52,10 +53,6 @@ export const applyAdvancedPreferences = (options) => {
         );
       } else {
         options.particles.move.speed = cap;
-      }
-
-      if (options.particles.move.trail) {
-        options.particles.move.trail.enable = false;
       }
     }
 
@@ -211,10 +208,12 @@ export const loadParticles = async (config) => {
     const optionsWithAdvanced = JSON.parse(JSON.stringify(config));
     applyAdvancedPreferences(optionsWithAdvanced);
 
+    Diagnostics.markLoadStart(optionsWithAdvanced);
     AppState.ui.particlesContainer = await tsParticles.load({
       id: 'tsparticles',
       options: optionsWithAdvanced,
     });
+    Diagnostics.markLoadResolved();
 
     // Workaround: in tsParticles 3.9.1, container.retina.reduceFactor can
     // settle at 0 after load even though Retina.init() sets it to 1. When 0,
@@ -241,7 +240,10 @@ export const loadParticles = async (config) => {
       durationMs: Math.round(endTime - loadStart),
       batterySaver: AppState.advanced.batterySaverMode,
     });
+
+    Diagnostics.scheduleProbe(config);
   } catch (error) {
+    Diagnostics.markLoadResolved();
     console.error('Failed to load particles:', error);
     UIManager.hideLoadingIndicator();
     Telemetry.logError('particles:load', error, metrics);
