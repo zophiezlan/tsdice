@@ -2,8 +2,7 @@ import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
-import { getRandomItem } from './utils.js';
-import { darkColorPalette, lightColorPalette } from './constants.js';
+import { generatePalette } from './palette.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
 import { THEME_BACKGROUNDS } from './constants/colors.js';
 import { SafeStorage } from './storage.js';
@@ -340,14 +339,18 @@ export const updateThemeAndReload = async () => {
     return;
   }
 
-  const newPalette = AppState.ui.isDarkMode
-    ? darkColorPalette
-    : lightColorPalette;
   config.background.color.value = AppState.ui.isDarkMode
     ? THEME_BACKGROUNDS.DARK
     : THEME_BACKGROUNDS.LIGHT;
-  if (config.particles.color.value !== 'random') {
-    config.particles.color.value = getRandomItem(newPalette);
+  // Rebuild the palette for the new theme. Preserve the existing palette size
+  // so chaos-scaled variety is maintained across theme toggles.
+  const currentColor = config.particles.color?.value;
+  if (currentColor !== 'random') {
+    const size = Array.isArray(currentColor) ? currentColor.length : 1;
+    config.particles.color.value = generatePalette(
+      size,
+      AppState.ui.isDarkMode
+    );
   }
   if (config.particles.links.enable) {
     config.particles.links.color.value = AppState.ui.isDarkMode

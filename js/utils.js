@@ -6,6 +6,21 @@ export const getChaosProbability = (baseProb, chaosLevel) =>
   Math.min(baseProb * (chaosLevel / 5), 1);
 
 /**
+ * Returns a random subset of up to `size` unique items from `arr` using a
+ * Fisher-Yates partial shuffle. If `size >= arr.length`, returns a shuffled
+ * copy of the whole array.
+ */
+export const getRandomSubset = (arr, size) => {
+  const n = Math.min(Math.max(0, Math.floor(size)), arr.length);
+  const copy = arr.slice();
+  for (let i = 0; i < n; i++) {
+    const j = i + Math.floor(Math.random() * (copy.length - i));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n);
+};
+
+/**
  * Debounce function - delays execution until after wait milliseconds have passed
  * since the last time it was invoked.
  */

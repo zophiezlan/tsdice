@@ -20,29 +20,93 @@ describe('ConfigGenerator', () => {
       expect(appearance).toHaveProperty('stroke');
     });
 
-    it('should use dark palette colors when in dark mode', () => {
+    it('should emit hex colour strings in dark mode', () => {
       AppState.ui.isDarkMode = true;
+      AppState.particleState.chaosLevel = 10;
       const appearances = Array.from({ length: 20 }, () =>
         ConfigGenerator.generateAppearance()
       );
 
-      // At least some should have colors from the palette (not all will be "random")
-      const hasValidColors = appearances.some(
-        (a) => typeof a.color.value === 'string'
-      );
-      expect(hasValidColors).toBe(true);
+      appearances.forEach((a) => {
+        const values = Array.isArray(a.color.value)
+          ? a.color.value
+          : [a.color.value];
+        values.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
+      });
     });
 
-    it('should use light palette colors when in light mode', () => {
+    it('should emit hex colour strings in light mode', () => {
       AppState.ui.isDarkMode = false;
+      AppState.particleState.chaosLevel = 10;
       const appearances = Array.from({ length: 20 }, () =>
         ConfigGenerator.generateAppearance()
       );
 
-      const hasValidColors = appearances.some(
-        (a) => typeof a.color.value === 'string'
+      appearances.forEach((a) => {
+        const values = Array.isArray(a.color.value)
+          ? a.color.value
+          : [a.color.value];
+        values.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
+      });
+    });
+
+    it('should never emit per-particle variety at chaos 0', () => {
+      AppState.particleState.chaosLevel = 0;
+      const appearances = Array.from({ length: 50 }, () =>
+        ConfigGenerator.generateAppearance()
       );
-      expect(hasValidColors).toBe(true);
+
+      appearances.forEach((a) => {
+        expect(Array.isArray(a.color.value)).toBe(false);
+        expect(Array.isArray(a.shape.type)).toBe(false);
+        expect(a.reduceDuplicates).toBe(false);
+      });
+    });
+
+    it('should sometimes emit array variety at chaos 10', () => {
+      AppState.particleState.chaosLevel = 10;
+      const appearances = Array.from({ length: 100 }, () =>
+        ConfigGenerator.generateAppearance()
+      );
+
+      const shapeArrays = appearances.filter((a) =>
+        Array.isArray(a.shape.type)
+      );
+      const colorArrays = appearances.filter((a) =>
+        Array.isArray(a.color.value)
+      );
+
+      // Shape variety gated at chaos/20 = 50% at chaos 10.
+      // Colour variety gated at chaos/15 = ~66% at chaos 10.
+      expect(shapeArrays.length).toBeGreaterThan(0);
+      expect(colorArrays.length).toBeGreaterThan(0);
+    });
+
+    it('should scale variety probability with chaos', () => {
+      const sampleShapeArrayRate = (chaos) => {
+        AppState.particleState.chaosLevel = chaos;
+        const runs = Array.from({ length: 200 }, () =>
+          ConfigGenerator.generateAppearance()
+        );
+        return runs.filter((a) => Array.isArray(a.shape.type)).length / 200;
+      };
+
+      const lowRate = sampleShapeArrayRate(2);
+      const highRate = sampleShapeArrayRate(10);
+      expect(highRate).toBeGreaterThan(lowRate);
+    });
+
+    it('should enable reduceDuplicates only when arrays are emitted', () => {
+      AppState.particleState.chaosLevel = 10;
+      const appearances = Array.from({ length: 50 }, () =>
+        ConfigGenerator.generateAppearance()
+      );
+
+      appearances.forEach((a) => {
+        const hasArray =
+          Array.isArray(a.color.value) || Array.isArray(a.shape.type);
+        expect(a.reduceDuplicates).toBe(hasArray);
+      });
     });
 
     it('should scale size with chaos level', () => {
@@ -55,31 +119,36 @@ describe('ConfigGenerator', () => {
       expect(highChaos.size.value.max).toBeGreaterThan(lowChaos.size.value.max);
     });
 
-    it('should include polygon sides when shape is polygon', () => {
-      // Generate multiple times to ensure we hit polygon
+    it('should include polygon sides when polygon is in the shape subset', () => {
+      AppState.particleState.chaosLevel = 10;
       const appearances = Array.from({ length: 100 }, () =>
         ConfigGenerator.generateAppearance()
       );
 
-      const polygons = appearances.filter((a) => a.shape.type === 'polygon');
-      if (polygons.length > 0) {
-        const polygon = polygons[0];
-        expect(polygon.shape.options.polygon).toBeDefined();
-        expect(polygon.shape.options.polygon.sides).toBeGreaterThanOrEqual(3);
-        expect(polygon.shape.options.polygon.sides).toBeLessThanOrEqual(12);
-      }
+      const asList = (t) => (Array.isArray(t) ? t : [t]);
+      const withPolygon = appearances.filter((a) =>
+        asList(a.shape.type).includes('polygon')
+      );
+      expect(withPolygon.length).toBeGreaterThan(0);
+      withPolygon.forEach((a) => {
+        expect(a.shape.options.polygon).toBeDefined();
+        expect(a.shape.options.polygon.sides).toBeGreaterThanOrEqual(3);
+        expect(a.shape.options.polygon.sides).toBeLessThanOrEqual(12);
+      });
     });
 
     it('should cap rounded-polygon sides to prevent splat rendering', () => {
-      const appearances = Array.from({ length: 300 }, () =>
+      AppState.particleState.chaosLevel = 10;
+      const appearances = Array.from({ length: 200 }, () =>
         ConfigGenerator.generateAppearance()
       );
 
-      const roundedPolys = appearances.filter(
-        (a) => a.shape.type === 'rounded-polygon'
+      const asList = (t) => (Array.isArray(t) ? t : [t]);
+      const withRP = appearances.filter((a) =>
+        asList(a.shape.type).includes('rounded-polygon')
       );
-      roundedPolys.forEach((rp) => {
-        const opts = rp.shape.options['rounded-polygon'];
+      withRP.forEach((a) => {
+        const opts = a.shape.options['rounded-polygon'];
         expect(opts).toBeDefined();
         expect(opts.sides).toBeGreaterThanOrEqual(3);
         expect(opts.sides).toBeLessThanOrEqual(6);
@@ -88,29 +157,34 @@ describe('ConfigGenerator', () => {
       });
     });
 
-    it('should include spiral options when shape is spiral', () => {
+    it('should include spiral options when spiral is in the shape subset', () => {
+      AppState.particleState.chaosLevel = 10;
       const appearances = Array.from({ length: 200 }, () =>
         ConfigGenerator.generateAppearance()
       );
 
-      const spirals = appearances.filter((a) => a.shape.type === 'spiral');
-      if (spirals.length > 0) {
-        const spiral = spirals[0];
-        expect(spiral.shape.options.spiral).toBeDefined();
-        expect(spiral.shape.options.spiral.innerRadius).toBeGreaterThan(0);
-        expect(spiral.shape.options.spiral.lineSpacing).toBeGreaterThan(0);
-        expect(spiral.shape.options.spiral.widthFactor).toBeGreaterThan(0);
-      }
+      const asList = (t) => (Array.isArray(t) ? t : [t]);
+      const withSpiral = appearances.filter((a) =>
+        asList(a.shape.type).includes('spiral')
+      );
+      withSpiral.forEach((a) => {
+        expect(a.shape.options.spiral).toBeDefined();
+        expect(a.shape.options.spiral.innerRadius).toBeGreaterThan(0);
+        expect(a.shape.options.spiral.lineSpacing).toBeGreaterThan(0);
+        expect(a.shape.options.spiral.widthFactor).toBeGreaterThan(0);
+      });
     });
 
     it('should never use character/emoji shape', () => {
       const appearances = Array.from({ length: 100 }, () =>
         ConfigGenerator.generateAppearance()
       );
-      const characters = appearances.filter(
-        (a) => a.shape.type === 'character'
-      );
-      expect(characters).toHaveLength(0);
+      appearances.forEach((a) => {
+        const types = Array.isArray(a.shape.type)
+          ? a.shape.type
+          : [a.shape.type];
+        expect(types).not.toContain('character');
+      });
     });
 
     it('should generate valid opacity range', () => {

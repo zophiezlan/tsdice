@@ -4,7 +4,11 @@ import { Telemetry } from './telemetry.js';
 import { THEME_BACKGROUNDS } from './constants/colors.js';
 
 const PROBE_DELAY_MS = 500;
-const PIXEL_SAMPLE_COUNT = 25;
+// Denser grid so small/sparse particle scenes are actually hit. At 25 samples
+// a healthy render often returned uniqueColorCount: 1 by chance, making that
+// signal unusable. At 100 samples a scene with ≥60 particles almost always
+// produces 2+ unique colours unless truly blank.
+const PIXEL_SAMPLE_COUNT = 100;
 const BG_MATCH_TOLERANCE = 8;
 const MAX_CAPTURES = 20;
 const HANG_TIMEOUT_MS = 4000;
@@ -40,10 +44,50 @@ const samplePoints = (w, h) => {
   return points.slice(0, PIXEL_SAMPLE_COUNT);
 };
 
+// Sample at known particle positions. tsParticles paints on a transparent
+// canvas with small particles — a blind grid missed them by chance on healthy
+// renders, making uniqueColorCount=1 indistinguishable from a true blank
+// screen. Sampling where particles claim to be gives a deterministic signal:
+// if any of these points is non-transparent, rendering is alive.
+const particleSamplePoints = (container, w, h) => {
+  const arr = getParticlesArray(container);
+  if (!arr.length) return [];
+  const pixelRatio = container?.retina?.pixelRatio || 1;
+  const points = [];
+  const step = Math.max(1, Math.floor(arr.length / 40)); // up to ~40 probes
+  for (let idx = 0; idx < arr.length; idx += step) {
+    const p = arr[idx];
+    const pos = p?.position || p?.getPosition?.();
+    if (!pos) continue;
+    const x = Math.round(pos.x * pixelRatio);
+    const y = Math.round(pos.y * pixelRatio);
+    if (x < 0 || y < 0 || x >= w || y >= h) continue;
+    // Search radius must cover the particle's drawn extent (size) plus any
+    // per-frame displacement (velocity magnitude), because position updates
+    // each frame and our read may straddle a frame boundary. A tiny fast
+    // particle at a claimed (x,y) can have actually been painted several
+    // pixels away. Add a small constant for AA/stroke bleed.
+    const size = p?.size?.value ?? p?.getRadius?.() ?? 2;
+    const vx = p?.velocity?.x ?? 0;
+    const vy = p?.velocity?.y ?? 0;
+    const speed = Math.hypot(vx, vy);
+    const radius = Math.max(3, Math.ceil((size + speed) * pixelRatio) + 2);
+    points.push({ x, y, radius, particleIndex: idx });
+  }
+  return points;
+};
+
 const getCanvasInfo = () => {
+  // Always prefer the live DOM canvas. AppState.ui.particlesContainer can
+  // lag behind tsParticles.load() — after a shuffle destroys+recreates the
+  // container, the old container's canvas.element is a detached DOM node
+  // that reads back blank. Querying the DOM gives us whatever is actually
+  // mounted at #tsparticles right now.
   const container = AppState.ui.particlesContainer;
+  const liveEl = document.querySelector('#tsparticles canvas');
+  const containerEl = container?.canvas?.element;
   const canvasEl =
-    container?.canvas?.element || document.querySelector('#tsparticles canvas');
+    liveEl || (containerEl && containerEl.isConnected ? containerEl : null);
 
   if (!canvasEl) return { ok: false, reason: 'no-canvas-element' };
 
@@ -78,7 +122,7 @@ const getCanvasInfo = () => {
   };
 };
 
-const samplePixels = (canvasEl) => {
+const samplePixels = (canvasEl, container) => {
   try {
     const ctx = canvasEl.getContext('2d', { willReadFrequently: true });
     if (!ctx) return { ok: false, reason: 'no-2d-context' };
@@ -87,26 +131,62 @@ const samplePixels = (canvasEl) => {
     const h = canvasEl.height;
     if (!w || !h) return { ok: false, reason: 'zero-sized-canvas', w, h };
 
-    const points = samplePoints(w, h);
-    const samples = [];
-    for (const p of points) {
-      const data = ctx.getImageData(p.x, p.y, 1, 1).data;
-      samples.push({
-        x: p.x,
-        y: p.y,
-        r: data[0],
-        g: data[1],
-        b: data[2],
-        a: data[3],
-      });
-    }
-    return { ok: true, samples };
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const buf = imageData.data;
+
+    const readAt = (x, y) => {
+      const i = (y * w + x) * 4;
+      return { x, y, r: buf[i], g: buf[i + 1], b: buf[i + 2], a: buf[i + 3] };
+    };
+
+    const gridSamples = samplePoints(w, h).map((p) => readAt(p.x, p.y));
+
+    // Sample a small neighborhood around each particle's claimed position.
+    // If the particle is actually rendered, at least one nearby pixel should
+    // be non-transparent. This removes the luck factor of a blind grid
+    // missing all particles on sparse/small-particle renders.
+    const particlePoints = particleSamplePoints(container, w, h);
+    const particleSamples = particlePoints.map((p) => {
+      const { radius } = p;
+      const x0 = Math.max(0, p.x - radius);
+      const x1 = Math.min(w - 1, p.x + radius);
+      const y0 = Math.max(0, p.y - radius);
+      const y1 = Math.min(h - 1, p.y + radius);
+      let hit = readAt(p.x, p.y);
+      // Scan outward in a box; break on first non-transparent pixel. Bounded
+      // by radius so big particles don't scan the whole canvas.
+      scan: for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          const i = (y * w + x) * 4;
+          if (buf[i + 3] !== 0) {
+            hit = {
+              x,
+              y,
+              r: buf[i],
+              g: buf[i + 1],
+              b: buf[i + 2],
+              a: buf[i + 3],
+            };
+            break scan;
+          }
+        }
+      }
+      return { ...hit, particleIndex: p.particleIndex, searchRadius: radius };
+    });
+
+    return {
+      ok: true,
+      samples: gridSamples,
+      particleSamples,
+      probedParticles: particlePoints.length,
+    };
   } catch (err) {
     return { ok: false, reason: 'getImageData-failed', error: String(err) };
   }
 };
 
-const analyzeSamples = (samples, bgHex) => {
+const analyzeSamples = (pixelResult, bgHex) => {
+  const samples = pixelResult.samples || [];
   const bg = hexToRgb(bgHex);
   let bgMatches = 0;
   let pureBlack = 0;
@@ -126,13 +206,22 @@ const analyzeSamples = (samples, bgHex) => {
     uniqueColors.add(`${s.r},${s.g},${s.b}`);
   }
 
+  const pSamples = pixelResult.particleSamples || [];
+  let particleHits = 0;
+  for (const s of pSamples) {
+    if (s.a !== 0) particleHits++;
+  }
+
   const n = samples.length;
   return {
     sampleCount: n,
-    bgMatchRatio: bgMatches / n,
-    pureBlackRatio: pureBlack / n,
-    transparentRatio: transparent / n,
+    bgMatchRatio: n ? bgMatches / n : 0,
+    pureBlackRatio: n ? pureBlack / n : 0,
+    transparentRatio: n ? transparent / n : 0,
     uniqueColorCount: uniqueColors.size,
+    probedParticles: pSamples.length,
+    particleHits,
+    particleHitRatio: pSamples.length ? particleHits / pSamples.length : null,
   };
 };
 
@@ -194,9 +283,7 @@ const buildCapture = (
   bgHex,
   config
 ) => {
-  const analysis = pixelResult.ok
-    ? analyzeSamples(pixelResult.samples, bgHex)
-    : null;
+  const analysis = pixelResult.ok ? analyzeSamples(pixelResult, bgHex) : null;
   return {
     timestamp: new Date().toISOString(),
     bgHex,
@@ -228,8 +315,25 @@ const isBlackScreen = (capture) => {
     return true;
   }
   if (!analysis) return false;
-  if (analysis.transparentRatio >= 0.95) return false;
+
+  // Authoritative signal: sample at each particle's claimed position. If
+  // particles exist but none of their positions paint a pixel, rendering is
+  // genuinely dead. A blind grid missed small particles by chance and
+  // produced constant false positives on healthy renders.
+  const particleCount = container?.count ?? container?.countGetter ?? 0;
+  if (
+    particleCount > 0 &&
+    analysis.probedParticles > 0 &&
+    analysis.particleHits === 0
+  ) {
+    return true;
+  }
+
+  // Legacy paths for when tsParticles paints a solid background colour.
   if (analysis.bgMatchRatio >= 0.98) return true;
+  if (analysis.pureBlackRatio >= 0.98 && analysis.uniqueColorCount <= 1) {
+    return true;
+  }
   return false;
 };
 
@@ -384,8 +488,9 @@ export const Diagnostics = {
     const run = () => {
       try {
         const canvasInfo = getCanvasInfo();
+        const container = AppState.ui.particlesContainer;
         const pixelResult = canvasInfo.ok
-          ? samplePixels(canvasInfo.canvasEl)
+          ? samplePixels(canvasInfo.canvasEl, container)
           : { ok: false, reason: 'no-canvas' };
         const containerInfo = introspectContainer();
         const capture = buildCapture(
@@ -408,6 +513,8 @@ export const Diagnostics = {
             bgMatchRatio: capture.analysis?.bgMatchRatio,
             uniqueColorCount: capture.analysis?.uniqueColorCount,
             transparentRatio: capture.analysis?.transparentRatio,
+            probedParticles: capture.analysis?.probedParticles,
+            particleHits: capture.analysis?.particleHits,
             retinaReduceFactor: capture.container?.retinaReduceFactor,
             canvasWidth: capture.canvas?.width,
             canvasHeight: capture.canvas?.height,
@@ -423,19 +530,17 @@ export const Diagnostics = {
           console.groupEnd();
 
           Telemetry.log('blackScreen:detected', summary);
-          try {
-            UIManager.showToast(
-              'Black screen captured — see console (tsDiceDiagnostics)'
-            );
-          } catch {
-            // Toast host may not be ready in some test envs
-          }
+          // No user-facing toast: ~1% of real detections are genuine and the
+          // false positives disrupt the fun. Captures still land in console
+          // and telemetry for debugging via tsDiceDiagnostics.
         } else {
           Telemetry.log('blackScreen:probeOk', {
             particleCount: capture.container?.count,
             countGetter: capture.container?.countGetter,
             bgMatchRatio: capture.analysis?.bgMatchRatio,
             uniqueColorCount: capture.analysis?.uniqueColorCount,
+            probedParticles: capture.analysis?.probedParticles,
+            particleHits: capture.analysis?.particleHits,
           });
         }
       } catch (err) {
@@ -444,13 +549,12 @@ export const Diagnostics = {
       }
     };
 
-    setTimeout(() => {
-      if (typeof requestAnimationFrame === 'function') {
-        requestAnimationFrame(() => requestAnimationFrame(run));
-      } else {
-        run();
-      }
-    }, PROBE_DELAY_MS);
+    // Run in the task queue, NOT inside an RAF callback. Reading from inside
+    // an RAF races with tsParticles' own RAF — if ours runs first in the
+    // frame, we read the backing store right after clearRect and before
+    // draw, producing a fully-transparent snapshot on a healthy scene.
+    // Between frames, the backing store holds the last fully-drawn state.
+    setTimeout(run, PROBE_DELAY_MS);
   },
 };
 

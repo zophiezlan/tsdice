@@ -3,11 +3,10 @@ import {
   getRandomBool,
   getRandomItem,
   getRandomInRange,
+  getRandomSubset,
   getChaosProbability,
 } from './utils.js';
 import {
-  darkColorPalette,
-  lightColorPalette,
   shapeOptions,
   directionOptions,
   hoverModeOptions,
@@ -15,6 +14,7 @@ import {
   pathGeneratorOptions,
 } from './constants.js';
 import { PARTICLE_CONFIG } from './constants/particles.js';
+import { generatePalette } from './palette.js';
 
 const { MIN_POLYGON_SIDES, MAX_POLYGON_SIDES } = PARTICLE_CONFIG;
 
@@ -35,14 +35,57 @@ export const ConfigGenerator = {
     const chaosLevel = options.chaosLevel ?? AppState.particleState.chaosLevel;
     const isDarkMode = options.isDarkMode ?? AppState.ui.isDarkMode;
 
-    const shapeType = getRandomItem(shapeOptions);
+    // Per-particle variety is gated by a chaos-scaled probability so the
+    // slider actually changes the scene. 0% at chaos 0, 50% at chaos 10 —
+    // most low-chaos shuffles stay single-shape / single-colour and feel
+    // coherent, while high-chaos shuffles roll into the full array mix.
+    // Shape variety is deliberately gated harder than colour (visually louder).
+    const shapeVarietyProb = chaosLevel / 20;
+    const colorVarietyProb = chaosLevel / 15;
+    const useShapeArray = getRandomBool(shapeVarietyProb);
+    const useColorArray = getRandomBool(colorVarietyProb);
+
+    const paletteSize = useColorArray
+      ? Math.max(2, Math.round(2 + chaosLevel * 0.5))
+      : 1;
+    const shapeSubsetSize = useShapeArray
+      ? Math.max(2, Math.round(2 + chaosLevel * 0.7))
+      : 1;
+
+    const palette = generatePalette(paletteSize, isDarkMode);
+    const shapeSubset = getRandomSubset(shapeOptions, shapeSubsetSize);
+
+    const shapeOpts = {};
+    if (shapeSubset.includes('polygon')) {
+      shapeOpts.polygon = {
+        sides: Math.floor(
+          getRandomInRange(MIN_POLYGON_SIDES, MAX_POLYGON_SIDES + 1)
+        ),
+      };
+    }
+    // Cap rounded-polygon at 3-6 sides. Above ~7, the arcTo border radius on
+    // adjacent corners overlaps and the shape renders as an irregular splat
+    // of spikes — unrecognizable at particle sizes. Small borderRadius too,
+    // for the same reason.
+    if (shapeSubset.includes('rounded-polygon')) {
+      shapeOpts['rounded-polygon'] = {
+        sides: Math.floor(getRandomInRange(3, 7)),
+        radius: getRandomInRange(2, 5),
+      };
+    }
+    if (shapeSubset.includes('spiral')) {
+      shapeOpts.spiral = {
+        innerRadius: getRandomInRange(1, 3),
+        lineSpacing: getRandomInRange(1, 2 + chaosLevel / 4),
+        widthFactor: getRandomInRange(6, 12),
+      };
+    }
+
+    // Unwrap single-element arrays so tsParticles sees a plain value — avoids
+    // the reduceDuplicates machinery churning for nothing at low chaos.
     const appearance = {
-      color: {
-        value: getRandomBool(0.2)
-          ? 'random'
-          : getRandomItem(isDarkMode ? darkColorPalette : lightColorPalette),
-      },
-      shape: { type: shapeType, options: {} },
+      color: { value: palette.length === 1 ? palette[0] : palette },
+      shape: { type: shapeSubset.length === 1 ? shapeSubset[0] : shapeSubset },
       opacity: { value: { min: 0.3, max: 1 } },
       size: {
         value: { min: 1, max: 1 + chaosLevel * 1.5 },
@@ -53,34 +96,11 @@ export const ConfigGenerator = {
           : 0,
         color: { value: 'random' },
       },
+      reduceDuplicates: useShapeArray || useColorArray,
     };
 
-    if (shapeType === 'polygon') {
-      appearance.shape.options.polygon = {
-        sides: Math.floor(
-          getRandomInRange(MIN_POLYGON_SIDES, MAX_POLYGON_SIDES + 1)
-        ),
-      };
-    }
-    // Cap rounded-polygon at 3-6 sides. Above ~7, the arcTo border radius on
-    // adjacent corners overlaps and the shape renders as an irregular splat
-    // of spikes — unrecognizable at particle sizes. Small borderRadius too,
-    // for the same reason.
-    if (shapeType === 'rounded-polygon') {
-      appearance.shape.options['rounded-polygon'] = {
-        sides: Math.floor(getRandomInRange(3, 7)),
-        radius: getRandomInRange(2, 5),
-      };
-    }
-    if (shapeType === 'spiral') {
-      appearance.shape.options.spiral = {
-        innerRadius: getRandomInRange(1, 3),
-        lineSpacing: getRandomInRange(1, 2 + chaosLevel / 4),
-        widthFactor: getRandomInRange(6, 12),
-      };
-    }
-    if (Object.keys(appearance.shape.options).length === 0) {
-      delete appearance.shape.options;
+    if (Object.keys(shapeOpts).length > 0) {
+      appearance.shape.options = shapeOpts;
     }
     return appearance;
   },
