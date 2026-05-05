@@ -804,7 +804,7 @@ https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
    - Mystery: Dark theme, wobble FX
    - Energy: Max chaos, collision FX
 
-4. **Desktop Wallpaper**: Use the [desktop branch](https://github.com/zophiezlan/tsdice/tree/desktop) + Lively Wallpaper for animated backgrounds
+4. **Ambient Displays**: Open tsDice on a second monitor or fullscreen browser tab for a living background while you work.
 
 ---
 
@@ -911,9 +911,6 @@ A: 220+ particles is demanding. Try chaos 7-8 or disable complex effects.
 
 **Q: Can I embed tsDice in my website?**  
 A: Yes! Use an iframe pointing to a share URL.
-
-**Q: What's the desktop wallpaper version?**  
-A: Check the [desktop branch](https://github.com/zophiezlan/tsdice/tree/desktop) for Lively Wallpaper integration.
 
 ---
 
