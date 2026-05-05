@@ -7,14 +7,14 @@ import { STORAGE_KEYS } from './constants.js';
  *
  * @param {HTMLElement} infoModal
  * @param {HTMLElement} btnInfo — the button that opens the modal
- * @returns {() => void} cleanup
+ * @returns {{ activateTabByName: (tabName: string, options?: { persist?: boolean }) => void, cleanup: () => void }} tab controls
  */
 export function setupInfoModalTabs(infoModal, btnInfo) {
   const tabButtons = infoModal.querySelectorAll('.modal-tab');
   const tabContents = infoModal.querySelectorAll('.modal-tab-content');
   const tabButtonsArray = Array.from(tabButtons);
 
-  const activateTab = (button) => {
+  const activateTab = (button, { persist = true } = {}) => {
     const targetTab = button.dataset.tab;
     tabButtons.forEach((btn) => {
       btn.classList.remove('active');
@@ -26,7 +26,16 @@ export function setupInfoModalTabs(infoModal, btnInfo) {
     button.setAttribute('aria-selected', 'true');
     document.getElementById(`tab-${targetTab}`)?.classList.add('active');
 
-    SafeStorage.setItem(STORAGE_KEYS.LAST_INFO_TAB, targetTab);
+    if (persist) {
+      SafeStorage.setItem(STORAGE_KEYS.LAST_INFO_TAB, targetTab);
+    }
+  };
+
+  const activateTabByName = (tabName, options) => {
+    const target = tabButtonsArray.find((btn) => btn.dataset.tab === tabName);
+    if (target) {
+      activateTab(target, options);
+    }
   };
 
   const clickHandlers = new Map();
@@ -58,18 +67,20 @@ export function setupInfoModalTabs(infoModal, btnInfo) {
   const restoreLastTab = () => {
     const lastTab =
       SafeStorage.getItem(STORAGE_KEYS.LAST_INFO_TAB) || 'controls';
-    const target = tabButtonsArray.find((btn) => btn.dataset.tab === lastTab);
-    if (target) target.click();
+    activateTabByName(lastTab);
   };
 
   const onInfoClick = () => setTimeout(restoreLastTab, 0);
   btnInfo.addEventListener('click', onInfoClick);
 
-  return () => {
-    tabButtons.forEach((button) => {
-      button.removeEventListener('click', clickHandlers.get(button));
-      button.removeEventListener('keydown', keydownHandlers.get(button));
-    });
-    btnInfo.removeEventListener('click', onInfoClick);
+  return {
+    activateTabByName,
+    cleanup: () => {
+      tabButtons.forEach((button) => {
+        button.removeEventListener('click', clickHandlers.get(button));
+        button.removeEventListener('keydown', keydownHandlers.get(button));
+      });
+      btnInfo.removeEventListener('click', onInfoClick);
+    },
   };
 }

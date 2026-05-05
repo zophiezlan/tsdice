@@ -183,7 +183,7 @@ export const ConfigGenerator = {
         },
         grab: { distance: 150 + chaosLevel * 10 },
         slow: { factor: 3, radius: 200 },
-        connect: { radius: 150 },
+        connect: { radius: 225 },
         remove: { quantity: chaosLevel },
         trail: { delay: 0.05, quantity: 1 },
         absorb: { speed: 2 + chaosLevel },

@@ -60,6 +60,7 @@ if (import.meta.env?.DEV) {
   const chaosSlider = document.getElementById('chaos-slider');
   const welcomeModal = document.getElementById('welcome-modal');
   const closeModalBtn = document.getElementById('close-welcome-modal');
+  const welcomeHelpBtn = document.getElementById('open-welcome-help');
   const infoModal = document.getElementById('info-modal');
   const closeInfoModalBtn = document.getElementById('close-info-modal');
   const btnInfo = document.getElementById(BUTTON_IDS.INFO);
@@ -300,21 +301,16 @@ if (import.meta.env?.DEV) {
     UIManager.announce(chaosMessage);
   });
 
-  /** Helper function to dismiss the welcome modal and set the timestamp. */
+  /** Helper function to dismiss the welcome quick-start permanently. */
   const dismissWelcomeModal = () => {
-    const dontShowCheckbox = document.getElementById('dont-show-welcome');
     ModalManager.close('welcome');
+    SafeStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, 'true');
+  };
 
-    if (dontShowCheckbox && dontShowCheckbox.checked) {
-      // Set a far future timestamp so it never shows again (1 year ahead)
-      const farFuture = Date.now() + 365 * 24 * 60 * 60 * 1000;
-      SafeStorage.setItem(STORAGE_KEYS.WELCOME_TIMESTAMP, String(farFuture));
-      SafeStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, 'true');
-    } else {
-      // Set current timestamp for 24-hour reset
-      SafeStorage.setItem(STORAGE_KEYS.WELCOME_TIMESTAMP, String(Date.now()));
-      SafeStorage.removeItem(STORAGE_KEYS.WELCOME_DISMISSED);
-    }
+  const openWelcomeHelp = () => {
+    dismissWelcomeModal();
+    infoTabController.activateTabByName('controls', { persist: false });
+    ModalManager.open('info', btnInfo);
   };
 
   /** Wire up the advanced settings toggles within the info modal. */
@@ -405,10 +401,11 @@ if (import.meta.env?.DEV) {
     closeModalBtn,
     dismissWelcomeModal
   );
+  welcomeHelpBtn?.addEventListener('click', openWelcomeHelp);
   ModalManager.register('info', infoModal, closeInfoModalBtn);
 
   // Setup tab functionality for info modal
-  setupInfoModalTabs(infoModal, btnInfo);
+  const infoTabController = setupInfoModalTabs(infoModal, btnInfo);
   setupAdvancedSettingsPanel();
 
   fullscreenBtn.addEventListener('click', toggleFullScreen);
@@ -538,17 +535,10 @@ if (import.meta.env?.DEV) {
 
   UIManager.syncUI();
 
-  // Show the welcome modal on first visit or after 24 hours have passed
-  // (unless permanently dismissed)
-  const welcomeTimestamp = SafeStorage.getItem(STORAGE_KEYS.WELCOME_TIMESTAMP);
+  // Show the welcome quick-start once per device/browser.
   const welcomeDismissed = SafeStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED);
-  const now = Date.now();
 
-  if (
-    welcomeDismissed !== 'true' &&
-    (!welcomeTimestamp ||
-      now - parseInt(welcomeTimestamp, 10) > TIMING.WELCOME_REDISPLAY_MS)
-  ) {
+  if (welcomeDismissed !== 'true') {
     setTimeout(() => ModalManager.open('welcome'), TIMING.WELCOME_MODAL_DELAY);
   }
 

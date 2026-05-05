@@ -17,10 +17,7 @@ export const STORAGE_KEYS = {
   /** Last particle configuration (JSON) */
   LAST_CONFIG: 'tsDiceLastConfig',
 
-  /** Timestamp of last welcome modal display */
-  WELCOME_TIMESTAMP: 'tsDiceWelcomeTimestamp',
-
-  /** Whether user permanently dismissed welcome modal */
+  /** Whether the one-time welcome quick-start has been dismissed */
   WELCOME_DISMISSED: 'tsDiceWelcomeDismissed',
 
   /** Last viewed tab in info modal */

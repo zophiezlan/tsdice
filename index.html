@@ -53,61 +53,36 @@
 
     <!-- Welcome modal displayed on first visit -->
     <div
-      class="modal-overlay"
+      class="modal-overlay welcome-panel"
       id="welcome-modal"
       role="dialog"
-      aria-modal="true"
+      aria-describedby="welcome-modal-copy"
       aria-labelledby="welcome-modal-title"
     >
-      <div class="modal-content">
-        <h2 id="welcome-modal-title">Welcome to tsDice!</h2>
-        <p>
-          This is an interactive playground built on the powerful
-          <a href="https://particles.js.org/" target="_blank" rel="noopener"
-            >tsParticles</a
-          >
-          library. It's a fun way to discover unique particle animations with
-          just a click.
+      <div class="modal-content welcome-panel-card">
+        <p class="welcome-panel-kicker">Quick Start</p>
+        <h2 id="welcome-modal-title">Roll a particle scene</h2>
+        <p id="welcome-modal-copy" class="welcome-panel-copy">
+          Shuffle, tweak, and explore. The feedback is the tutorial.
         </p>
-        <p>
-          You can find the official project on
-          <a
-            href="https://github.com/zophiezlan/tsdice"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
-          >, along with the user guide and project docs for deeper tips,
-          workflows, and implementation details.
-        </p>
-        <p>
-          <strong>Pro-tip:</strong> Hover over any button in the menu to see
-          what it does and discover its keyboard shortcut (e.g.,
-          <code>Alt+A</code> for Shuffle All).
-        </p>
-        <p>
-          <strong>📖 New User?</strong> Check out the comprehensive
-          <a
-            href="https://github.com/zophiezlan/tsdice/blob/main/USER_GUIDE.md"
-            target="_blank"
-            rel="noopener"
-            >User Guide</a
-          >
-          for creative recipes, troubleshooting tips, and power user techniques!
-          Also available in the Help menu (
-          <code>Alt+?</code>, then click "📖 User Guide" tab).
-        </p>
+        <ul class="welcome-panel-list" aria-label="Quick start tips">
+          <li><strong>Alt+A</strong> Shuffle All</li>
+          <li>
+            <strong>Hover buttons</strong> to preview controls and shortcuts
+          </li>
+          <li><strong>Alt+?</strong> opens help whenever you need it</li>
+        </ul>
         <div class="modal-actions">
+          <button class="modal-secondary-btn" id="open-welcome-help">
+            Help
+          </button>
           <button
             class="modal-close-btn"
             id="close-welcome-modal"
             data-initial-focus
           >
-            Start Creating!
+            Start
           </button>
-          <label class="welcome-checkbox-label">
-            <input type="checkbox" id="dont-show-welcome" />
-            Don't show again
-          </label>
         </div>
       </div>
     </div>

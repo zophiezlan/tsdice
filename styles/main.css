@@ -317,6 +317,26 @@ body {
   background: var(--button-active-bg-hover);
 }
 
+.modal-secondary-btn {
+  display: block;
+  margin: 20px auto 0;
+  padding: 12px 25px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.modal-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-strong);
+}
+
 .modal-actions {
   display: flex;
   gap: 12px;
@@ -324,22 +344,90 @@ body {
   margin-top: 20px;
 }
 
-.modal-actions .modal-close-btn {
+.modal-actions .modal-close-btn,
+.modal-actions .modal-secondary-btn {
   flex: 1;
   margin: 0;
 }
 
-.welcome-checkbox-label {
+.welcome-panel {
+  top: auto;
+  left: 24px;
+  bottom: 24px;
+  width: auto;
+  height: auto;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  justify-content: flex-start;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.welcome-panel-card {
+  pointer-events: auto;
+  width: min(420px, calc(100vw - 32px));
+  max-width: 420px;
+  max-height: none;
+  padding: 22px;
+  text-align: left;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+  transform: translateY(16px) scale(0.98);
+}
+
+.welcome-panel.visible .welcome-panel-card {
+  transform: translateY(0) scale(1);
+}
+
+.welcome-panel-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--link-color);
+}
+
+.welcome-panel-copy {
+  margin-bottom: 16px;
+}
+
+.welcome-panel-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.welcome-panel-list li {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  cursor: pointer;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.welcome-panel-list strong {
   white-space: nowrap;
 }
 
-.welcome-checkbox-label input {
-  cursor: pointer;
+@media (max-width: 640px) {
+  .welcome-panel {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .welcome-panel-card {
+    width: 100%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
 }
 
 .info-list {
