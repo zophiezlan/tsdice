@@ -41,7 +41,6 @@ marked.use({
 
 // Custom renderer to ensure heading IDs are generated
 const renderer = new marked.Renderer();
-const originalHeading = renderer.heading.bind(renderer);
 
 renderer.heading = function ({ text, depth }) {
   // Generate slug from heading text
@@ -102,7 +101,7 @@ function createHTMLTemplate(title, description, content, currentPage) {
   <meta name="description" content="${description}">
 
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
 
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
@@ -968,7 +967,7 @@ function createHTMLTemplate(title, description, content, currentPage) {
 /**
  * Convert a single markdown file to HTML
  */
-async function convertMarkdownToHTML(config) {
+function convertMarkdownToHTML(config) {
   const sourcePath = path.join(rootDir, config.source);
   const outputPath = path.join(docsDir, config.output);
 
@@ -1005,7 +1004,7 @@ async function convertMarkdownToHTML(config) {
 /**
  * Main build function
  */
-async function buildDocs() {
+function buildDocs() {
   console.log('🔨 Building documentation...\n');
 
   // Ensure docs directory exists
@@ -1016,7 +1015,7 @@ async function buildDocs() {
 
   // Convert all configured docs
   for (const config of DOCS_CONFIG) {
-    await convertMarkdownToHTML(config);
+    convertMarkdownToHTML(config);
   }
 
   console.log('\n✨ Documentation build complete!');
@@ -1024,7 +1023,9 @@ async function buildDocs() {
 }
 
 // Run the build
-buildDocs().catch((error) => {
+try {
+  buildDocs();
+} catch (error) {
   console.error('Build failed:', error);
   process.exit(1);
-});
+}
