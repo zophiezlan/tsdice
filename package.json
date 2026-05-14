@@ -34,7 +34,9 @@
       "prettier --write"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "lz-string": "^1.5.0"
+  },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^8.0.1",
     "@vitest/coverage-v8": "^4.0.16",

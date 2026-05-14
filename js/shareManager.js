@@ -2,6 +2,7 @@ import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { Telemetry } from './telemetry.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
+import { compressToEncodedURIComponent } from 'lz-string';
 import { copyToClipboard, getRandomItem } from './utils.js';
 import { emojiOptions, TIMING } from './constants.js';
 import {
@@ -98,7 +99,7 @@ export async function handleShareClick(button) {
       chaos: AppState.particleState.chaosLevel,
     });
 
-    const compressedConfig = LZString.compressToEncodedURIComponent(
+    const compressedConfig = compressToEncodedURIComponent(
       JSON.stringify(sharableConfig)
     );
     const fullUrl = `${window.location.href.split('#')[0]}#config=${compressedConfig}`;

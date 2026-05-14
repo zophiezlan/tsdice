@@ -2,6 +2,7 @@ import { AppState } from './state.js';
 import { StateManager, Actions } from './stateManager.js';
 import { SafeStorage } from './storage.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
+import { decompressFromEncodedURIComponent } from 'lz-string';
 import { STORAGE_KEYS } from './constants.js';
 
 const HASH_PREFIX = '#config=';
@@ -63,7 +64,7 @@ export function loadConfigFromHash() {
   if (!hash || !hash.startsWith(HASH_PREFIX)) return false;
 
   try {
-    const decoded = LZString.decompressFromEncodedURIComponent(
+    const decoded = decompressFromEncodedURIComponent(
       hash.substring(HASH_PREFIX.length)
     );
     if (!decoded) throw new Error('Decompression failed');
