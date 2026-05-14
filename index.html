@@ -38,8 +38,24 @@
     />
     <!-- Library for link compression to create shareable URLs -->
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+
+    <!-- Cloudflare Turnstile (invisible widget for share endpoint) -->
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad"
+      defer
+    ></script>
   </head>
   <body>
+    <!-- Cloudflare Turnstile (invisible widget for share endpoint) -->
+    <div
+      id="turnstile-widget"
+      class="cf-turnstile"
+      data-sitekey=""
+      data-callback="onTurnstileToken"
+      data-error-callback="onTurnstileError"
+      data-size="invisible"
+    ></div>
+
     <!-- The main container for the tsParticles animation -->
     <main aria-label="Particle animation canvas">
       <div id="tsparticles" aria-hidden="true"></div>

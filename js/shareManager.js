@@ -4,6 +4,10 @@ import { Telemetry } from './telemetry.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { copyToClipboard, getRandomItem } from './utils.js';
 import { emojiOptions, TIMING } from './constants.js';
+import {
+  getToken as getTurnstileToken,
+  resetToken as resetTurnstileToken,
+} from './turnstile.js';
 
 const EMOJI_COUNT = 8;
 const SHORTEN_ENDPOINT = 'https://my.ket.horse/emoji';
@@ -22,6 +26,11 @@ async function createEmojiShortUrl(longUrl) {
   );
   try {
     Telemetry.log('share:shorten:start', { urlLength: longUrl.length });
+    const token = await getTurnstileToken();
+    if (!token) {
+      Telemetry.log('share:shorten:no_turnstile');
+      return null; // fall back to full URL
+    }
     const response = await fetch(SHORTEN_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -32,6 +41,7 @@ async function createEmojiShortUrl(longUrl) {
       body: new URLSearchParams({
         url: longUrl,
         emojies: generateRandomEmojiString(EMOJI_COUNT),
+        'cf-turnstile-response': token,
       }),
     });
     if (!response.ok) {
@@ -41,10 +51,12 @@ async function createEmojiShortUrl(longUrl) {
     Telemetry.log('share:shorten:success', {
       hasUrl: Boolean(payload.short_url),
     });
+    resetTurnstileToken(); // single-use; prepare a fresh one for next click
     return payload.short_url;
   } catch (error) {
     const aborted = error && error.name === 'AbortError';
     Telemetry.logError('share:shorten', error, { aborted });
+    resetTurnstileToken(); // ensure token is reset on error
     return null;
   } finally {
     clearTimeout(timeoutId);
