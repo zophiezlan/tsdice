@@ -278,7 +278,7 @@ Full Config → JSON.stringify() → LZString.compress() → Base64 URL
                                                      ↓
                                           spoo.me API (8 random emojis)
                                                      ↓
-                                    https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
+                                    https://my.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
 ```
 
 ### Memory Leak Prevention
@@ -447,7 +447,7 @@ Rapid prototyping for developers, creative exploration for designers, and sharea
 
 ### External Services
 
-- **spoo.me API** (via share.ket.horse) — Emoji URL shortening
+- **spoo.me API** (via my.ket.horse) — Emoji URL shortening
 - **jsDelivr CDN** — tsParticles & lz-string delivery
 
 ---

@@ -6,7 +6,7 @@ import { copyToClipboard, getRandomItem } from './utils.js';
 import { emojiOptions, TIMING } from './constants.js';
 
 const EMOJI_COUNT = 8;
-const SHORTEN_ENDPOINT = 'https://share.ket.horse/emoji';
+const SHORTEN_ENDPOINT = 'https://my.ket.horse/emoji';
 
 const generateRandomEmojiString = (count) => {
   let out = '';

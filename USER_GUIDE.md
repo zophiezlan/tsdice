@@ -487,7 +487,7 @@ When you click **Share**, tsDice:
 2. Captures your entire configuration + UI state
 3. Compresses it using LZMA algorithm (lz-string)
 4. Encodes as URL-safe Base64
-5. Attempts to shorten via emoji API (share.ket.horse)
+5. Attempts to shorten via emoji API (my.ket.horse)
 6. Copies to clipboard
 7. Shows success toast with either:
    - "✓ Short link copied! [emoji-string]" (if shortening succeeded)
@@ -509,7 +509,7 @@ https://zophiezlan.github.io/tsdice/#config=N4IgdghgtgpiBc...
 #### Short URL (Emoji)
 
 ```
-https://share.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
+https://my.ket.horse/🐎🦄🌀✨🎉🪐👽🛸
                          ↑
                     8 random emojis
 ```
