@@ -29,6 +29,12 @@
     <link rel="stylesheet" href="./styles/main.css" />
     <link rel="stylesheet" href="./styles/components.css" />
 
+    <script>
+      window.__precursor_debug = function () {
+        console.log.apply(console, ['[JSD]'].concat([].slice.call(arguments)));
+      };
+    </script>
+
     <!-- Preload the lz-string CDN script -->
     <link
       rel="preload"
