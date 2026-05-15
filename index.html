@@ -42,15 +42,10 @@
     ></script>
   </head>
   <body>
-    <!-- Cloudflare Turnstile (invisible widget for share endpoint) -->
-    <div
-      id="turnstile-widget"
-      class="cf-turnstile"
-      data-sitekey="0x4AAAAAADPIT5DpK7RX0-MH"
-      data-callback="onTurnstileToken"
-      data-error-callback="onTurnstileError"
-      data-size="invisible"
-    ></div>
+    <!-- Cloudflare Turnstile widget container. The widget is rendered via JS in
+         js/turnstile.js using VITE_TURNSTILE_SITEKEY from the build env. No
+         data-sitekey here — that would trigger a competing implicit render. -->
+    <div id="turnstile-widget"></div>
 
     <!-- The main container for the tsParticles animation -->
     <main aria-label="Particle animation canvas">

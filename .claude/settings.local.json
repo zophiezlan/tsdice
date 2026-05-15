@@ -29,7 +29,24 @@
       "Bash(node -e \"const fs=require\\('fs'\\);const lines=fs.readFileSync\\('index.html','utf8'\\).split\\('\\\\n'\\);let d=1;let found=-1;for\\(let i=473;i<lines.length;i++\\){const o=\\(lines[i].match\\(/<div\\\\b/g\\)||[]\\).length;const c=\\(lines[i].match\\(/<\\\\/div>/g\\)||[]\\).length;d+=o-c;if\\(d===0\\){found=i;break;}}console.log\\('close at',found+1,'content',JSON.stringify\\(lines[found]\\)\\);console.log\\('prev',JSON.stringify\\(lines[found-1]\\)\\);console.log\\('next',JSON.stringify\\(lines[found+1]\\)\\);\")",
       "Bash(npx vitest *)",
       "Bash(xargs grep *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(nslookup my.ket.horse)",
+      "Bash(nslookup share.ket.horse)",
+      "Bash(nslookup ket.horse)",
+      "Bash(curl -s -o /dev/null -w \"ket.horse: %{http_code}\\\\n\" -X GET https://ket.horse/)",
+      "Bash(curl -s -o /dev/null -w \"ket.horse/emoji: %{http_code}\\\\n\" -X GET https://ket.horse/emoji)",
+      "Bash(curl -s -X POST https://ket.horse/emoji -d \"url=https://example.com&emojies=🐎🐎\" -w \"\\\\n--HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s https://ket.horse/)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(nslookup my.ket.horse 1.1.1.1)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" https://my.ket.horse/health)",
+      "Bash(curl -s -i -X OPTIONS https://my.ket.horse/emoji -H \"Origin: https://ket.horse\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\")",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST https://my.ket.horse/emoji -H \"Origin: https://ket.horse\" -d \"url=https://example.com&emojies=🐎🐎🐎🐎🐎🐎🐎🐎\")",
+      "Bash(curl -v https://my.ket.horse/health)",
+      "Bash(curl -s --resolve my.ket.horse:443:104.21.86.164 -w \"\\\\nHTTP %{http_code}\\\\n\" https://my.ket.horse/health)",
+      "Bash(curl -s -i --resolve my.ket.horse:443:104.21.86.164 -X OPTIONS https://my.ket.horse/emoji -H \"Origin: https://ket.horse\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\")",
+      "Bash(curl -s --resolve my.ket.horse:443:104.21.86.164 -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST https://my.ket.horse/emoji -H \"Origin: https://ket.horse\" -d \"url=https://example.com&emojies=🐎🐎🐎🐎🐎🐎🐎🐎\")"
     ]
   }
 }
