@@ -81,6 +81,11 @@ export function loadConfigFromHash() {
     }
 
     AppState.particleState.initialConfigFromUrl = parsedConfig;
+    window.history.replaceState(
+      null,
+      '',
+      window.location.pathname + window.location.search
+    );
     return true;
   } catch (e) {
     ErrorHandler.handle(e, ErrorType.CONFIG_INVALID);
