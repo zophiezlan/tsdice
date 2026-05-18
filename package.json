@@ -38,7 +38,7 @@
     "lz-string": "^1.5.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-legacy": "^8.0.1",
+    "@vitejs/plugin-legacy": "^8.0.2",
     "@vitest/coverage-v8": "^4.0.16",
     "vitest": "^4.0.16",
     "eslint": "^9.39.4",
