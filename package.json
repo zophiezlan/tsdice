@@ -15,7 +15,9 @@
     "lint:fix": "eslint js/ tests/ --ext .js --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "all": "npm ci && npm run all:quick",
+    "all:quick": "npm run lint:fix && npm run format && npm run lint && npm run format:check && npm run test && npm run build && npm run build:docs"
   },
   "keywords": [
     "tsparticles",

@@ -361,53 +361,72 @@ body {
 }
 
 .welcome-panel-card {
-  width: min(550px, calc(100vw - 32px));
-  text-align: center;
+  width: min(580px, calc(100vw - 32px));
+  text-align: left;
+  padding: 28px;
 }
 
 .welcome-panel-kicker {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--link-color);
+  text-align: center;
+}
+
+.welcome-panel-card h2 {
+  text-align: center;
 }
 
 .welcome-panel-copy {
-  max-width: 42ch;
+  max-width: 46ch;
+  text-align: center;
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .welcome-panel-list {
-  margin: 4px auto 0;
+  margin: 8px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
   gap: 12px;
-  max-width: 440px;
+  max-width: none;
 }
 
 .welcome-panel-list li {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 11px 14px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+  line-height: 1.35;
 }
 
 .welcome-panel-list strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.9em;
   white-space: nowrap;
 }
 
 @media (max-width: 640px) {
   .welcome-panel-card {
     width: 100%;
+    padding: 22px;
   }
 
   .modal-actions {
@@ -783,11 +802,12 @@ body.light-mode .shortcut-item kbd {
 
   .welcome-panel-list li {
     line-height: 1.35;
-    text-align: center;
+    text-align: left;
   }
 
   .welcome-panel-list strong {
     white-space: normal;
+    min-width: 0;
   }
 
   .shortcut-item {
