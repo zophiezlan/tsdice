@@ -1470,9 +1470,7 @@ subMenu.addEventListener(&#39;click&#39;, (e) =&gt; {
 // Inside createShuffleCommand:
 const createShuffleCommand = (shuffleOptions) =&gt; {
   const oldConfig = structuredClone(AppState.particleState.currentConfig);
-  const oldUIStates = {
-    /* capture gravity, walls, cursor states */
-  };
+  const oldUIStates = {/* capture gravity, walls, cursor states */};
 
   return {
     async execute() {
@@ -1891,9 +1889,7 @@ if (newValue &lt; 1 || newValue &gt; 10 || isNaN(newValue)) {
   responsive: [
     {
       maxWidth: 768,
-      options: {
-        /* mobile-specific settings */
-      },
+      options: {/* mobile-specific settings */},
     },
   ],
   // Add audio-reactive settings here
