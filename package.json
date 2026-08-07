@@ -18,7 +18,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "all": "npm ci && npm run all:quick",
-    "all:quick": "npm run build:docs && npm run lint:fix && npm run format && npm run lint && npm run format:check && npm run test && npm run build"
+    "all:quick": "npm run build:docs && npm run build && npm run lint:fix && npm run format && npm run test"
   },
   "keywords": [
     "tsparticles",
