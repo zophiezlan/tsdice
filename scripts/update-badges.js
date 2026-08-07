@@ -10,7 +10,8 @@ const COVERAGE_BADGE_PATH = join(BADGES_DIR, 'coverage.json');
 
 function runCoverage() {
   try {
-    return execSync('npm run test:coverage', {
+    // Combine stderr with stdout so parser is robust across Vitest reporters/CI.
+    return execSync('npm run test:coverage 2>&1', {
       cwd: ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -32,13 +33,51 @@ function runCoverage() {
   }
 }
 
+function stripAnsi(text) {
+  const ESC = String.fromCharCode(27);
+  let result = '';
+
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] === ESC && text[i + 1] === '[') {
+      let j = i + 2;
+      while (j < text.length && /[0-9;]/.test(text[j])) {
+        j += 1;
+      }
+
+      if (j < text.length && text[j] === 'm') {
+        i = j;
+        continue;
+      }
+    }
+
+    result += text[i];
+  }
+
+  return result;
+}
+
 function parseTestCount(output) {
-  const match = output.match(/Tests\s+(\d+)\s+passed\s+\(\d+\)/i);
-  if (!match) {
+  const normalized = stripAnsi(output).replace(/\r/g, '');
+  const patterns = [
+    /Tests\s+(\d+)\s+passed\s+\(\d+\)/i,
+    /Tests\s+(\d+)\s+passed\b/i,
+    /Tests\s+(\d+)\s*\|/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalized.match(pattern);
+    if (match) {
+      return Number.parseInt(match[1], 10);
+    }
+  }
+
+  if (!normalized.includes('Tests')) {
     throw new Error('Unable to parse total passed tests from Vitest output.');
   }
 
-  return Number.parseInt(match[1], 10);
+  throw new Error(
+    'Unable to parse total passed tests from Vitest output format.'
+  );
 }
 
 function parseLineCoverage() {
