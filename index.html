@@ -48,42 +48,6 @@
     <!-- ARIA Live Region for screen reader announcements -->
     <div class="visually-hidden" aria-live="polite" id="announcer"></div>
 
-    <!-- Welcome modal displayed on first visit -->
-    <div
-      class="modal-overlay welcome-panel"
-      id="welcome-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-describedby="welcome-modal-copy"
-      aria-labelledby="welcome-modal-title"
-    >
-      <div class="modal-content welcome-panel-card">
-        <p class="welcome-panel-kicker">Quick Start</p>
-        <h2 id="welcome-modal-title">Roll a particle scene</h2>
-        <p id="welcome-modal-copy" class="welcome-panel-copy">
-          Click the bottom-left cog to open the menu.
-        </p>
-        <ul class="welcome-panel-list" aria-label="Quick start tips">
-          <li>
-            <strong>Alt+A</strong> or <strong>click the dice</strong> to start
-          </li>
-          <li><strong>Need everything?</strong> Open Full Controls</li>
-        </ul>
-        <div class="modal-actions">
-          <button class="modal-secondary-btn" id="open-welcome-help">
-            Full Controls
-          </button>
-          <button
-            class="modal-close-btn"
-            id="close-welcome-modal"
-            data-initial-focus
-          >
-            Start
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Information & Help modal with tabs -->
     <div
       class="modal-overlay"
@@ -415,7 +379,7 @@
     <nav class="menu-container" id="menu-container" aria-label="Scene controls">
       <!-- Main menu toggle button (settings icon) -->
       <div
-        class="glass-button menu-button menu-cog-nudge"
+        class="glass-button menu-button"
         id="main-menu-btn"
         tabindex="0"
         role="button"

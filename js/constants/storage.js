@@ -17,6 +17,9 @@ export const STORAGE_KEYS = {
   /** Last particle configuration (JSON) */
   LAST_CONFIG: 'tsDiceLastConfig',
 
+  /** Whether the mini quick-start highlight guide has been completed */
+  QUICKSTART_DONE: 'tsDiceQuickstartDone',
+
   /** Whether the one-time welcome quick-start has been dismissed */
   WELCOME_DISMISSED: 'tsDiceWelcomeDismissed',
 

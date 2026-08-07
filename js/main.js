@@ -8,12 +8,7 @@ import { CommandManager } from './commandManager.js';
 import { debounce } from './utils.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { StateManager, Actions } from './stateManager.js';
-import {
-  BUTTON_IDS,
-  AUTO_HIDE_DELAY,
-  STORAGE_KEYS,
-  TIMING,
-} from './constants.js';
+import { BUTTON_IDS, AUTO_HIDE_DELAY, STORAGE_KEYS } from './constants.js';
 import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
 import {
@@ -58,12 +53,10 @@ if (import.meta.env?.DEV) {
   const menuContainer = document.getElementById('menu-container');
   const subMenu = document.getElementById('sub-menu');
   const chaosSlider = document.getElementById('chaos-slider');
-  const welcomeModal = document.getElementById('welcome-modal');
-  const closeModalBtn = document.getElementById('close-welcome-modal');
-  const welcomeHelpBtn = document.getElementById('open-welcome-help');
   const infoModal = document.getElementById('info-modal');
   const closeInfoModalBtn = document.getElementById('close-info-modal');
   const btnInfo = document.getElementById(BUTTON_IDS.INFO);
+  const shuffleAllBtn = document.getElementById(BUTTON_IDS.SHUFFLE_ALL);
   const fullscreenBtn = document.getElementById('fullscreen-btn');
 
   // --- 2. TOOLTIP SETUP ---
@@ -126,6 +119,62 @@ if (import.meta.env?.DEV) {
   // Auto-hide menu after 10 seconds of inactivity
   let menuInactivityTimer = null;
 
+  const QuickStartStep = Object.freeze({
+    COG: 'cog',
+    SHUFFLE: 'shuffle',
+    INFO: 'info',
+    DONE: 'done',
+  });
+
+  let quickStartStep = QuickStartStep.DONE;
+
+  const quickStartTargets = [
+    { element: mainMenuBtn, accentClass: 'quickstart-cog', label: '1 Menu' },
+    {
+      element: shuffleAllBtn,
+      accentClass: 'quickstart-shuffle',
+      label: '2 Shuffle',
+    },
+    { element: btnInfo, accentClass: 'quickstart-info', label: '3 Info' },
+  ];
+
+  const clearQuickStartHighlights = () => {
+    quickStartTargets.forEach(({ element, accentClass }) => {
+      if (!element) return;
+      element.classList.remove('quickstart-target', accentClass);
+      element.removeAttribute('data-guide-label');
+    });
+  };
+
+  const setQuickStartHighlight = (targetElement, accentClass, label) => {
+    clearQuickStartHighlights();
+    if (!targetElement) return;
+    targetElement.classList.add('quickstart-target', accentClass);
+    targetElement.setAttribute('data-guide-label', label);
+  };
+
+  const completeQuickStart = () => {
+    quickStartStep = QuickStartStep.DONE;
+    clearQuickStartHighlights();
+    SafeStorage.setItem(STORAGE_KEYS.QUICKSTART_DONE, 'true');
+    // Migration: if a user had already dismissed the old modal, keep parity.
+    SafeStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, 'true');
+  };
+
+  const setQuickStartStep = (nextStep) => {
+    quickStartStep = nextStep;
+
+    if (nextStep === QuickStartStep.COG) {
+      setQuickStartHighlight(mainMenuBtn, 'quickstart-cog', '1 Menu');
+    } else if (nextStep === QuickStartStep.SHUFFLE) {
+      setQuickStartHighlight(shuffleAllBtn, 'quickstart-shuffle', '2 Shuffle');
+    } else if (nextStep === QuickStartStep.INFO) {
+      setQuickStartHighlight(btnInfo, 'quickstart-info', '3 Info');
+    } else {
+      clearQuickStartHighlights();
+    }
+  };
+
   const resetMenuInactivityTimer = () => {
     clearTimeout(menuInactivityTimer);
     if (menuContainer.classList.contains('active')) {
@@ -144,13 +193,17 @@ if (import.meta.env?.DEV) {
   menuContainer.addEventListener('touchstart', resetMenuInactivityTimer);
 
   mainMenuBtn.addEventListener('click', () => {
-    mainMenuBtn.classList.remove('menu-cog-nudge');
     const isActive = menuContainer.classList.toggle('active');
     mainMenuBtn.setAttribute('aria-pressed', isActive);
     mainMenuBtn.setAttribute(
       'aria-label',
       isActive ? 'Close Settings Menu' : 'Open Settings Menu'
     );
+
+    if (quickStartStep === QuickStartStep.COG && isActive) {
+      setQuickStartStep(QuickStartStep.SHUFFLE);
+    }
+
     if (isActive) {
       document.getElementById(BUTTON_IDS.SHUFFLE_ALL).focus();
       resetMenuInactivityTimer(); // Start auto-hide timer
@@ -168,6 +221,9 @@ if (import.meta.env?.DEV) {
     switch (button.id) {
       case BUTTON_IDS.SHUFFLE_ALL:
         CommandManager.execute(makeShuffleCommand({ all: true }));
+        if (quickStartStep === QuickStartStep.SHUFFLE) {
+          setQuickStartStep(QuickStartStep.INFO);
+        }
         break;
       case BUTTON_IDS.SHUFFLE_APPEARANCE:
         CommandManager.execute(makeShuffleCommand({ appearance: true }));
@@ -268,6 +324,9 @@ if (import.meta.env?.DEV) {
       case BUTTON_IDS.INFO:
         UIManager.populateInfoModal();
         ModalManager.open('info', button);
+        if (quickStartStep === QuickStartStep.INFO) {
+          completeQuickStart();
+        }
         break;
     }
   });
@@ -301,19 +360,6 @@ if (import.meta.env?.DEV) {
     UIManager.showToast(chaosMessage);
     UIManager.announce(chaosMessage);
   });
-
-  /** Helper function to dismiss the welcome quick-start permanently. */
-  const dismissWelcomeModal = () => {
-    ModalManager.close('welcome');
-    SafeStorage.setItem(STORAGE_KEYS.WELCOME_DISMISSED, 'true');
-  };
-
-  const openWelcomeHelp = () => {
-    dismissWelcomeModal();
-    UIManager.populateInfoModal();
-    infoTabController.activateTabByName('controls', { persist: false });
-    ModalManager.open('info', btnInfo);
-  };
 
   /** Wire up the advanced settings toggles within the info modal. */
   const setupAdvancedSettingsPanel = () => {
@@ -397,17 +443,10 @@ if (import.meta.env?.DEV) {
   };
 
   // Register all modals with the ModalManager
-  ModalManager.register(
-    'welcome',
-    welcomeModal,
-    closeModalBtn,
-    dismissWelcomeModal
-  );
-  welcomeHelpBtn?.addEventListener('click', openWelcomeHelp);
   ModalManager.register('info', infoModal, closeInfoModalBtn);
 
   // Setup tab functionality for info modal
-  const infoTabController = setupInfoModalTabs(infoModal, btnInfo);
+  setupInfoModalTabs(infoModal, btnInfo);
   setupAdvancedSettingsPanel();
 
   fullscreenBtn.addEventListener('click', toggleFullScreen);
@@ -537,11 +576,13 @@ if (import.meta.env?.DEV) {
 
   UIManager.syncUI();
 
-  // Show the welcome quick-start once per device/browser.
+  // Start a minimal inline quick-start unless already completed.
+  const quickStartDone = SafeStorage.getItem(STORAGE_KEYS.QUICKSTART_DONE);
   const welcomeDismissed = SafeStorage.getItem(STORAGE_KEYS.WELCOME_DISMISSED);
-
-  if (welcomeDismissed !== 'true') {
-    setTimeout(() => ModalManager.open('welcome'), TIMING.WELCOME_MODAL_DELAY);
+  if (quickStartDone === 'true' || welcomeDismissed === 'true') {
+    completeQuickStart();
+  } else {
+    setQuickStartStep(QuickStartStep.COG);
   }
 
   // --- 8. REDUCED MOTION HANDLING ---
