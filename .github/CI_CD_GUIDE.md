@@ -39,26 +39,7 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 
 **Purpose:** Provides advanced security scanning to identify potential vulnerabilities.
 
-### 3. Deploy to GitHub Pages (`.github/workflows/deploy.yml`)
-
-**Triggers:**
-
-- Push to `main` branch
-- Manual workflow dispatch
-
-**Jobs:**
-
-- **Build:** Runs tests and prepares artifact
-- **Deploy:** Deploys to GitHub Pages
-
-**Purpose:** Automatically deploys the application to GitHub Pages on every main branch update.
-
-**Note:** To enable GitHub Pages deployment:
-
-1. Go to repository Settings → Pages
-2. Set Source to "GitHub Actions"
-
-### 4. PR Validation (`.github/workflows/pr-validation.yml`)
+### 3. PR Validation (`.github/workflows/pr-validation.yml`)
 
 **Triggers:** Pull request opened, synchronized, or reopened
 
@@ -71,7 +52,7 @@ The tsDice project uses GitHub Actions for continuous integration and continuous
 
 **Purpose:** Provides comprehensive validation and feedback on pull requests.
 
-### 5. Release (`.github/workflows/release.yml`)
+### 4. Release (`.github/workflows/release.yml`)
 
 **Triggers:**
 
@@ -95,7 +76,7 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-### 6. Performance Monitoring (`.github/workflows/performance.yml`)
+### 5. Performance Monitoring (`.github/workflows/performance.yml`)
 
 **Triggers:** Push to `main`, Pull Requests to `main`
 
@@ -107,7 +88,7 @@ git push origin v1.0.0
 
 **Purpose:** Tracks application performance and bundle size over time.
 
-### 7. Stale Issues and PRs (`.github/workflows/stale.yml`)
+### 6. Stale Issues and PRs (`.github/workflows/stale.yml`)
 
 **Triggers:** Daily schedule (00:00 UTC), Manual dispatch
 
@@ -120,7 +101,7 @@ git push origin v1.0.0
 
 **Purpose:** Keeps issue tracker clean and manageable.
 
-### 8. Auto Label PRs (`.github/workflows/labeler.yml`)
+### 7. Auto Label PRs (`.github/workflows/labeler.yml`)
 
 **Triggers:** Pull request opened or synchronized
 
@@ -275,11 +256,6 @@ To fully enable all features, configure these secrets in GitHub repository setti
 
 - Run `npm run lint:fix` locally
 - Commit the changes
-
-**Deployment failures:**
-
-- Verify GitHub Pages is enabled in repository settings
-- Check workflow permissions
 
 **CodeQL alerts:**
 

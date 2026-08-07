@@ -61,7 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automated testing on Node.js 18, 20, and 22
   - ESLint and Prettier for code quality
   - CodeQL security scanning
-  - Automated deployment to GitHub Pages
   - Performance monitoring with bundle size checks
   - Dependabot for dependency updates
   - Stale issue/PR management
@@ -83,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **main.js** - Integrated ErrorHandler and StateManager (Phase 3)
 - **ARCHITECTURE.md** - Documented new patterns and modules (Phase 3)
+- Removed GitHub Pages deployment workflow; production deployment is Cloudflare-hosted
 - All state mutations now use dispatch pattern (Phase 3)
 - Error handling now centralized and typed (Phase 3)
 - **configGenerator.js** - Uses modular constants (Phase 2)

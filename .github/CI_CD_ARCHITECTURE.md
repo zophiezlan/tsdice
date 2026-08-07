@@ -94,20 +94,20 @@ This document provides a visual representation of the tsDice CI/CD pipeline arch
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    Deploy Workflow (deploy.yml)                         │
+│               External Deployment (Cloudflare)                           │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  ┌──────────────┐                    ┌──────────────┐                 │
-│  │  Build Job   │ ──────────────────▶│  Deploy Job  │                 │
+│  │ App Build CI │ ──────────────────▶│ Cloudflare   │                 │
 │  ├──────────────┤                    ├──────────────┤                 │
-│  │ • Checkout   │                    │ • Deploy to  │                 │
-│  │ • Install    │                    │   GitHub     │                 │
-│  │ • Run tests  │                    │   Pages      │                 │
-│  │ • Prepare    │                    │              │                 │
-│  │   artifact   │                    │              │                 │
+│  │ • Checkout   │                    │ • Deploy     │                 │
+│  │ • Install    │                    │   managed    │                 │
+│  │ • Run tests  │                    │   externally │                 │
+│  │ • Verify app │                    │   (outside   │                 │
+│  │   build      │                    │   this repo) │                 │
 │  └──────────────┘                    └──────────────┘                 │
 │                                                                         │
-│  Trigger: Push to main branch                                          │
+│  Trigger: Outside GitHub Actions (Cloudflare pipeline)                 │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -255,14 +255,14 @@ GitHub Repository
     │ 4. On PR merge to main
     │
     ▼
-Deploy Workflow
+External Deployment
     │
-    │ • Build artifact
-    │ • Deploy to GitHub Pages
+    │ • Managed by Cloudflare
+    │ • Hosted at https://ket.horse
     │
     ▼
 Production Environment
-    │ https://github.io/zophiezlan/tsdice
+    │ https://ket.horse
     │
     └──▶ Live Application
 ```
@@ -317,7 +317,6 @@ Layer 4: Policy & Process
 GitHub Features
 ├── Actions (Workflows)
 ├── Security (CodeQL alerts)
-├── Pages (Deployment)
 ├── Releases (Artifacts)
 └── Discussions (Community)
 
@@ -369,7 +368,7 @@ Pull Requests
 | Code Coverage   | >80%   | ✅ Tracked      |
 | Security Alerts | 0      | ✅ 0            |
 | Build Time      | <5 min | ✅ ~2 min       |
-| Deploy Time     | <3 min | ✅ ~1 min       |
+| Deploy Time     | N/A    | External to CI  |
 | PR Turnaround   | <24h   | ✅ Automated    |
 
 ---

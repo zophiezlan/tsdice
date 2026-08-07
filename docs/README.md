@@ -45,7 +45,7 @@ The generated HTML pages match the tsDice application's design:
 
 These docs are linked from the main application's Help & Information modal (Alt+?), making them accessible both:
 
-- Online via GitHub Pages
+- Online via the configured production host (Cloudflare)
 - Offline when the repository is downloaded locally
 
 ## ✏️ Making Changes

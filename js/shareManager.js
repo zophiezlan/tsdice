@@ -107,6 +107,7 @@ export async function handleShareClick(button) {
 
     let finalUrl = fullUrl;
     const shortUrl = await createEmojiShortUrl(fullUrl);
+    const shortenerUnavailable = !shortUrl;
     if (shortUrl) finalUrl = shortUrl;
 
     await copyToClipboard(finalUrl);
@@ -116,8 +117,17 @@ export async function handleShareClick(button) {
       UIManager.showToast(`✓ Short link copied! ${finalUrl.split('/').pop()}`);
       UIManager.announce('Short emoji link copied to clipboard');
     } else {
-      UIManager.showToast('✓ Link copied to clipboard');
-      UIManager.announce('Full configuration link copied to clipboard');
+      if (shortenerUnavailable) {
+        UIManager.showToast(
+          '✓ Emoji shortener unavailable. Copied compressed URL'
+        );
+        UIManager.announce(
+          'Emoji shortener unavailable. Compressed configuration URL copied to clipboard'
+        );
+      } else {
+        UIManager.showToast('✓ Link copied to clipboard');
+        UIManager.announce('Full configuration link copied to clipboard');
+      }
     }
 
     Telemetry.log('share:copied', {

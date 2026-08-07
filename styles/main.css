@@ -67,7 +67,10 @@ body {
 
 /* --- ACCESSIBILITY: Visible Focus Indicator --- */
 .glass-button:focus-visible,
-.modal-close-btn:focus-visible {
+.modal-close-btn:focus-visible,
+.modal-secondary-btn:focus-visible,
+.advanced-reset-btn:focus-visible,
+.advanced-secondary-btn:focus-visible {
   outline: 3px solid var(--focus-outline-color);
   outline-offset: 3px;
   box-shadow: 0 0 10px var(--focus-outline-color);
@@ -279,11 +282,12 @@ body {
   transform: scale(1);
 }
 .modal-content h2 {
-  margin-top: 0;
+  margin: 0 0 16px;
   border-bottom: var(--modal-header-border);
   padding-bottom: 10px;
 }
 .modal-content p {
+  margin: 0 0 14px;
   line-height: 1.6;
 }
 .modal-content strong {
@@ -340,44 +344,25 @@ body {
 .modal-actions {
   display: flex;
   gap: 12px;
-  align-items: center;
-  margin-top: 20px;
+  align-items: stretch;
+  margin-top: 24px;
 }
 
 .modal-actions .modal-close-btn,
 .modal-actions .modal-secondary-btn {
   flex: 1;
   margin: 0;
+  width: 100%;
 }
 
 .welcome-panel {
-  top: auto;
-  left: 24px;
-  bottom: 24px;
-  width: auto;
-  height: auto;
-  background: transparent;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  justify-content: flex-start;
-  align-items: flex-end;
-  pointer-events: none;
+  justify-content: center;
+  align-items: center;
 }
 
 .welcome-panel-card {
-  pointer-events: auto;
-  width: min(420px, calc(100vw - 32px));
-  max-width: 420px;
-  max-height: none;
-  padding: 22px;
-  text-align: left;
-  border-radius: 24px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
-  transform: translateY(16px) scale(0.98);
-}
-
-.welcome-panel.visible .welcome-panel-card {
-  transform: translateY(0) scale(1);
+  width: min(550px, calc(100vw - 32px));
+  text-align: center;
 }
 
 .welcome-panel-kicker {
@@ -390,24 +375,30 @@ body {
 }
 
 .welcome-panel-copy {
-  margin-bottom: 16px;
+  max-width: 42ch;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 18px;
 }
 
 .welcome-panel-list {
-  margin: 0;
+  margin: 4px auto 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  max-width: 440px;
 }
 
 .welcome-panel-list li {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 10px 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .welcome-panel-list strong {
@@ -415,12 +406,6 @@ body {
 }
 
 @media (max-width: 640px) {
-  .welcome-panel {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-  }
-
   .welcome-panel-card {
     width: 100%;
   }
@@ -433,11 +418,14 @@ body {
 .info-list {
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
 }
 .info-list li {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  margin: 0;
 }
 .info-list .icon-wrapper {
   width: 30px;
@@ -483,7 +471,7 @@ body.light-mode #custom-tooltip code {
 .modal-tabs {
   display: flex;
   gap: 10px;
-  margin: 15px 0 20px 0;
+  margin: 16px 0 18px 0;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -491,7 +479,7 @@ body.light-mode #custom-tooltip code {
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  color: var(--text-color);
+  color: var(--text-secondary);
   padding: 10px 20px;
   cursor: pointer;
   font-size: 15px;
@@ -706,24 +694,54 @@ body.light-mode .advanced-setting {
 }
 
 .shortcut-item span {
-  color: var(--text-color);
+  color: var(--text-secondary);
   flex: 1;
   margin-left: 12px;
   text-align: left;
 }
 
+body.light-mode .shortcut-item kbd {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.18);
+  color: var(--text-secondary);
+}
+
 @media (max-width: 768px) {
-  .shortcuts-grid {
-    grid-template-columns: 1fr;
+  .modal-content {
+    padding: 24px 20px;
+    max-height: 82vh;
+  }
+
+  .modal-content-tabbed {
+    max-height: 82vh;
   }
 
   .modal-tabs {
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    border-bottom: none;
+    margin: 14px 0 16px 0;
   }
 
   .modal-tab {
-    padding: 8px 12px;
-    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    margin-bottom: 0;
+    padding: 9px 10px;
+    font-size: 13.5px;
+    line-height: 1.2;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .modal-tab.active {
+    border-color: var(--button-active-bg);
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .shortcuts-grid {
+    grid-template-columns: 1fr;
   }
 
   .advanced-setting {
@@ -734,6 +752,56 @@ body.light-mode .advanced-setting {
   .advanced-toggle {
     width: 100%;
     justify-content: space-between;
+  }
+}
+
+@media (max-width: 420px) {
+  .modal-content {
+    width: calc(100vw - 16px);
+    padding: 18px 14px;
+    border-radius: 16px;
+  }
+
+  .modal-content h2 {
+    margin-bottom: 12px;
+    font-size: 1.25rem;
+  }
+
+  .modal-actions {
+    gap: 10px;
+  }
+
+  .modal-close-btn,
+  .modal-secondary-btn {
+    padding: 11px 14px;
+    font-size: 15px;
+  }
+
+  .welcome-panel-card {
+    width: calc(100vw - 16px);
+  }
+
+  .welcome-panel-list li {
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .welcome-panel-list strong {
+    white-space: normal;
+  }
+
+  .shortcut-item {
+    align-items: flex-start;
+  }
+
+  .shortcut-item kbd {
+    min-width: 62px;
+  }
+
+  #toast-notification {
+    width: calc(100vw - 16px);
+    box-sizing: border-box;
+    text-align: center;
   }
 }
 

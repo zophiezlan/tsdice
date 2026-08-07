@@ -411,7 +411,7 @@ tsDice has a comprehensive CI/CD framework powered by GitHub Actions:
 - ✅ **Automated Testing** - Runs on Node.js 18, 20, and 22
 - ✅ **Code Quality Checks** - ESLint and Prettier validation
 - ✅ **Security Scanning** - CodeQL analysis and npm audit
-- ✅ **Automated Deployment** - GitHub Pages deployment on main branch
+- ✅ **Cloudflare Production Hosting** - Served at https://ket.horse
 - ✅ **Dependency Updates** - Automated Dependabot PRs
 - ✅ **Performance Monitoring** - Bundle size and Lighthouse CI
 - ✅ **PR Validation** - Comprehensive checks on every pull request

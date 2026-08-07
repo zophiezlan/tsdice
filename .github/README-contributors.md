@@ -6,10 +6,9 @@ Welcome to the tsDice CI/CD framework! This directory contains all automation, w
 
 ```text
 .github/
-├── workflows/              # GitHub Actions workflows (8 files)
+├── workflows/              # GitHub Actions workflows (7 files)
 │   ├── ci.yml             # Main CI pipeline
 │   ├── codeql.yml         # Security scanning
-│   ├── deploy.yml         # GitHub Pages deployment
 │   ├── pr-validation.yml  # PR validation
 │   ├── release.yml        # Release automation
 │   ├── performance.yml    # Performance monitoring
@@ -91,13 +90,12 @@ git push origin v1.x.x
 
 ## 🔧 Workflows Overview
 
-### Active Workflows (8)
+### Active Workflows (7)
 
 | Workflow          | Trigger         | Purpose                    |
 | ----------------- | --------------- | -------------------------- |
 | **CI**            | Push/PR         | Lint, test, security audit |
 | **CodeQL**        | Push/PR/Weekly  | Security analysis          |
-| **Deploy**        | Push to main    | GitHub Pages deployment    |
 | **PR Validation** | PR events       | Comprehensive PR checks    |
 | **Release**       | Version tags    | Automated releases         |
 | **Performance**   | Push/PR to main | Bundle size tracking       |
@@ -119,13 +117,6 @@ git push origin v1.x.x
 - **Language**: JavaScript
 - **Queries**: security-extended, security-and-quality
 - **Reports**: GitHub Security tab
-
-#### Deploy (deploy.yml)
-
-- **Target**: GitHub Pages
-- **Trigger**: Push to main
-- **Process**: Build → Test → Deploy
-- **URL**: Auto-configured
 
 ## 🛡️ Security
 

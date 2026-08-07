@@ -13,13 +13,12 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 
 ## 📊 Framework Overview
 
-### Workflows (8 Total)
+### Workflows (7 Total)
 
 | Workflow          | Purpose                    | Trigger                 | Status    |
 | ----------------- | -------------------------- | ----------------------- | --------- |
 | **CI**            | Test, lint, security audit | Push/PR to main/develop | ✅ Active |
 | **CodeQL**        | Security analysis          | Push/PR + Weekly        | ✅ Active |
-| **Deploy**        | GitHub Pages deployment    | Push to main            | ✅ Active |
 | **PR Validation** | Comprehensive PR checks    | PR opened/updated       | ✅ Active |
 | **Release**       | Automated releases         | Version tags            | ✅ Active |
 | **Performance**   | Bundle size & Lighthouse   | Push/PR to main         | ✅ Active |
@@ -45,7 +44,7 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 - 🏷️ Auto-labeling by file changes and PR size
 - 🧹 Stale issue/PR management (60/30 day thresholds)
 - 📝 Automated release notes and artifacts
-- 🚀 Automatic deployment to GitHub Pages
+- 🚀 Production deployment managed externally (Cloudflare)
 
 ## 📁 Files Added/Modified
 
@@ -57,11 +56,10 @@ This document provides a high-level overview of the comprehensive CI/CD framewor
 - `.github/dependabot.yml` (Dependency automation)
 - `.github/labeler.yml` (Auto-labeling rules)
 
-### Workflow Files (8)
+### Workflow Files (7)
 
 - `.github/workflows/ci.yml` (Main CI pipeline)
 - `.github/workflows/codeql.yml` (Security scanning)
-- `.github/workflows/deploy.yml` (GitHub Pages)
 - `.github/workflows/pr-validation.yml` (PR checks)
 - `.github/workflows/release.yml` (Release automation)
 - `.github/workflows/performance.yml` (Performance monitoring)
@@ -205,7 +203,7 @@ To add new CI checks:
 
 - ✅ Comprehensive linting (ESLint + Prettier)
 - ✅ Multi-layer security (CodeQL + npm audit)
-- ✅ Automated deployment (GitHub Pages)
+- ✅ Deployment handled outside GitHub Actions (Cloudflare)
 - ✅ Automated dependency updates (Dependabot)
 - ✅ Enhanced testing (Multiple Node versions)
 - ✅ Performance monitoring
