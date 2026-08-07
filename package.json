@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "badges:update": "node scripts/update-badges.js",
     "lint": "eslint js/ tests/ --ext .js",
     "lint:fix": "eslint js/ tests/ --ext .js --fix",
     "format": "prettier --write .",

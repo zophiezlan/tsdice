@@ -7,7 +7,13 @@ export default defineConfig({
     setupFiles: ['./tests/setup.js'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
+      reporter: ['text', 'html', 'json-summary'],
+      thresholds: {
+        lines: 65,
+        statements: 63,
+        functions: 70,
+        branches: 55,
+      },
       exclude: [
         'node_modules/**',
         'js/main.js', // Integration/orchestration file

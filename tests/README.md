@@ -1,5 +1,8 @@
 # tsDice Test Suite
 
+[![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zophiezlan/tsdice/main/badges/tests.json)](../README.md)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zophiezlan/tsdice/main/badges/coverage.json)](../README.md)
+
 This directory contains automated tests for the tsDice project, bringing it from a hobby project to professional-grade quality.
 
 ## Test Framework
@@ -88,7 +91,9 @@ Tests state management with dispatch pattern:
 
 ## Coverage Statistics
 
-**Total: 111 tests with 84% coverage**
+The badges above are auto-generated from CI using Vitest + V8 line coverage.
+
+Use `npm run badges:update` to refresh local badge JSON after test changes.
 
 Current coverage includes:
 
