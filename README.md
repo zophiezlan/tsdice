@@ -5,7 +5,6 @@
 [![CodeQL](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml)
 [![Test Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zophiezlan/tsdice/main/badges/coverage.json)](tests/README.md)
 [![Tests](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zophiezlan/tsdice/main/badges/tests.json)](tests/README.md)
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://ket.horse/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 🎲 **Roll the dice on particle animations!** A mesmerizing, interactive playground for discovering infinite visual possibilities.
