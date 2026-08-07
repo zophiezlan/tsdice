@@ -23,7 +23,7 @@
 
 ### Step 1: Open tsDice
 
-Visit [zophiezlan.github.io/tsdice](https://zophiezlan.github.io/tsdice) and watch the particles dance! 🎉
+Visit [ket.horse](https://ket.horse) and watch the particles dance! 🎉
 
 On your first visit (or every 24 hours), you'll see a quick welcome modal with helpful tips. Dismiss it to jump right in, or tick **"Don't show again"** if you prefer to skip it permanently.
 
@@ -499,7 +499,7 @@ When you click **Share**, tsDice:
 #### Full URL (Unshortened)
 
 ```
-https://zophiezlan.github.io/tsdice/#config=N4IgdghgtgpiBc...
+https://ket.horse/#config=N4IgdghgtgpiBc...
                                  ↑
                           Compressed config data
 ```
@@ -924,6 +924,6 @@ Share your creations!
 
 ---
 
-**Ready to create magic? [Launch tsDice →](https://zophiezlan.github.io/tsdice/)**
+**Ready to create magic? [Launch tsDice →](https://ket.horse/)**
 
 _Happy shuffling!_ 🎲✨🎨

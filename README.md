@@ -1,11 +1,11 @@
-# ✨ tsDice | The Ultimate tsParticles Scene Randomizer ✨
+# ✨ tsDice | tsParticles Scene Randomizer ✨
 
 [![Project Status: Maintained](https://img.shields.io/badge/project%20status-maintained-brightgreen.svg)](https://gist.github.com/zophiezlan/9733473a25de35dd924294d1354353c9)
 [![CI](https://github.com/zophiezlan/tsdice/workflows/CI/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/zophiezlan/tsdice/workflows/CodeQL%20Security%20Analysis/badge.svg)](https://github.com/zophiezlan/tsdice/actions/workflows/codeql.yml)
 [![Test Coverage](https://img.shields.io/badge/coverage-76%25-brightgreen.svg)](tests/README.md)
 [![Tests](https://img.shields.io/badge/tests-111%20passing-brightgreen.svg)](tests/README.md)
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://zophiezlan.github.io/tsdice/)
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://ket.horse/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > 🎲 **Roll the dice on particle animations!** A mesmerizing, interactive playground for discovering infinite visual possibilities.
@@ -18,7 +18,7 @@
 
 ### Try It Now
 
-**👉 [Launch tsDice](https://zophiezlan.github.io/tsdice/) 👈**
+**👉 [Launch tsDice](https://ket.horse/) 👈**
 
 ### Run Locally
 
