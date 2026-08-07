@@ -144,6 +144,7 @@ if (import.meta.env?.DEV) {
   menuContainer.addEventListener('touchstart', resetMenuInactivityTimer);
 
   mainMenuBtn.addEventListener('click', () => {
+    mainMenuBtn.classList.remove('menu-cog-nudge');
     const isActive = menuContainer.classList.toggle('active');
     mainMenuBtn.setAttribute('aria-pressed', isActive);
     mainMenuBtn.setAttribute(
@@ -309,6 +310,7 @@ if (import.meta.env?.DEV) {
 
   const openWelcomeHelp = () => {
     dismissWelcomeModal();
+    UIManager.populateInfoModal();
     infoTabController.activateTabByName('controls', { persist: false });
     ModalManager.open('info', btnInfo);
   };

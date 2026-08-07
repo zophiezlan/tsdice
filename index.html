@@ -61,18 +61,17 @@
         <p class="welcome-panel-kicker">Quick Start</p>
         <h2 id="welcome-modal-title">Roll a particle scene</h2>
         <p id="welcome-modal-copy" class="welcome-panel-copy">
-          Shuffle, tweak, and explore. The feedback is the tutorial.
+          Click the bottom-left cog to open the menu.
         </p>
         <ul class="welcome-panel-list" aria-label="Quick start tips">
-          <li><strong>Alt+A</strong> Shuffle All</li>
           <li>
-            <strong>Hover buttons</strong> to preview controls and shortcuts
+            <strong>Alt+A</strong> or <strong>click the dice</strong> to start
           </li>
-          <li><strong>Alt+?</strong> opens help whenever you need it</li>
+          <li><strong>Need everything?</strong> Open Full Controls</li>
         </ul>
         <div class="modal-actions">
           <button class="modal-secondary-btn" id="open-welcome-help">
-            Help
+            Full Controls
           </button>
           <button
             class="modal-close-btn"
@@ -94,7 +93,17 @@
       aria-labelledby="info-modal-title"
     >
       <div class="modal-content modal-content-tabbed">
-        <h2 id="info-modal-title">Help & Information</h2>
+        <div class="modal-tabbed-header">
+          <h2 id="info-modal-title">Help & Information</h2>
+          <button
+            class="modal-close-icon-btn"
+            id="close-info-modal"
+            aria-label="Close Help and Information"
+            type="button"
+          >
+            &times;
+          </button>
+        </div>
 
         <!-- Tab Navigation -->
         <div class="modal-tabs" role="tablist">
@@ -354,8 +363,6 @@
             💡 Tip: Bookmark the User Guide for easy access!
           </p>
         </div>
-
-        <button class="modal-close-btn" id="close-info-modal">Close</button>
       </div>
     </div>
 
@@ -408,7 +415,7 @@
     <nav class="menu-container" id="menu-container" aria-label="Scene controls">
       <!-- Main menu toggle button (settings icon) -->
       <div
-        class="glass-button menu-button"
+        class="glass-button menu-button menu-cog-nudge"
         id="main-menu-btn"
         tabindex="0"
         role="button"
