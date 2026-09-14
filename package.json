@@ -45,7 +45,7 @@
     "@vitejs/plugin-legacy": "^8.2.2",
     "@vitest/coverage-v8": "^4.1.10",
     "vitest": "^4.1.10",
-    "eslint": "^10.8.0",
+    "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "vite-plugin-html": "^3.2.2",
     "happy-dom": "^20.11.1",
