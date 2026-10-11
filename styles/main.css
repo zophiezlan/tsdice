@@ -410,6 +410,28 @@ body {
   background: var(--button-active-bg-hover);
 }
 
+/* --- Welcome tab --- */
+.welcome {
+  text-align: left;
+  line-height: 1.5;
+}
+.welcome-lead {
+  font-size: 1.1em;
+  margin: 0 0 16px;
+}
+.welcome-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 10px;
+}
+.welcome-note {
+  font-size: 0.9em;
+  opacity: 0.75;
+  margin: 0;
+}
+
 .info-list {
   list-style: none;
   padding: 0;

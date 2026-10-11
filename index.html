@@ -75,6 +75,16 @@
             class="modal-tab active"
             role="tab"
             aria-selected="true"
+            aria-controls="tab-welcome"
+            id="tab-btn-welcome"
+            data-tab="welcome"
+          >
+            👋 Hello
+          </button>
+          <button
+            class="modal-tab"
+            role="tab"
+            aria-selected="false"
             aria-controls="tab-controls"
             id="tab-btn-controls"
             data-tab="controls"
@@ -113,9 +123,54 @@
           </button>
         </div>
 
-        <!-- Tab Content: Controls -->
+        <!-- Tab Content: Welcome (first thing a new visitor reads) -->
         <div
           class="modal-tab-content active"
+          id="tab-welcome"
+          role="tabpanel"
+          aria-labelledby="tab-btn-welcome"
+        >
+          <div class="welcome">
+            <p class="welcome-lead">
+              Hey, welcome in. This is a little world of drifting particles to
+              sit with, play with and reshuffle. Take your time.
+            </p>
+            <ul class="welcome-list">
+              <li>
+                <strong>Nothing here can break.</strong> Press anything you
+                like.
+              </li>
+              <li>
+                <strong>Shuffle All</strong>, the first button in the menu,
+                makes a brand new scene. No two are ever the same.
+              </li>
+              <li>
+                <strong>Move or tap</strong> over the particles. They notice
+                you.
+              </li>
+              <li>
+                <strong>Too busy?</strong> Slide Chaos down. Want more? Slide it
+                up.
+              </li>
+              <li>
+                <strong>Lost one you liked?</strong> The back arrow takes you
+                back through every scene.
+              </li>
+              <li>
+                <strong>Need a breather?</strong> The pause button (or Space)
+                stills everything.
+              </li>
+            </ul>
+            <p class="welcome-note">
+              Nothing you do here is tracked or sent anywhere. Scenes stay on
+              this device unless you choose to share one.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab Content: Controls -->
+        <div
+          class="modal-tab-content"
           id="tab-controls"
           role="tabpanel"
           aria-labelledby="tab-btn-controls"
@@ -269,6 +324,27 @@
                 <span class="toggle-slider" aria-hidden="true"></span>
               </label>
             </div>
+
+            <div class="advanced-setting">
+              <div>
+                <h3 id="advanced-drift-label">Gentle drift</h3>
+                <p id="advanced-drift-desc">
+                  When you leave it be, the scene slowly evolves by itself, one
+                  small change about every minute and a half. The back arrow can
+                  always take you back.
+                </p>
+              </div>
+              <label class="toggle-switch advanced-toggle">
+                <input
+                  type="checkbox"
+                  id="advanced-drift"
+                  data-advanced-setting="gentleDrift"
+                  aria-labelledby="advanced-drift-label"
+                  aria-describedby="advanced-drift-desc"
+                />
+                <span class="toggle-slider" aria-hidden="true"></span>
+              </label>
+            </div>
           </div>
 
           <div class="advanced-actions">
@@ -280,7 +356,8 @@
             </button>
           </div>
           <p class="advanced-note">
-            Tip: enable both toggles when screen sharing or running on battery.
+            Tip: turn on the first two when screen sharing or running on
+            battery.
           </p>
         </div>
 

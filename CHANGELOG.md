@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Comfort layer
 
+- A short, warm "Hello" tab opens first in the info modal for new visitors
+  (draft copy, to be edited); returning visitors still land on their last
+  tab
+- Gentle drift (Advanced tab, off by default): once left alone for 90s,
+  the scene changes one aspect at a time through the cross-fade; any
+  activity restarts the wait, and the back arrow can return to every step
 - `js/comfort.js`: limits every scene stays within before it is drawn,
   whatever its source (shuffle, undo, saved scene or someone else's share
   link): particle count, speed and size caps; twinkle and opacity/colour

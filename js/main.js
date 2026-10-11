@@ -37,6 +37,7 @@ import {
   restoreSavedToggleState,
 } from './configLoader.js';
 import { setupInfoModalTabs } from './infoModalManager.js';
+import { createDrift } from './drift.js';
 
 // Dev-only: expose key state on window for debugging in the console.
 // `import.meta.env.DEV` is replaced at build time by Vite, so this block
@@ -389,7 +390,14 @@ if (import.meta.env?.DEV) {
         enabled: 'Battery saver mode enabled',
         disabled: 'Battery saver mode disabled',
       },
+      gentleDrift: {
+        enabled: 'Gentle drift on',
+        disabled: 'Gentle drift off',
+      },
     };
+
+    // Settings that don't change how the current scene is drawn
+    const noReload = new Set(['gentleDrift']);
 
     const syncToggleStates = () => {
       toggleInputs.forEach((input) => {
@@ -420,7 +428,8 @@ if (import.meta.env?.DEV) {
           UIManager.announce(message);
         }
         Telemetry.log('advanced_setting', { key, value: input.checked });
-        await reloadIfReady();
+        drift?.restart();
+        if (!noReload.has(key)) await reloadIfReady();
       });
     });
 
@@ -431,6 +440,7 @@ if (import.meta.env?.DEV) {
         UIManager.showToast('Advanced settings restored');
         UIManager.announce('Advanced settings restored');
         Telemetry.log('advanced_setting_reset');
+        drift?.restart();
         await reloadIfReady();
       });
     }
@@ -451,6 +461,26 @@ if (import.meta.env?.DEV) {
         }
       });
     }
+  };
+
+  // --- GENTLE DRIFT ---
+  // Created after the first scene loads (see initialisation below).
+  let drift = null;
+  const startDrift = () => {
+    drift = createDrift({
+      isEnabled: () => AppState.advanced.gentleDrift,
+      canDrift: () =>
+        !AppState.ui.isPaused &&
+        !document.hidden &&
+        !ModalManager.isOpen('info') &&
+        Boolean(AppState.ui.particlesContainer),
+      // One quiet aspect at a time: how it looks, or how it moves
+      step: () => {
+        const aspect = Math.random() < 0.5 ? 'appearance' : 'movement';
+        CommandManager.execute(makeShuffleCommand({ [aspect]: true }));
+        Telemetry.log('drift:step', { aspect });
+      },
+    });
   };
 
   // Register all modals with the ModalManager
@@ -605,6 +635,7 @@ if (import.meta.env?.DEV) {
   }
 
   UIManager.syncUI();
+  startDrift();
 
   // Start a minimal inline quick-start unless already completed.
   const quickStartDone = SafeStorage.getItem(STORAGE_KEYS.QUICKSTART_DONE);
