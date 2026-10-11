@@ -35,6 +35,7 @@ import {
   loadSavedConfig,
   loadConfigFromHash,
   restoreSavedToggleState,
+  loadSavedAdvancedSettings,
 } from './configLoader.js';
 import { setupInfoModalTabs } from './infoModalManager.js';
 import { createDrift } from './drift.js';
@@ -57,6 +58,9 @@ if (import.meta.env?.DEV) {
     ErrorHandler.createFatalErrorUI(ErrorType.LIBRARY_LOAD, error);
     return;
   }
+
+  // Advanced preferences must be in place before their switches are wired
+  loadSavedAdvancedSettings();
 
   // --- 1. ELEMENT SELECTORS ---
   const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);

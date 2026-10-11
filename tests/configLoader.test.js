@@ -20,8 +20,9 @@ vi.mock('../js/storage.js', () => ({
 import {
   loadConfigFromHash,
   restoreSavedToggleState,
+  loadSavedAdvancedSettings,
 } from '../js/configLoader.js';
-import { AppState } from '../js/state.js';
+import { AppState, DEFAULT_ADVANCED_SETTINGS } from '../js/state.js';
 import { SafeStorage } from '../js/storage.js';
 import { StateManager } from '../js/stateManager.js';
 
@@ -148,6 +149,42 @@ describe('configLoader', () => {
       restoreSavedToggleState();
       expect(SafeStorage.removeItem).toHaveBeenCalledWith('tsDiceToggleState');
       expect(AppState.ui.isGravityOn).toBe(false);
+    });
+  });
+
+  describe('loadSavedAdvancedSettings', () => {
+    beforeEach(() => {
+      AppState.advanced = { ...DEFAULT_ADVANCED_SETTINGS };
+    });
+
+    it('restores saved preferences', () => {
+      SafeStorage.getItem.mockReturnValue(
+        JSON.stringify({ batterySaverMode: true, gentleDrift: true })
+      );
+      loadSavedAdvancedSettings();
+      expect(SafeStorage.getItem).toHaveBeenCalledWith(
+        'tsDiceAdvancedSettings'
+      );
+      expect(AppState.advanced.batterySaverMode).toBe(true);
+      expect(AppState.advanced.gentleDrift).toBe(true);
+      expect(AppState.advanced.autoPauseHidden).toBe(false);
+    });
+
+    it('ignores unknown keys and non-boolean values', () => {
+      SafeStorage.getItem.mockReturnValue(
+        JSON.stringify({ batterySaverMode: 'yes', evil: true })
+      );
+      loadSavedAdvancedSettings();
+      expect(AppState.advanced).toEqual(DEFAULT_ADVANCED_SETTINGS);
+    });
+
+    it('discards a malformed saved value', () => {
+      SafeStorage.getItem.mockReturnValue('{oops');
+      loadSavedAdvancedSettings();
+      expect(SafeStorage.removeItem).toHaveBeenCalledWith(
+        'tsDiceAdvancedSettings'
+      );
+      expect(AppState.advanced).toEqual(DEFAULT_ADVANCED_SETTINGS);
     });
   });
 });

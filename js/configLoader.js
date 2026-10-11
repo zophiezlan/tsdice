@@ -1,4 +1,4 @@
-import { AppState } from './state.js';
+import { AppState, DEFAULT_ADVANCED_SETTINGS } from './state.js';
 import { StateManager, Actions } from './stateManager.js';
 import { SafeStorage } from './storage.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
@@ -28,6 +28,27 @@ export function loadSavedConfig() {
     ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
     SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
     return null;
+  }
+}
+
+/**
+ * Restores the Advanced-tab preferences (battery saver, auto-pause, drift…)
+ * saved on this device. Unknown or non-boolean values are ignored.
+ */
+export function loadSavedAdvancedSettings() {
+  try {
+    const saved = SafeStorage.getItem(STORAGE_KEYS.ADVANCED_SETTINGS);
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+    if (!parsed || typeof parsed !== 'object') return;
+    Object.keys(DEFAULT_ADVANCED_SETTINGS).forEach((key) => {
+      if (typeof parsed[key] === 'boolean') {
+        AppState.advanced[key] = parsed[key];
+      }
+    });
+  } catch (e) {
+    ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
+    SafeStorage.removeItem(STORAGE_KEYS.ADVANCED_SETTINGS);
   }
 }
 

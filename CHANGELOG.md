@@ -57,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed - Maintenance
 
+- Advanced settings (battery saver, auto-pause, gentle drift) now survive a
+  page refresh; they were saved but never read back
 - Alt keyboard shortcuts now work on macOS (matched on the physical key, so
   Option+A no longer arrives as "å"), and unmapped Alt combos are no longer
   swallowed, so browser and OS shortcuts keep working
