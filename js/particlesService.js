@@ -9,6 +9,7 @@ import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
 import { Diagnostics } from './diagnostics.js';
 import { TIMING } from './constants/ui.js';
+import { STORAGE_KEYS } from './constants/storage.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
 export const applyAdvancedPreferences = (options) => {
@@ -196,7 +197,18 @@ export const loadParticles = async (config) => {
 
   try {
     AppState.particleState.currentConfig = config;
-    SafeStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
+    SafeStorage.setItem(STORAGE_KEYS.LAST_CONFIG, JSON.stringify(config));
+    SafeStorage.setItem(
+      STORAGE_KEYS.TOGGLE_STATE,
+      JSON.stringify({
+        isGravityOn: AppState.ui.isGravityOn,
+        areWallsOn: AppState.ui.areWallsOn,
+        isCursorParticle: AppState.ui.isCursorParticle,
+        originalOutModes: AppState.particleState.originalOutModes,
+        originalInteractionModes:
+          AppState.particleState.originalInteractionModes,
+      })
+    );
 
     const containerEl = document.getElementById('tsparticles');
     if (containerEl && AppState.ui.particlesContainer) {

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - Maintenance
+
+- Alt keyboard shortcuts now work on macOS (matched on the physical key, so
+  Option+A no longer arrives as "å"), and unmapped Alt combos are no longer
+  swallowed, so browser and OS shortcuts keep working
+- Shortcuts and Enter/Space no longer activate disabled buttons, and repeat
+  share requests are ignored while one is in flight
+- Refreshing the page restores the gravity, walls and cursor toggles the
+  saved scene was built with, instead of showing them off over a scene that
+  still has them applied
+- Shared links with the cursor effect on now remember the hover effect it
+  replaced
+- Undoing Party Mode (Konami code) restores the previous scene
+- An invalid share link no longer leaves a stray "#" in the address bar
+
 ### Added - Phase 3 (Architecture Integration)
 
 - Integrated ErrorHandler into main.js for centralized error handling

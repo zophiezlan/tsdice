@@ -436,6 +436,17 @@ describe('load and theme reload flows', () => {
       'tsDiceLastConfig',
       JSON.stringify(config)
     );
+    // Toggles are saved alongside the config so a refresh restores them
+    const toggleCall = SafeStorage.setItem.mock.calls.find(
+      ([key]) => key === 'tsDiceToggleState'
+    );
+    expect(JSON.parse(toggleCall[1])).toEqual(
+      expect.objectContaining({
+        isGravityOn: AppState.ui.isGravityOn,
+        areWallsOn: AppState.ui.areWallsOn,
+        isCursorParticle: AppState.ui.isCursorParticle,
+      })
+    );
     expect(tsParticles.load).toHaveBeenCalledTimes(1);
     const firstCall = tsParticles.load.mock.calls[0][0];
     expect(firstCall.id).toBe('tsparticles');

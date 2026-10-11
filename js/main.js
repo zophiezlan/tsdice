@@ -19,14 +19,21 @@ import {
   applyGravityMode,
   updateThemeAndReload,
 } from './particlesService.js';
-import { initKeyboardShortcuts } from './keyboardShortcuts.js';
+import {
+  initKeyboardShortcuts,
+  isButtonDisabled,
+} from './keyboardShortcuts.js';
 import {
   createShuffleCommand,
   createToggleCommand,
   createThemeCommand,
 } from './commandFactory.js';
 import { handleShareClick } from './shareManager.js';
-import { loadSavedConfig, loadConfigFromHash } from './configLoader.js';
+import {
+  loadSavedConfig,
+  loadConfigFromHash,
+  restoreSavedToggleState,
+} from './configLoader.js';
 import { setupInfoModalTabs } from './infoModalManager.js';
 
 // Dev-only: expose key state on window for debugging in the console.
@@ -216,7 +223,9 @@ if (import.meta.env?.DEV) {
   /** Main event listener for the control panel, using event delegation for performance. */
   subMenu.addEventListener('click', (e) => {
     const button = e.target.closest('.menu-button');
-    if (!button) return;
+    // Disabled buttons only block pointer events in CSS; keyboard shortcuts
+    // and Enter/Space still reach here via .click().
+    if (!button || isButtonDisabled(button)) return;
 
     switch (button.id) {
       case BUTTON_IDS.SHUFFLE_ALL:
@@ -517,6 +526,9 @@ if (import.meta.env?.DEV) {
         partyConfig.particles.move.random = true;
         partyConfig.particles.move.outModes = { default: 'bounce' };
 
+        const prevConfig = structuredClone(
+          AppState.particleState.currentConfig
+        );
         CommandManager.execute({
           newConfig: partyConfig,
           shuffleType: '🎉 Party Mode',
@@ -528,7 +540,6 @@ if (import.meta.env?.DEV) {
             UIManager.announce('Party mode activated with Konami code');
           },
           async undo() {
-            const prevConfig = AppState.particleState.currentConfig;
             await loadParticles(prevConfig);
             UIManager.syncUI();
           },
@@ -561,7 +572,12 @@ if (import.meta.env?.DEV) {
   }
 
   const initialConfigFromStorage = loadSavedConfig();
-  loadConfigFromHash();
+  const loadedFromUrl = loadConfigFromHash();
+  // A shared link carries its own toggles in uiState; otherwise restore the
+  // toggles that the saved scene was built with.
+  if (!loadedFromUrl && initialConfigFromStorage) {
+    restoreSavedToggleState();
+  }
 
   // Determine initial config: URL config > saved config > fresh random shuffle
   let configToLoad =

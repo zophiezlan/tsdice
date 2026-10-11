@@ -31,6 +31,36 @@ export function loadSavedConfig() {
 }
 
 /**
+ * Restores the gravity/walls/cursor toggles (and the modes they replaced)
+ * that the saved scene was built with, so a refresh shows the same scene
+ * with the toggle buttons in the right state.
+ */
+export function restoreSavedToggleState() {
+  try {
+    const saved = SafeStorage.getItem(STORAGE_KEYS.TOGGLE_STATE);
+    if (!saved) return;
+    const toggles = JSON.parse(saved);
+    if (!toggles || typeof toggles !== 'object') return;
+
+    AppState.ui.isGravityOn = toggles.isGravityOn === true;
+    AppState.ui.areWallsOn = toggles.areWallsOn === true;
+    AppState.ui.isCursorParticle = toggles.isCursorParticle === true;
+    AppState.particleState.originalOutModes =
+      toggles.originalOutModes && typeof toggles.originalOutModes === 'object'
+        ? toggles.originalOutModes
+        : {};
+    AppState.particleState.originalInteractionModes =
+      toggles.originalInteractionModes &&
+      typeof toggles.originalInteractionModes === 'object'
+        ? toggles.originalInteractionModes
+        : {};
+  } catch (e) {
+    ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
+    SafeStorage.removeItem(STORAGE_KEYS.TOGGLE_STATE);
+  }
+}
+
+/**
  * Applies any `uiState` fields from a decoded config to the app state.
  * Mutates the config by deleting the `uiState` key so downstream consumers
  * see only the particle config.
@@ -41,7 +71,16 @@ function applyUiStateFromConfig(parsedConfig) {
 
   StateManager.dispatch(Actions.setChaosLevel(uiState.chaosLevel || 5));
   StateManager.dispatch(Actions.setTheme(uiState.isDarkMode !== false));
-  if (uiState.isCursorParticle) StateManager.dispatch(Actions.toggleCursor());
+  if (uiState.isCursorParticle) {
+    StateManager.dispatch(Actions.toggleCursor());
+    if (uiState.originalHoverMode) {
+      StateManager.dispatch(
+        Actions.setOriginalModes({
+          interaction: { hover: uiState.originalHoverMode },
+        })
+      );
+    }
+  }
   if (uiState.isGravityOn) StateManager.dispatch(Actions.toggleGravity());
   if (uiState.areWallsOn) {
     StateManager.dispatch(Actions.toggleWalls());
@@ -89,7 +128,12 @@ export function loadConfigFromHash() {
     return true;
   } catch (e) {
     ErrorHandler.handle(e, ErrorType.CONFIG_INVALID);
-    window.location.hash = '';
+    // replaceState rather than `location.hash = ''`, which leaves a stray "#"
+    window.history.replaceState(
+      null,
+      '',
+      window.location.pathname + window.location.search
+    );
     return false;
   }
 }

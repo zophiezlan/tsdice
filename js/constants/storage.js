@@ -17,6 +17,9 @@ export const STORAGE_KEYS = {
   /** Last particle configuration (JSON) */
   LAST_CONFIG: 'tsDiceLastConfig',
 
+  /** Gravity/walls/cursor toggles the last config was built with (JSON) */
+  TOGGLE_STATE: 'tsDiceToggleState',
+
   /** Whether the mini quick-start highlight guide has been completed */
   QUICKSTART_DONE: 'tsDiceQuickstartDone',
 
