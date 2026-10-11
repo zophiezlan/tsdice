@@ -1,9 +1,10 @@
-import { AppState } from './state.js';
+import { AppState, DEFAULT_ADVANCED_SETTINGS } from './state.js';
 import { StateManager, Actions } from './stateManager.js';
 import { SafeStorage } from './storage.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { STORAGE_KEYS } from './constants.js';
+import { migrateV3Config } from './configMigration.js';
 
 const HASH_PREFIX = '#config=';
 
@@ -16,7 +17,7 @@ export function loadSavedConfig() {
     const savedConfigString = SafeStorage.getItem(STORAGE_KEYS.LAST_CONFIG);
     if (!savedConfigString) return null;
 
-    const parsed = JSON.parse(savedConfigString);
+    const parsed = migrateV3Config(JSON.parse(savedConfigString));
     if (!ErrorHandler.validateConfig(parsed)) {
       console.warn('Saved config is malformed, ignoring.');
       SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
@@ -31,6 +32,57 @@ export function loadSavedConfig() {
 }
 
 /**
+ * Restores the Advanced-tab preferences (battery saver, auto-pause, drift…)
+ * saved on this device. Unknown or non-boolean values are ignored.
+ */
+export function loadSavedAdvancedSettings() {
+  try {
+    const saved = SafeStorage.getItem(STORAGE_KEYS.ADVANCED_SETTINGS);
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+    if (!parsed || typeof parsed !== 'object') return;
+    Object.keys(DEFAULT_ADVANCED_SETTINGS).forEach((key) => {
+      if (typeof parsed[key] === 'boolean') {
+        AppState.advanced[key] = parsed[key];
+      }
+    });
+  } catch (e) {
+    ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
+    SafeStorage.removeItem(STORAGE_KEYS.ADVANCED_SETTINGS);
+  }
+}
+
+/**
+ * Restores the gravity/walls/cursor toggles (and the modes they replaced)
+ * that the saved scene was built with, so a refresh shows the same scene
+ * with the toggle buttons in the right state.
+ */
+export function restoreSavedToggleState() {
+  try {
+    const saved = SafeStorage.getItem(STORAGE_KEYS.TOGGLE_STATE);
+    if (!saved) return;
+    const toggles = JSON.parse(saved);
+    if (!toggles || typeof toggles !== 'object') return;
+
+    AppState.ui.isGravityOn = toggles.isGravityOn === true;
+    AppState.ui.areWallsOn = toggles.areWallsOn === true;
+    AppState.ui.isCursorParticle = toggles.isCursorParticle === true;
+    AppState.particleState.originalOutModes =
+      toggles.originalOutModes && typeof toggles.originalOutModes === 'object'
+        ? toggles.originalOutModes
+        : {};
+    AppState.particleState.originalInteractionModes =
+      toggles.originalInteractionModes &&
+      typeof toggles.originalInteractionModes === 'object'
+        ? toggles.originalInteractionModes
+        : {};
+  } catch (e) {
+    ErrorHandler.handle(e, ErrorType.STORAGE_ERROR);
+    SafeStorage.removeItem(STORAGE_KEYS.TOGGLE_STATE);
+  }
+}
+
+/**
  * Applies any `uiState` fields from a decoded config to the app state.
  * Mutates the config by deleting the `uiState` key so downstream consumers
  * see only the particle config.
@@ -41,7 +93,16 @@ function applyUiStateFromConfig(parsedConfig) {
 
   StateManager.dispatch(Actions.setChaosLevel(uiState.chaosLevel || 5));
   StateManager.dispatch(Actions.setTheme(uiState.isDarkMode !== false));
-  if (uiState.isCursorParticle) StateManager.dispatch(Actions.toggleCursor());
+  if (uiState.isCursorParticle) {
+    StateManager.dispatch(Actions.toggleCursor());
+    if (uiState.originalHoverMode) {
+      StateManager.dispatch(
+        Actions.setOriginalModes({
+          interaction: { hover: uiState.originalHoverMode },
+        })
+      );
+    }
+  }
   if (uiState.isGravityOn) StateManager.dispatch(Actions.toggleGravity());
   if (uiState.areWallsOn) {
     StateManager.dispatch(Actions.toggleWalls());
@@ -75,6 +136,8 @@ export function loadConfigFromHash() {
     }
 
     applyUiStateFromConfig(parsedConfig);
+    // Links made before the v4 upgrade carry v3 configs
+    migrateV3Config(parsedConfig);
 
     if (!ErrorHandler.validateConfig(parsedConfig)) {
       throw new Error('Invalid particle configuration');
@@ -89,7 +152,12 @@ export function loadConfigFromHash() {
     return true;
   } catch (e) {
     ErrorHandler.handle(e, ErrorType.CONFIG_INVALID);
-    window.location.hash = '';
+    // replaceState rather than `location.hash = ''`, which leaves a stray "#"
+    window.history.replaceState(
+      null,
+      '',
+      window.location.pathname + window.location.search
+    );
     return false;
   }
 }

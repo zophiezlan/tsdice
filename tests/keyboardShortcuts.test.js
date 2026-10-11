@@ -115,7 +115,7 @@ describe('initKeyboardShortcuts', () => {
       await import('../js/keyboardShortcuts.js');
     initKeyboardShortcuts(menuContainer);
 
-    fireKey('a', { altKey: true });
+    fireKey('a', { code: 'KeyA', altKey: true });
     expect(clickSpy).toHaveBeenCalledOnce();
     expect(button.classList.contains('keyboard-press')).toBe(true);
 
@@ -131,8 +131,10 @@ describe('initKeyboardShortcuts', () => {
       await import('../js/keyboardShortcuts.js');
     initKeyboardShortcuts(menuContainer);
 
-    fireKey('q', { altKey: true });
+    const event = fireKey('q', { code: 'KeyQ', altKey: true });
     expect(clickSpy).not.toHaveBeenCalled();
+    // Unmapped Alt combos must reach the browser/OS untouched
+    expect(event.defaultPrevented).toBe(false);
   });
 
   it('Ctrl+Alt+A does not trigger the shortcut', async () => {
@@ -143,7 +145,66 @@ describe('initKeyboardShortcuts', () => {
       await import('../js/keyboardShortcuts.js');
     initKeyboardShortcuts(menuContainer);
 
-    fireKey('a', { altKey: true, ctrlKey: true });
+    fireKey('a', { code: 'KeyA', altKey: true, ctrlKey: true });
     expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  it('matches on the physical key so macOS Option+A ("å") still works', async () => {
+    const { menuContainer, button } = setupDOM();
+    const clickSpy = vi.fn();
+    button.addEventListener('click', clickSpy);
+    const { initKeyboardShortcuts } =
+      await import('../js/keyboardShortcuts.js');
+    initKeyboardShortcuts(menuContainer);
+
+    const event = fireKey('å', { code: 'KeyA', altKey: true });
+    expect(clickSpy).toHaveBeenCalledOnce();
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('Alt+? opens info via the Slash key, with or without Shift', async () => {
+    const { menuContainer } = setupDOM();
+    const info = document.createElement('button');
+    info.id = BUTTON_IDS.INFO;
+    document.body.appendChild(info);
+    const clickSpy = vi.fn();
+    info.addEventListener('click', clickSpy);
+    const { initKeyboardShortcuts } =
+      await import('../js/keyboardShortcuts.js');
+    initKeyboardShortcuts(menuContainer);
+
+    fireKey('?', { code: 'Slash', altKey: true, shiftKey: true });
+    fireKey('÷', { code: 'Slash', altKey: true });
+    expect(clickSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not click a button that is disabled', async () => {
+    const { menuContainer, button } = setupDOM();
+    button.classList.add('disabled');
+    const clickSpy = vi.fn();
+    button.addEventListener('click', clickSpy);
+    const { initKeyboardShortcuts } =
+      await import('../js/keyboardShortcuts.js');
+    initKeyboardShortcuts(menuContainer);
+
+    fireKey('a', { code: 'KeyA', altKey: true });
+    expect(clickSpy).not.toHaveBeenCalled();
+    expect(button.classList.contains('keyboard-press')).toBe(false);
+  });
+
+  it('ignores auto-repeat from a held Alt shortcut', async () => {
+    const { menuContainer, button } = setupDOM();
+    const clickSpy = vi.fn();
+    button.addEventListener('click', clickSpy);
+    const { initKeyboardShortcuts } =
+      await import('../js/keyboardShortcuts.js');
+    initKeyboardShortcuts(menuContainer);
+
+    fireKey('a', { code: 'KeyA', altKey: true });
+    const repeat = fireKey('a', { code: 'KeyA', altKey: true, repeat: true });
+    fireKey('a', { code: 'KeyA', altKey: true, repeat: true });
+
+    expect(clickSpy).toHaveBeenCalledOnce();
+    expect(repeat.defaultPrevented).toBe(true);
   });
 });

@@ -8,6 +8,7 @@ import { UIManager } from './uiManager.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { STORAGE_KEYS } from './constants/storage.js';
 import { TIMING } from './constants/ui.js';
+import { migrateV3Config } from './configMigration.js';
 
 /** Debounce delay for persist operations (ms) */
 const PERSIST_DEBOUNCE_MS = TIMING.PERSIST_DEBOUNCE;
@@ -272,7 +273,7 @@ export const StateManager = {
       const savedConfig = SafeStorage.getItem(STORAGE_KEYS.LAST_CONFIG);
       if (savedConfig) {
         try {
-          const config = JSON.parse(savedConfig);
+          const config = migrateV3Config(JSON.parse(savedConfig));
           if (ErrorHandler.validateConfig(config)) {
             AppState.particleState.currentConfig = config;
           }

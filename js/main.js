@@ -1,5 +1,7 @@
-import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
-import { loadAll } from 'https://cdn.jsdelivr.net/npm/@tsparticles/all@3.9.1/+esm';
+// Must run before tsParticles creates its canvas (old iOS has no OffscreenCanvas)
+import './compat.js';
+import { tsParticles } from '@tsparticles/engine';
+import { loadAll } from '@tsparticles/all';
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ModalManager } from './modalManager.js';
@@ -18,16 +20,27 @@ import {
   applyWallsMode,
   applyGravityMode,
   updateThemeAndReload,
+  onSceneLoaded,
 } from './particlesService.js';
-import { initKeyboardShortcuts } from './keyboardShortcuts.js';
+import {
+  initKeyboardShortcuts,
+  isButtonDisabled,
+} from './keyboardShortcuts.js';
 import {
   createShuffleCommand,
   createToggleCommand,
   createThemeCommand,
 } from './commandFactory.js';
 import { handleShareClick } from './shareManager.js';
-import { loadSavedConfig, loadConfigFromHash } from './configLoader.js';
+import {
+  loadSavedConfig,
+  loadConfigFromHash,
+  restoreSavedToggleState,
+  loadSavedAdvancedSettings,
+} from './configLoader.js';
 import { setupInfoModalTabs } from './infoModalManager.js';
+import { createDrift } from './drift.js';
+import { createSoundController } from './sound/soundController.js';
 
 // Dev-only: expose key state on window for debugging in the console.
 // `import.meta.env.DEV` is replaced at build time by Vite, so this block
@@ -47,6 +60,9 @@ if (import.meta.env?.DEV) {
     ErrorHandler.createFatalErrorUI(ErrorType.LIBRARY_LOAD, error);
     return;
   }
+
+  // Advanced preferences must be in place before their switches are wired
+  loadSavedAdvancedSettings();
 
   // --- 1. ELEMENT SELECTORS ---
   const mainMenuBtn = document.getElementById(BUTTON_IDS.MAIN_MENU);
@@ -216,7 +232,9 @@ if (import.meta.env?.DEV) {
   /** Main event listener for the control panel, using event delegation for performance. */
   subMenu.addEventListener('click', (e) => {
     const button = e.target.closest('.menu-button');
-    if (!button) return;
+    // Disabled buttons only block pointer events in CSS; keyboard shortcuts
+    // and Enter/Space still reach here via .click().
+    if (!button || isButtonDisabled(button)) return;
 
     switch (button.id) {
       case BUTTON_IDS.SHUFFLE_ALL:
@@ -308,6 +326,7 @@ if (import.meta.env?.DEV) {
           StateManager.dispatch(Actions.togglePause());
           if (AppState.ui.isPaused) container.pause();
           else container.play();
+          sound.onPauseChange();
           UIManager.syncUI();
           const pauseMessage = AppState.ui.isPaused
             ? 'Animation paused'
@@ -378,7 +397,18 @@ if (import.meta.env?.DEV) {
         enabled: 'Battery saver mode enabled',
         disabled: 'Battery saver mode disabled',
       },
+      gentleDrift: {
+        enabled: 'Gentle drift on',
+        disabled: 'Gentle drift off',
+      },
+      sound: {
+        enabled: 'Sound on',
+        disabled: 'Sound off',
+      },
     };
+
+    // Settings that don't change how the current scene is drawn
+    const noReload = new Set(['gentleDrift', 'sound']);
 
     const syncToggleStates = () => {
       toggleInputs.forEach((input) => {
@@ -409,7 +439,10 @@ if (import.meta.env?.DEV) {
           UIManager.announce(message);
         }
         Telemetry.log('advanced_setting', { key, value: input.checked });
-        await reloadIfReady();
+        drift?.restart();
+        // The switch's change event is the gesture browsers need to start audio
+        if (key === 'sound') sound.setEnabled(input.checked);
+        if (!noReload.has(key)) await reloadIfReady();
       });
     });
 
@@ -420,6 +453,8 @@ if (import.meta.env?.DEV) {
         UIManager.showToast('Advanced settings restored');
         UIManager.announce('Advanced settings restored');
         Telemetry.log('advanced_setting_reset');
+        drift?.restart();
+        sound.setEnabled(AppState.advanced.sound);
         await reloadIfReady();
       });
     }
@@ -440,6 +475,41 @@ if (import.meta.env?.DEV) {
         }
       });
     }
+  };
+
+  // --- SOUND (beta) ---
+  const sound = createSoundController({
+    getScene: () => ({
+      config: AppState.particleState.currentConfig,
+      chaosLevel: AppState.particleState.chaosLevel,
+      isDarkMode: AppState.ui.isDarkMode,
+    }),
+    isPaused: () => AppState.ui.isPaused,
+  });
+  onSceneLoaded(() => sound.onSceneChange());
+  // Taps on the scene itself (not the menu or modals) play notes
+  document.addEventListener('pointerdown', (e) => {
+    if (e.target.closest?.('#tsparticles')) sound.onTap(e.clientX, e.clientY);
+  });
+
+  // --- GENTLE DRIFT ---
+  // Created after the first scene loads (see initialisation below).
+  let drift = null;
+  const startDrift = () => {
+    drift = createDrift({
+      isEnabled: () => AppState.advanced.gentleDrift,
+      canDrift: () =>
+        !AppState.ui.isPaused &&
+        !document.hidden &&
+        !ModalManager.isOpen('info') &&
+        Boolean(AppState.ui.particlesContainer),
+      // One quiet aspect at a time: how it looks, or how it moves
+      step: () => {
+        const aspect = Math.random() < 0.5 ? 'appearance' : 'movement';
+        CommandManager.execute(makeShuffleCommand({ [aspect]: true }));
+        Telemetry.log('drift:step', { aspect });
+      },
+    });
   };
 
   // Register all modals with the ModalManager
@@ -509,7 +579,7 @@ if (import.meta.env?.DEV) {
         // Trigger special "party mode" configuration
         const partyConfig = buildConfig({ all: true });
         partyConfig.particles.number.value = 300;
-        partyConfig.particles.color.value = 'random';
+        partyConfig.particles.paint.fill.color = { value: 'random' };
         partyConfig.particles.move.speed = 10;
         partyConfig.particles.shape.type = ['star', 'circle', 'triangle'];
         partyConfig.particles.size.value = { min: 2, max: 8 };
@@ -517,6 +587,9 @@ if (import.meta.env?.DEV) {
         partyConfig.particles.move.random = true;
         partyConfig.particles.move.outModes = { default: 'bounce' };
 
+        const prevConfig = structuredClone(
+          AppState.particleState.currentConfig
+        );
         CommandManager.execute({
           newConfig: partyConfig,
           shuffleType: '🎉 Party Mode',
@@ -528,7 +601,6 @@ if (import.meta.env?.DEV) {
             UIManager.announce('Party mode activated with Konami code');
           },
           async undo() {
-            const prevConfig = AppState.particleState.currentConfig;
             await loadParticles(prevConfig);
             UIManager.syncUI();
           },
@@ -561,20 +633,40 @@ if (import.meta.env?.DEV) {
   }
 
   const initialConfigFromStorage = loadSavedConfig();
-  loadConfigFromHash();
+  const loadedFromUrl = loadConfigFromHash();
+  // A shared link carries its own toggles in uiState; otherwise restore the
+  // toggles that the saved scene was built with.
+  if (!loadedFromUrl && initialConfigFromStorage) {
+    restoreSavedToggleState();
+  }
 
   // Determine initial config: URL config > saved config > fresh random shuffle
   let configToLoad =
     AppState.particleState.initialConfigFromUrl || initialConfigFromStorage;
 
   // If no saved or URL config, generate a fresh random shuffle
+  let freshConfig = null;
   if (!configToLoad) {
-    configToLoad = buildConfig({ all: true });
+    freshConfig = buildConfig({ all: true });
+    configToLoad = freshConfig;
   }
 
   await loadParticles(configToLoad);
 
+  // A saved or shared scene that fails to load gets one fresh shuffle; if
+  // even that fails, the browser can't run the engine.
+  if (!AppState.ui.particlesContainer && configToLoad !== freshConfig) {
+    await loadParticles(buildConfig({ all: true }));
+  }
+  if (!AppState.ui.particlesContainer) {
+    ErrorHandler.createFatalErrorUI(ErrorType.BROWSER_UNSUPPORTED);
+    return;
+  }
+
   UIManager.syncUI();
+  startDrift();
+  // Sound left on from a previous visit waits, silent, for the first tap
+  if (AppState.advanced.sound) sound.setEnabled(true);
 
   // Start a minimal inline quick-start unless already completed.
   const quickStartDone = SafeStorage.getItem(STORAGE_KEYS.QUICKSTART_DONE);

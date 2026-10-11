@@ -812,7 +812,7 @@ Could add to `index.html`:
 <meta
   http-equiv="Content-Security-Policy"
   content="default-src 'self'; 
-               script-src 'self' https://cdn.jsdelivr.net; 
+               script-src 'self' https://challenges.cloudflare.com; 
                style-src 'self' 'unsafe-inline';"
 />
 ```

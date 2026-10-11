@@ -66,7 +66,7 @@ export function setupInfoModalTabs(infoModal, btnInfo) {
 
   const restoreLastTab = () => {
     const lastTab =
-      SafeStorage.getItem(STORAGE_KEYS.LAST_INFO_TAB) || 'controls';
+      SafeStorage.getItem(STORAGE_KEYS.LAST_INFO_TAB) || 'welcome';
     activateTabByName(lastTab);
   };
 

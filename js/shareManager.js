@@ -75,6 +75,9 @@ function buildSharableConfig() {
     originalOutModes: AppState.ui.areWallsOn
       ? AppState.particleState.originalOutModes
       : undefined,
+    originalHoverMode: AppState.ui.isCursorParticle
+      ? AppState.particleState.originalInteractionModes.hover
+      : undefined,
   };
   return sharableConfig;
 }
@@ -83,7 +86,14 @@ function buildSharableConfig() {
  * Creates a shareable URL for the current scene and copies it to clipboard.
  * Always restores the button's enabled state, even on failure.
  */
+let shareInFlight = false;
+
 export async function handleShareClick(button) {
+  // Ignore repeat clicks (e.g. Alt+S held down) while a share is running
+  if (shareInFlight) return;
+  shareInFlight = true;
+  button.classList.add('disabled');
+
   const hasConfig =
     AppState.particleState.currentConfig &&
     Object.keys(AppState.particleState.currentConfig).length > 0;
@@ -92,7 +102,6 @@ export async function handleShareClick(button) {
   const handleShare = ErrorHandler.wrap(async () => {
     const sharableConfig = buildSharableConfig();
 
-    button.classList.add('disabled');
     UIManager.showToast('⏳ Creating shareable link...');
     UIManager.announce('Creating shareable link');
     Telemetry.log('share:compress:start', {
@@ -144,6 +153,7 @@ export async function handleShareClick(button) {
       shortened: Boolean(shareResult && shareResult.shortened),
     });
   } finally {
+    shareInFlight = false;
     button.classList.remove('disabled');
   }
 }

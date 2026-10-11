@@ -1,4 +1,4 @@
-import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
+import { tsParticles } from '@tsparticles/engine';
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
@@ -9,6 +9,9 @@ import { SafeStorage } from './storage.js';
 import { Telemetry } from './telemetry.js';
 import { Diagnostics } from './diagnostics.js';
 import { TIMING } from './constants/ui.js';
+import { STORAGE_KEYS } from './constants/storage.js';
+import { applyComfortLimits } from './comfort.js';
+import { beginSceneTransition } from './sceneTransition.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
 export const applyAdvancedPreferences = (options) => {
@@ -63,6 +66,20 @@ export const applyAdvancedPreferences = (options) => {
       options.particles.links.opacity = Math.min(opacity, 0.4);
     }
   }
+};
+
+/**
+ * Engine-level options tsDice always sets, whatever the scene config says.
+ * - hdr: v4 renders in Display-P3 with HDR tone mapping on capable screens,
+ *   which brightens the curated palettes past normal white. Keep sRGB.
+ * - motion: the motion plugin freezes every particle (reduceFactor 0) when
+ *   the OS prefers reduced motion. tsDice instead announces a hint and lets
+ *   the user pause with Space (see main.js), so opt out of the freeze.
+ */
+export const applyEngineOverrides = (options) => {
+  if (!options) return;
+  options.hdr = false;
+  options.motion = { disable: false, reduce: { value: false } };
 };
 
 /**
@@ -171,6 +188,18 @@ export const buildConfig = (shuffleOptions) => {
   return newConfig;
 };
 
+const sceneListeners = new Set();
+
+/**
+ * Registers a callback run after each scene finishes loading.
+ * @param {(config: Object) => void} listener
+ * @returns {() => void} Unsubscribe
+ */
+export const onSceneLoaded = (listener) => {
+  sceneListeners.add(listener);
+  return () => sceneListeners.delete(listener);
+};
+
 /** Loads a given configuration into the tsParticles instance. */
 export const loadParticles = async (config) => {
   const previousConfig = AppState.particleState.currentConfig;
@@ -194,18 +223,32 @@ export const loadParticles = async (config) => {
     Telemetry.log('particles:load:slow', metrics);
   }, TIMING.PARTICLES_LOAD_HANG);
 
+  let transition = null;
   try {
     AppState.particleState.currentConfig = config;
-    SafeStorage.setItem('tsDiceLastConfig', JSON.stringify(config));
+    SafeStorage.setItem(STORAGE_KEYS.LAST_CONFIG, JSON.stringify(config));
+    SafeStorage.setItem(
+      STORAGE_KEYS.TOGGLE_STATE,
+      JSON.stringify({
+        isGravityOn: AppState.ui.isGravityOn,
+        areWallsOn: AppState.ui.areWallsOn,
+        isCursorParticle: AppState.ui.isCursorParticle,
+        originalOutModes: AppState.particleState.originalOutModes,
+        originalInteractionModes:
+          AppState.particleState.originalInteractionModes,
+      })
+    );
 
-    const containerEl = document.getElementById('tsparticles');
-    if (containerEl && AppState.ui.particlesContainer) {
-      containerEl.style.transition = 'opacity 0.2s ease';
-      containerEl.style.opacity = '0.3';
-    }
+    // Hold the current frame over the canvas while the new scene loads
+    transition = beginSceneTransition(AppState.ui.particlesContainer);
 
     const optionsWithAdvanced = JSON.parse(JSON.stringify(config));
     applyAdvancedPreferences(optionsWithAdvanced);
+    const comfortRules = applyComfortLimits(optionsWithAdvanced);
+    if (comfortRules.length > 0) {
+      Telemetry.log('comfort:limited', { rules: comfortRules });
+    }
+    applyEngineOverrides(optionsWithAdvanced);
 
     Diagnostics.markLoadStart(optionsWithAdvanced);
     AppState.ui.particlesContainer = await tsParticles.load({
@@ -213,20 +256,6 @@ export const loadParticles = async (config) => {
       options: optionsWithAdvanced,
     });
     Diagnostics.markLoadResolved();
-
-    // Workaround: in tsParticles 3.9.1, container.retina.reduceFactor can
-    // settle at 0 after load even though Retina.init() sets it to 1. When 0,
-    // the base mover multiplies every per-frame displacement by 0, so
-    // particles hold position while engine/velocity/interactivity look healthy.
-    if (AppState.ui.particlesContainer?.retina) {
-      AppState.ui.particlesContainer.retina.reduceFactor = 1;
-    }
-
-    if (containerEl) {
-      setTimeout(() => {
-        containerEl.style.opacity = '1';
-      }, 50);
-    }
 
     AppState.ui.isPaused = false;
     UIManager.syncUI();
@@ -241,6 +270,13 @@ export const loadParticles = async (config) => {
     });
 
     Diagnostics.scheduleProbe(config);
+    sceneListeners.forEach((listener) => {
+      try {
+        listener(config);
+      } catch (error) {
+        console.error('Scene listener failed:', error);
+      }
+    });
   } catch (error) {
     Diagnostics.markLoadResolved();
     console.error('Failed to load particles:', error);
@@ -250,9 +286,13 @@ export const loadParticles = async (config) => {
     if (previousConfig && Object.keys(previousConfig).length > 0) {
       AppState.particleState.currentConfig = previousConfig;
       try {
+        const recoveryOptions = JSON.parse(JSON.stringify(previousConfig));
+        applyAdvancedPreferences(recoveryOptions);
+        applyComfortLimits(recoveryOptions);
+        applyEngineOverrides(recoveryOptions);
         await tsParticles.load({
           id: 'tsparticles',
-          options: JSON.parse(JSON.stringify(previousConfig)),
+          options: recoveryOptions,
         });
         UIManager.showToast('Config error - restored previous state');
         UIManager.announce('Config error - restored previous state');
@@ -270,6 +310,8 @@ export const loadParticles = async (config) => {
   } finally {
     clearTimeout(loadingTimeout);
     clearTimeout(hangTimeout);
+    // Fade to whatever is now drawing: the new scene, or the restored one
+    transition?.reveal();
   }
 };
 
@@ -344,13 +386,15 @@ export const updateThemeAndReload = async () => {
     : THEME_BACKGROUNDS.LIGHT;
   // Rebuild the palette for the new theme. Preserve the existing palette size
   // so chaos-scaled variety is maintained across theme toggles.
-  const currentColor = config.particles.color?.value;
-  if (currentColor !== 'random') {
+  const fill = config.particles.paint?.fill;
+  const currentColor = fill?.color?.value;
+  if (fill && currentColor !== 'random') {
     const size = Array.isArray(currentColor) ? currentColor.length : 1;
-    config.particles.color.value = generatePalette(
-      size,
-      AppState.ui.isDarkMode
-    );
+    const palette = generatePalette(size, AppState.ui.isDarkMode);
+    fill.color = {
+      ...fill.color,
+      value: palette.length === 1 ? palette[0] : palette,
+    };
   }
   if (config.particles.links.enable) {
     config.particles.links.color.value = AppState.ui.isDarkMode

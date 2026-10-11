@@ -31,6 +31,7 @@ export default [
         AbortController: 'readonly',
         performance: 'readonly',
         KeyboardEvent: 'readonly',
+        HTMLCanvasElement: 'readonly',
         MouseEvent: 'readonly',
         // Node globals for tests
         process: 'readonly',

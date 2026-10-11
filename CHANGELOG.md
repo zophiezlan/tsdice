@@ -7,6 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Generative sound (prototype)
+
+- Sound (beta) switch in the Advanced tab, off by default: a soft pad and
+  chimes generated with the Web Audio API. The scene's main colour sets
+  the key, the theme sets major/minor pentatonic, chaos sets pace and
+  brightness, and taps on the scene play notes (pitch by height, pan by
+  position). Quiet master level behind a limiter, linear fades, soft
+  attacks, at most 4 tap notes a second, silent while paused or hidden.
+  No microphone
+
+### Added - Comfort layer
+
+- A short, warm "Hello" tab opens first in the info modal for new visitors
+  (draft copy, to be edited); returning visitors still land on their last
+  tab
+- Gentle drift (Advanced tab, off by default): once left alone for 90s,
+  the scene changes one aspect at a time through the cross-fade; any
+  activity restarts the wait, and the back arrow can return to every step
+- `js/comfort.js`: limits every scene stays within before it is drawn,
+  whatever its source (shuffle, undo, saved scene or someone else's share
+  link): particle count, speed and size caps; twinkle and opacity/colour
+  animation kept well under WCAG 2.3.1's three-flashes-a-second; collisions
+  only bounce and nothing self-destructs; only curated hover/click modes.
+  Limits sit at or above anything tsDice generates, so its own scenes are
+  unchanged (tested across every chaos level, toggle and Party Mode)
+- Push-clicks can no longer grow a scene past 300 particles
+- Holding an Alt shortcut fires it once instead of ~30 times a second
+- Scenes cross-fade over 0.65s (shuffles, undo/redo, theme, toggles)
+  instead of swapping instantly; replaces the 30% opacity dip and the
+  brightness burst on shuffle. Theme changes now ease between dark and
+  light rather than jumping
+
+### Changed - tsParticles v4
+
+- Particle size no longer grows with chaos: every level uses the same
+  1-8.5 range (chaos 5's), as does the hover bubble (20). Chaos means more
+  and busier, not bigger; big particles just make the screen feel small.
+  Older share links with larger particles are drawn at most 8.5
+- The "absorb" click mode, which never matched a real tsParticles mode and so
+  did nothing, is now a 1.2s click-attract that gathers nearby particles
+  into a soft ring and lets them go; old share links get it too
+- Link triangles now favour calm scenes: 30% of linked scenes at chaos 1-4,
+  fading out by chaos 8 (previously they grew more likely with chaos, which
+  made dense scenes busy and slow)
+- Spiral and infinity shapes only appear at chaos 6+, featuring in 5% of
+  shuffles at chaos 6 rising to 30% at chaos 10
+- Browsers without OffscreenCanvas (iOS/Safari before 16.4) get a small
+  shim so v4 still draws; if the engine still can't start, a friendly
+  "browser is a little too old" screen replaces a blank page
+- Upgraded tsParticles 3.9.1 → 4.4.0, now installed from npm and bundled by
+  Vite instead of loaded from jsDelivr
+- Particle colour and outline moved to v4's `particles.paint.fill` /
+  `particles.paint.stroke` (v4 ignores the old keys and draws white)
+- Share links and saved scenes from before the upgrade are converted to the
+  v4 layout on load (`js/configMigration.js`), so existing my.ket.horse links
+  keep their colours
+- HDR / Display-P3 rendering is turned off so scenes keep their curated
+  colours on HDR screens
+- The reduced-motion freeze is now switched off through the motion plugin's
+  options instead of resetting `retina.reduceFactor` after every load
+- Black-screen diagnostics read pixels from v4's OffscreenCanvas
+
+### Fixed - Maintenance
+
+- Advanced settings (battery saver, auto-pause, gentle drift) now survive a
+  page refresh; they were saved but never read back
+- Alt keyboard shortcuts now work on macOS (matched on the physical key, so
+  Option+A no longer arrives as "å"), and unmapped Alt combos are no longer
+  swallowed, so browser and OS shortcuts keep working
+- Shortcuts and Enter/Space no longer activate disabled buttons, and repeat
+  share requests are ignored while one is in flight
+- Refreshing the page restores the gravity, walls and cursor toggles the
+  saved scene was built with, instead of showing them off over a scene that
+  still has them applied
+- Shared links with the cursor effect on now remember the hover effect it
+  replaced
+- Undoing Party Mode (Konami code) restores the previous scene
+- An invalid share link no longer leaves a stray "#" in the address bar
+
 ### Added - Phase 3 (Architecture Integration)
 
 - Integrated ErrorHandler into main.js for centralized error handling

@@ -8,6 +8,7 @@ import {
 } from './utils.js';
 import {
   shapeOptions,
+  intenseShapeOptions,
   directionOptions,
   hoverModeOptions,
   safeClickModes,
@@ -16,7 +17,45 @@ import {
 import { PARTICLE_CONFIG } from './constants/particles.js';
 import { generatePalette } from './palette.js';
 
-const { MIN_POLYGON_SIDES, MAX_POLYGON_SIDES } = PARTICLE_CONFIG;
+const {
+  MIN_POLYGON_SIDES,
+  MAX_POLYGON_SIDES,
+  INTENSE_SHAPE_MIN_CHAOS,
+  INTENSE_SHAPE_MIN_PROB,
+  INTENSE_SHAPE_MAX_PROB,
+} = PARTICLE_CONFIG;
+
+/**
+ * Chance that a linked scene fills its link triangles: 30% at chaos 1-4,
+ * fading to 0 at chaos 8 and above.
+ * @param {number} chaosLevel - Chaos level (1-10)
+ * @returns {number} Probability between 0 and 1
+ */
+export const getTriangleProbability = (chaosLevel) => {
+  const { TRIANGLE_MAX_PROB, TRIANGLE_FADE_START, TRIANGLE_OFF_AT } =
+    PARTICLE_CONFIG;
+  if (chaosLevel <= TRIANGLE_FADE_START) return TRIANGLE_MAX_PROB;
+  if (chaosLevel >= TRIANGLE_OFF_AT) return 0;
+  return (
+    (TRIANGLE_MAX_PROB * (TRIANGLE_OFF_AT - chaosLevel)) /
+    (TRIANGLE_OFF_AT - TRIANGLE_FADE_START)
+  );
+};
+
+/**
+ * Chance that a shuffle features spiral/infinity: 0 below chaos 6, then
+ * 5% at chaos 6 rising linearly to 30% at chaos 10.
+ * @param {number} chaosLevel - Chaos level (1-10)
+ * @returns {number} Probability between 0 and 1
+ */
+export const getIntenseShapeProbability = (chaosLevel) => {
+  if (chaosLevel < INTENSE_SHAPE_MIN_CHAOS) return 0;
+  const t = Math.min(1, (chaosLevel - INTENSE_SHAPE_MIN_CHAOS) / 4);
+  return (
+    INTENSE_SHAPE_MIN_PROB +
+    t * (INTENSE_SHAPE_MAX_PROB - INTENSE_SHAPE_MIN_PROB)
+  );
+};
 
 /**
  * @description Encapsulates all logic for generating random particle configurations.
@@ -25,7 +64,7 @@ const { MIN_POLYGON_SIDES, MAX_POLYGON_SIDES } = PARTICLE_CONFIG;
  */
 export const ConfigGenerator = {
   /**
-   * Generates appearance configuration (colors, shapes, opacity, size, stroke)
+   * Generates appearance configuration (paint, shapes, opacity, size)
    * @param {Object} [options] - Optional parameters for pure function behavior
    * @param {number} [options.chaosLevel] - Chaos level (1-10), defaults to AppState
    * @param {boolean} [options.isDarkMode] - Theme mode, defaults to AppState
@@ -54,6 +93,12 @@ export const ConfigGenerator = {
 
     const palette = generatePalette(paletteSize, isDarkMode);
     const shapeSubset = getRandomSubset(shapeOptions, shapeSubsetSize);
+    // Spiral/infinity swap in for one shape of the scene (or become the
+    // whole scene when it is single-shape), and only at chaos 6+.
+    if (getRandomBool(getIntenseShapeProbability(chaosLevel))) {
+      const slot = Math.floor(getRandomInRange(0, shapeSubset.length));
+      shapeSubset[slot] = getRandomItem(intenseShapeOptions);
+    }
 
     const shapeOpts = {};
     if (shapeSubset.includes('polygon')) {
@@ -84,17 +129,22 @@ export const ConfigGenerator = {
     // Unwrap single-element arrays so tsParticles sees a plain value — avoids
     // the reduceDuplicates machinery churning for nothing at low chaos.
     const appearance = {
-      color: { value: palette.length === 1 ? palette[0] : palette },
+      paint: {
+        fill: {
+          enable: true,
+          color: { value: palette.length === 1 ? palette[0] : palette },
+        },
+        stroke: {
+          width: getRandomBool(getChaosProbability(0.5, chaosLevel))
+            ? getRandomInRange(1, 4)
+            : 0,
+          color: { value: 'random' },
+        },
+      },
       shape: { type: shapeSubset.length === 1 ? shapeSubset[0] : shapeSubset },
       opacity: { value: { min: 0.3, max: 1 } },
       size: {
-        value: { min: 1, max: 1 + chaosLevel * 1.5 },
-      },
-      stroke: {
-        width: getRandomBool(getChaosProbability(0.5, chaosLevel))
-          ? getRandomInRange(1, 4)
-          : 0,
-        color: { value: 'random' },
+        value: { ...PARTICLE_CONFIG.PARTICLE_SIZE },
       },
       reduceDuplicates: useShapeArray || useColorArray,
     };
@@ -173,7 +223,7 @@ export const ConfigGenerator = {
         push: { quantity: chaosLevel },
         bubble: {
           distance: 100 + chaosLevel * 15,
-          size: 10 + chaosLevel * 2,
+          size: PARTICLE_CONFIG.BUBBLE_SIZE,
           duration: 2,
         },
         parallax: {
@@ -186,10 +236,11 @@ export const ConfigGenerator = {
         connect: { radius: 225 },
         remove: { quantity: chaosLevel },
         trail: { delay: 0.05, quantity: 1 },
-        absorb: { speed: 2 + chaosLevel },
         attract: {
           distance: 200,
           speed: chaosLevel / 2,
+          // How long a click keeps pulling (hover attract ignores this)
+          duration: 1.2,
         },
       },
     };
@@ -250,8 +301,10 @@ export const ConfigGenerator = {
         color: { value: isDarkMode ? '#ffffff' : '#333333' },
         opacity: 0.4,
         width: 1,
+        // Triangles suit calm, sparse scenes; at high particle counts they
+        // stack into busy white slabs and cost a lot of frame time.
         triangles: {
-          enable: getRandomBool(getChaosProbability(0.3, chaosLevel)),
+          enable: getRandomBool(getTriangleProbability(chaosLevel)),
         },
       },
       destroy: currentFx.destroy || { mode: 'none' },

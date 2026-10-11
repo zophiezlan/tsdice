@@ -1,6 +1,34 @@
 import { BUTTON_IDS } from './constants.js';
 import { ModalManager } from './modalManager.js';
 
+/** Alt+key shortcuts, keyed by `KeyboardEvent.code` (physical key). */
+const ALT_SHORTCUTS = {
+  KeyM: BUTTON_IDS.MAIN_MENU,
+  KeyA: BUTTON_IDS.SHUFFLE_ALL,
+  KeyP: BUTTON_IDS.SHUFFLE_APPEARANCE,
+  KeyV: BUTTON_IDS.SHUFFLE_MOVEMENT,
+  KeyI: BUTTON_IDS.SHUFFLE_INTERACTION,
+  KeyF: BUTTON_IDS.SHUFFLE_FX,
+  KeyG: BUTTON_IDS.GRAVITY,
+  KeyW: BUTTON_IDS.WALLS,
+  KeyT: BUTTON_IDS.THEME,
+  KeyC: BUTTON_IDS.CURSOR,
+  KeyS: BUTTON_IDS.SHARE,
+  Slash: BUTTON_IDS.INFO,
+  KeyR: BUTTON_IDS.REFRESH,
+  KeyZ: BUTTON_IDS.BACK,
+  KeyY: BUTTON_IDS.FORWARD,
+};
+
+/**
+ * Buttons are disabled with a `disabled` class (CSS `pointer-events: none`),
+ * which blocks the mouse but not programmatic `.click()`.
+ */
+export const isButtonDisabled = (button) =>
+  button.disabled ||
+  button.classList.contains('disabled') ||
+  button.getAttribute('aria-disabled') === 'true';
+
 /**
  * Initialise global keyboard shortcuts.
  * Space toggles pause when menu is closed, Esc closes modals,
@@ -34,34 +62,22 @@ export function initKeyboardShortcuts(menuContainer) {
       return;
     }
 
-    // Alt+key shortcuts (only when not typing)
+    // Alt+key shortcuts (only when not typing). Match on the physical key
+    // (`e.code`) rather than `e.key`: on macOS, Option+A produces "å", so
+    // `e.key` never matches a letter.
     if (e.altKey && !e.ctrlKey && !e.metaKey && !isTyping) {
-      e.preventDefault();
-      const btnId = {
-        m: BUTTON_IDS.MAIN_MENU,
-        a: BUTTON_IDS.SHUFFLE_ALL,
-        p: BUTTON_IDS.SHUFFLE_APPEARANCE,
-        v: BUTTON_IDS.SHUFFLE_MOVEMENT,
-        i: BUTTON_IDS.SHUFFLE_INTERACTION,
-        f: BUTTON_IDS.SHUFFLE_FX,
-        g: BUTTON_IDS.GRAVITY,
-        w: BUTTON_IDS.WALLS,
-        t: BUTTON_IDS.THEME,
-        c: BUTTON_IDS.CURSOR,
-        s: BUTTON_IDS.SHARE,
-        '?': BUTTON_IDS.INFO,
-        r: BUTTON_IDS.REFRESH,
-        z: BUTTON_IDS.BACK,
-        y: BUTTON_IDS.FORWARD,
-      }[e.key.toLowerCase()];
+      const btnId = ALT_SHORTCUTS[e.code];
+      if (!btnId) return; // leave browser/OS Alt shortcuts alone
 
-      if (btnId) {
-        const button = document.getElementById(btnId);
-        if (button) {
-          button.classList.add('keyboard-press');
-          setTimeout(() => button.classList.remove('keyboard-press'), 150);
-          button.click();
-        }
+      e.preventDefault();
+      // One press, one action: a held key would otherwise reshuffle the
+      // whole scene ~30 times a second.
+      if (e.repeat) return;
+      const button = document.getElementById(btnId);
+      if (button && !isButtonDisabled(button)) {
+        button.classList.add('keyboard-press');
+        setTimeout(() => button.classList.remove('keyboard-press'), 150);
+        button.click();
       }
     }
   });

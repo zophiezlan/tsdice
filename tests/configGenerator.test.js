@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ConfigGenerator } from '../js/configGenerator.js';
+import {
+  ConfigGenerator,
+  getIntenseShapeProbability,
+  getTriangleProbability,
+} from '../js/configGenerator.js';
 import { AppState } from '../js/state.js';
+import * as ATTRACT_CONSTANTS from '../js/constants/particles.js';
 
 describe('ConfigGenerator', () => {
   beforeEach(() => {
@@ -13,11 +18,12 @@ describe('ConfigGenerator', () => {
     it('should generate valid appearance configuration', () => {
       const appearance = ConfigGenerator.generateAppearance();
 
-      expect(appearance).toHaveProperty('color');
+      expect(appearance).toHaveProperty('paint.fill.color');
+      expect(appearance).not.toHaveProperty('color');
       expect(appearance).toHaveProperty('shape');
       expect(appearance).toHaveProperty('opacity');
       expect(appearance).toHaveProperty('size');
-      expect(appearance).toHaveProperty('stroke');
+      expect(appearance).toHaveProperty('paint.stroke');
     });
 
     it('should emit hex colour strings in dark mode', () => {
@@ -28,9 +34,9 @@ describe('ConfigGenerator', () => {
       );
 
       appearances.forEach((a) => {
-        const values = Array.isArray(a.color.value)
-          ? a.color.value
-          : [a.color.value];
+        const values = Array.isArray(a.paint.fill.color.value)
+          ? a.paint.fill.color.value
+          : [a.paint.fill.color.value];
         values.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
       });
     });
@@ -43,9 +49,9 @@ describe('ConfigGenerator', () => {
       );
 
       appearances.forEach((a) => {
-        const values = Array.isArray(a.color.value)
-          ? a.color.value
-          : [a.color.value];
+        const values = Array.isArray(a.paint.fill.color.value)
+          ? a.paint.fill.color.value
+          : [a.paint.fill.color.value];
         values.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
       });
     });
@@ -57,7 +63,7 @@ describe('ConfigGenerator', () => {
       );
 
       appearances.forEach((a) => {
-        expect(Array.isArray(a.color.value)).toBe(false);
+        expect(Array.isArray(a.paint.fill.color.value)).toBe(false);
         expect(Array.isArray(a.shape.type)).toBe(false);
         expect(a.reduceDuplicates).toBe(false);
       });
@@ -73,7 +79,7 @@ describe('ConfigGenerator', () => {
         Array.isArray(a.shape.type)
       );
       const colorArrays = appearances.filter((a) =>
-        Array.isArray(a.color.value)
+        Array.isArray(a.paint.fill.color.value)
       );
 
       // Shape variety gated at chaos/20 = 50% at chaos 10.
@@ -104,19 +110,25 @@ describe('ConfigGenerator', () => {
 
       appearances.forEach((a) => {
         const hasArray =
-          Array.isArray(a.color.value) || Array.isArray(a.shape.type);
+          Array.isArray(a.paint.fill.color.value) ||
+          Array.isArray(a.shape.type);
         expect(a.reduceDuplicates).toBe(hasArray);
       });
     });
 
-    it('should scale size with chaos level', () => {
-      AppState.particleState.chaosLevel = 1;
-      const lowChaos = ConfigGenerator.generateAppearance();
-
-      AppState.particleState.chaosLevel = 10;
-      const highChaos = ConfigGenerator.generateAppearance();
-
-      expect(highChaos.size.value.max).toBeGreaterThan(lowChaos.size.value.max);
+    it('keeps the same size range at every chaos level', () => {
+      for (let chaos = 1; chaos <= 10; chaos++) {
+        AppState.particleState.chaosLevel = chaos;
+        expect(ConfigGenerator.generateAppearance().size.value).toEqual({
+          min: 1,
+          max: 8.5,
+        });
+        const { bubble } = ConfigGenerator.generateInteraction({
+          chaosLevel: chaos,
+          skipStateUpdate: true,
+        }).modes;
+        expect(bubble.size).toBe(20);
+      }
     });
 
     it('should include polygon sides when polygon is in the shape subset', () => {
@@ -175,6 +187,36 @@ describe('ConfigGenerator', () => {
       });
     });
 
+    it('keeps spiral and infinity out below chaos 6', () => {
+      for (let chaos = 1; chaos <= 5; chaos++) {
+        AppState.particleState.chaosLevel = chaos;
+        for (let i = 0; i < 200; i++) {
+          const t = ConfigGenerator.generateAppearance().shape.type;
+          const types = Array.isArray(t) ? t : [t];
+          expect(types).not.toContain('spiral');
+          expect(types).not.toContain('infinity');
+        }
+      }
+    });
+
+    it('features spiral/infinity 5% at chaos 6 rising to 30% at chaos 10', () => {
+      expect(getIntenseShapeProbability(5)).toBe(0);
+      expect(getIntenseShapeProbability(6)).toBeCloseTo(0.05);
+      expect(getIntenseShapeProbability(8)).toBeCloseTo(0.175);
+      expect(getIntenseShapeProbability(10)).toBeCloseTo(0.3);
+
+      AppState.particleState.chaosLevel = 10;
+      const runs = 4000;
+      let featured = 0;
+      for (let i = 0; i < runs; i++) {
+        const t = ConfigGenerator.generateAppearance().shape.type;
+        const types = Array.isArray(t) ? t : [t];
+        if (types.includes('spiral') || types.includes('infinity')) featured++;
+      }
+      expect(featured / runs).toBeGreaterThan(0.25);
+      expect(featured / runs).toBeLessThan(0.35);
+    });
+
     it('should never use character/emoji shape', () => {
       const appearances = Array.from({ length: 100 }, () =>
         ConfigGenerator.generateAppearance()
@@ -200,7 +242,7 @@ describe('ConfigGenerator', () => {
         ConfigGenerator.generateAppearance()
       );
 
-      const withStroke = appearances.filter((a) => a.stroke.width > 0);
+      const withStroke = appearances.filter((a) => a.paint.stroke.width > 0);
       expect(withStroke.length).toBeGreaterThan(0);
     });
   });
@@ -344,8 +386,53 @@ describe('ConfigGenerator', () => {
       expect(interaction.modes).toHaveProperty('connect');
       expect(interaction.modes).toHaveProperty('remove');
       expect(interaction.modes).toHaveProperty('trail');
-      expect(interaction.modes).toHaveProperty('absorb');
       expect(interaction.modes).toHaveProperty('attract');
+      expect(interaction.modes).not.toHaveProperty('absorb');
+      expect(interaction.modes).toHaveProperty('attract');
+    });
+  });
+
+  describe('link triangles', () => {
+    it('favour low chaos and never appear at chaos 8+', () => {
+      expect(getTriangleProbability(1)).toBeCloseTo(0.3);
+      expect(getTriangleProbability(4)).toBeCloseTo(0.3);
+      expect(getTriangleProbability(6)).toBeCloseTo(0.15);
+      expect(getTriangleProbability(8)).toBe(0);
+      expect(getTriangleProbability(10)).toBe(0);
+
+      for (let i = 0; i < 500; i++) {
+        const { links } = ConfigGenerator.generateSpecialFX(
+          {},
+          { chaosLevel: 9 }
+        );
+        expect(links.triangles.enable).toBe(false);
+      }
+
+      const runs = 4000;
+      let withTriangles = 0;
+      for (let i = 0; i < runs; i++) {
+        const { links } = ConfigGenerator.generateSpecialFX(
+          {},
+          { chaosLevel: 2 }
+        );
+        if (links.triangles.enable) withTriangles++;
+      }
+      expect(withTriangles / runs).toBeGreaterThan(0.25);
+      expect(withTriangles / runs).toBeLessThan(0.35);
+    });
+  });
+
+  describe('attract click mode', () => {
+    it('replaces the dead absorb mode with a timed click-attract', () => {
+      const { safeClickModes } = ATTRACT_CONSTANTS;
+      expect(safeClickModes).toContain('attract');
+      expect(safeClickModes).not.toContain('absorb');
+
+      const { attract } = ConfigGenerator.generateInteraction({
+        chaosLevel: 5,
+        skipStateUpdate: true,
+      }).modes;
+      expect(attract.duration).toBeGreaterThan(0);
     });
   });
 
