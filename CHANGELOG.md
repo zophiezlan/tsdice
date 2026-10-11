@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Generative sound (prototype)
+
+- Sound (beta) switch in the Advanced tab, off by default: a soft pad and
+  chimes generated with the Web Audio API. The scene's main colour sets
+  the key, the theme sets major/minor pentatonic, chaos sets pace and
+  brightness, and taps on the scene play notes (pitch by height, pan by
+  position). Quiet master level behind a limiter, linear fades, soft
+  attacks, at most 4 tap notes a second, silent while paused or hidden.
+  No microphone
+
 ### Added - Comfort layer
 
 - A short, warm "Hello" tab opens first in the info modal for new visitors

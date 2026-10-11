@@ -20,6 +20,7 @@ import {
   applyWallsMode,
   applyGravityMode,
   updateThemeAndReload,
+  onSceneLoaded,
 } from './particlesService.js';
 import {
   initKeyboardShortcuts,
@@ -39,6 +40,7 @@ import {
 } from './configLoader.js';
 import { setupInfoModalTabs } from './infoModalManager.js';
 import { createDrift } from './drift.js';
+import { createSoundController } from './sound/soundController.js';
 
 // Dev-only: expose key state on window for debugging in the console.
 // `import.meta.env.DEV` is replaced at build time by Vite, so this block
@@ -324,6 +326,7 @@ if (import.meta.env?.DEV) {
           StateManager.dispatch(Actions.togglePause());
           if (AppState.ui.isPaused) container.pause();
           else container.play();
+          sound.onPauseChange();
           UIManager.syncUI();
           const pauseMessage = AppState.ui.isPaused
             ? 'Animation paused'
@@ -398,10 +401,14 @@ if (import.meta.env?.DEV) {
         enabled: 'Gentle drift on',
         disabled: 'Gentle drift off',
       },
+      sound: {
+        enabled: 'Sound on',
+        disabled: 'Sound off',
+      },
     };
 
     // Settings that don't change how the current scene is drawn
-    const noReload = new Set(['gentleDrift']);
+    const noReload = new Set(['gentleDrift', 'sound']);
 
     const syncToggleStates = () => {
       toggleInputs.forEach((input) => {
@@ -433,6 +440,8 @@ if (import.meta.env?.DEV) {
         }
         Telemetry.log('advanced_setting', { key, value: input.checked });
         drift?.restart();
+        // The switch's change event is the gesture browsers need to start audio
+        if (key === 'sound') sound.setEnabled(input.checked);
         if (!noReload.has(key)) await reloadIfReady();
       });
     });
@@ -445,6 +454,7 @@ if (import.meta.env?.DEV) {
         UIManager.announce('Advanced settings restored');
         Telemetry.log('advanced_setting_reset');
         drift?.restart();
+        sound.setEnabled(AppState.advanced.sound);
         await reloadIfReady();
       });
     }
@@ -466,6 +476,21 @@ if (import.meta.env?.DEV) {
       });
     }
   };
+
+  // --- SOUND (beta) ---
+  const sound = createSoundController({
+    getScene: () => ({
+      config: AppState.particleState.currentConfig,
+      chaosLevel: AppState.particleState.chaosLevel,
+      isDarkMode: AppState.ui.isDarkMode,
+    }),
+    isPaused: () => AppState.ui.isPaused,
+  });
+  onSceneLoaded(() => sound.onSceneChange());
+  // Taps on the scene itself (not the menu or modals) play notes
+  document.addEventListener('pointerdown', (e) => {
+    if (e.target.closest?.('#tsparticles')) sound.onTap(e.clientX, e.clientY);
+  });
 
   // --- GENTLE DRIFT ---
   // Created after the first scene loads (see initialisation below).
@@ -640,6 +665,8 @@ if (import.meta.env?.DEV) {
 
   UIManager.syncUI();
   startDrift();
+  // Sound left on from a previous visit waits, silent, for the first tap
+  if (AppState.advanced.sound) sound.setEnabled(true);
 
   // Start a minimal inline quick-start unless already completed.
   const quickStartDone = SafeStorage.getItem(STORAGE_KEYS.QUICKSTART_DONE);

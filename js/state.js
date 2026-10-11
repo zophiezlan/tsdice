@@ -6,6 +6,7 @@ export const DEFAULT_ADVANCED_SETTINGS = {
   autoPauseHidden: false,
   batterySaverMode: false,
   gentleDrift: false,
+  sound: false,
 };
 
 export const AppState = {

@@ -188,6 +188,18 @@ export const buildConfig = (shuffleOptions) => {
   return newConfig;
 };
 
+const sceneListeners = new Set();
+
+/**
+ * Registers a callback run after each scene finishes loading.
+ * @param {(config: Object) => void} listener
+ * @returns {() => void} Unsubscribe
+ */
+export const onSceneLoaded = (listener) => {
+  sceneListeners.add(listener);
+  return () => sceneListeners.delete(listener);
+};
+
 /** Loads a given configuration into the tsParticles instance. */
 export const loadParticles = async (config) => {
   const previousConfig = AppState.particleState.currentConfig;
@@ -258,6 +270,13 @@ export const loadParticles = async (config) => {
     });
 
     Diagnostics.scheduleProbe(config);
+    sceneListeners.forEach((listener) => {
+      try {
+        listener(config);
+      } catch (error) {
+        console.error('Scene listener failed:', error);
+      }
+    });
   } catch (error) {
     Diagnostics.markLoadResolved();
     console.error('Failed to load particles:', error);
