@@ -89,6 +89,20 @@ describe('migrateV3Config', () => {
     });
   });
 
+  it("turns tsDice's dead absorb click mode into attract", () => {
+    const config = {
+      particles: {},
+      interactivity: {
+        events: { onClick: { enable: true, mode: 'absorb' } },
+        modes: { absorb: { speed: 7 }, attract: { distance: 200 } },
+      },
+    };
+    migrateV3Config(config);
+    expect(config.interactivity.events.onClick.mode).toBe('attract');
+    expect(config.interactivity.modes).not.toHaveProperty('absorb');
+    expect(config.interactivity.modes.attract).toEqual({ distance: 200 });
+  });
+
   it('ignores non-object input', () => {
     expect(migrateV3Config(null)).toBe(null);
     expect(migrateV3Config('x')).toBe('x');

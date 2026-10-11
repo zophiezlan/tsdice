@@ -1,3 +1,5 @@
+// Must run before tsParticles creates its canvas (old iOS has no OffscreenCanvas)
+import './compat.js';
 import { tsParticles } from '@tsparticles/engine';
 import { loadAll } from '@tsparticles/all';
 import { AppState } from './state.js';
@@ -584,11 +586,23 @@ if (import.meta.env?.DEV) {
     AppState.particleState.initialConfigFromUrl || initialConfigFromStorage;
 
   // If no saved or URL config, generate a fresh random shuffle
+  let freshConfig = null;
   if (!configToLoad) {
-    configToLoad = buildConfig({ all: true });
+    freshConfig = buildConfig({ all: true });
+    configToLoad = freshConfig;
   }
 
   await loadParticles(configToLoad);
+
+  // A saved or shared scene that fails to load gets one fresh shuffle; if
+  // even that fails, the browser can't run the engine.
+  if (!AppState.ui.particlesContainer && configToLoad !== freshConfig) {
+    await loadParticles(buildConfig({ all: true }));
+  }
+  if (!AppState.ui.particlesContainer) {
+    ErrorHandler.createFatalErrorUI(ErrorType.BROWSER_UNSUPPORTED);
+    return;
+  }
 
   UIManager.syncUI();
 

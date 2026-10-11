@@ -10,6 +10,7 @@ import { Telemetry } from './telemetry.js';
  */
 export const ErrorType = {
   LIBRARY_LOAD: 'LIBRARY_LOAD',
+  BROWSER_UNSUPPORTED: 'BROWSER_UNSUPPORTED',
   CONFIG_INVALID: 'CONFIG_INVALID',
   PARTICLES_LOAD: 'PARTICLES_LOAD',
   SHARE_FAILED: 'SHARE_FAILED',
@@ -26,6 +27,12 @@ const ERROR_MESSAGES = {
     title: 'Failed to Load Particle Engine',
     message:
       'Unable to initialize tsParticles. Please check your internet connection and refresh the page.',
+    recoverable: false,
+  },
+  [ErrorType.BROWSER_UNSUPPORTED]: {
+    title: 'This browser is a little too old',
+    message:
+      'tsDice needs a newer browser to draw its particles. Updating your device, or opening this page in a recent Chrome, Firefox or Safari, should do it.',
     recoverable: false,
   },
   [ErrorType.CONFIG_INVALID]: {

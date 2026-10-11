@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ConfigGenerator } from '../js/configGenerator.js';
+import {
+  ConfigGenerator,
+  getIntenseShapeProbability,
+} from '../js/configGenerator.js';
 import { AppState } from '../js/state.js';
+import * as ATTRACT_CONSTANTS from '../js/constants/particles.js';
 
 describe('ConfigGenerator', () => {
   beforeEach(() => {
@@ -177,6 +181,36 @@ describe('ConfigGenerator', () => {
       });
     });
 
+    it('keeps spiral and infinity out below chaos 6', () => {
+      for (let chaos = 1; chaos <= 5; chaos++) {
+        AppState.particleState.chaosLevel = chaos;
+        for (let i = 0; i < 200; i++) {
+          const t = ConfigGenerator.generateAppearance().shape.type;
+          const types = Array.isArray(t) ? t : [t];
+          expect(types).not.toContain('spiral');
+          expect(types).not.toContain('infinity');
+        }
+      }
+    });
+
+    it('features spiral/infinity 5% at chaos 6 rising to 30% at chaos 10', () => {
+      expect(getIntenseShapeProbability(5)).toBe(0);
+      expect(getIntenseShapeProbability(6)).toBeCloseTo(0.05);
+      expect(getIntenseShapeProbability(8)).toBeCloseTo(0.175);
+      expect(getIntenseShapeProbability(10)).toBeCloseTo(0.3);
+
+      AppState.particleState.chaosLevel = 10;
+      const runs = 4000;
+      let featured = 0;
+      for (let i = 0; i < runs; i++) {
+        const t = ConfigGenerator.generateAppearance().shape.type;
+        const types = Array.isArray(t) ? t : [t];
+        if (types.includes('spiral') || types.includes('infinity')) featured++;
+      }
+      expect(featured / runs).toBeGreaterThan(0.25);
+      expect(featured / runs).toBeLessThan(0.35);
+    });
+
     it('should never use character/emoji shape', () => {
       const appearances = Array.from({ length: 100 }, () =>
         ConfigGenerator.generateAppearance()
@@ -346,8 +380,40 @@ describe('ConfigGenerator', () => {
       expect(interaction.modes).toHaveProperty('connect');
       expect(interaction.modes).toHaveProperty('remove');
       expect(interaction.modes).toHaveProperty('trail');
-      expect(interaction.modes).toHaveProperty('absorb');
       expect(interaction.modes).toHaveProperty('attract');
+      expect(interaction.modes).not.toHaveProperty('absorb');
+      expect(interaction.modes).toHaveProperty('attract');
+    });
+  });
+
+  describe('link triangles', () => {
+    it('draw half the triangles and roll at most 40% of linked scenes', () => {
+      const runs = 4000;
+      let withTriangles = 0;
+      for (let i = 0; i < runs; i++) {
+        const { links } = ConfigGenerator.generateSpecialFX(
+          {},
+          { chaosLevel: 10 }
+        );
+        expect(links.triangles.frequency).toBe(0.5);
+        if (links.triangles.enable) withTriangles++;
+      }
+      expect(withTriangles / runs).toBeGreaterThan(0.35);
+      expect(withTriangles / runs).toBeLessThan(0.45);
+    });
+  });
+
+  describe('attract click mode', () => {
+    it('replaces the dead absorb mode with a timed click-attract', () => {
+      const { safeClickModes } = ATTRACT_CONSTANTS;
+      expect(safeClickModes).toContain('attract');
+      expect(safeClickModes).not.toContain('absorb');
+
+      const { attract } = ConfigGenerator.generateInteraction({
+        chaosLevel: 5,
+        skipStateUpdate: true,
+      }).modes;
+      expect(attract.duration).toBeGreaterThan(0);
     });
   });
 

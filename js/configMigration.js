@@ -15,6 +15,8 @@ const isObject = (value) =>
  * - `particles.color`  → `particles.paint.fill` ({ enable, color })
  * - `particles.stroke` → `particles.paint.stroke`
  * - `interactivity.events.resize` → `resize`
+ * - tsDice's old `absorb` click mode (never a real mode, so the click did
+ *   nothing) → `attract`, the gentle pull it was meant to be
  * Already-converted configs pass through unchanged.
  *
  * @param {Object} config - A tsParticles options object
@@ -45,6 +47,15 @@ export const migrateV3Config = (config) => {
     }
     delete events.resize;
   }
+
+  const onClick = config.interactivity?.events?.onClick;
+  if (isObject(onClick)) {
+    if (onClick.mode === 'absorb') onClick.mode = 'attract';
+    else if (Array.isArray(onClick.mode)) {
+      onClick.mode = onClick.mode.map((m) => (m === 'absorb' ? 'attract' : m));
+    }
+  }
+  delete config.interactivity?.modes?.absorb;
 
   return config;
 };

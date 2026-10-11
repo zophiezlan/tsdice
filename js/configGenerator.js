@@ -8,6 +8,7 @@ import {
 } from './utils.js';
 import {
   shapeOptions,
+  intenseShapeOptions,
   directionOptions,
   hoverModeOptions,
   safeClickModes,
@@ -16,7 +17,28 @@ import {
 import { PARTICLE_CONFIG } from './constants/particles.js';
 import { generatePalette } from './palette.js';
 
-const { MIN_POLYGON_SIDES, MAX_POLYGON_SIDES } = PARTICLE_CONFIG;
+const {
+  MIN_POLYGON_SIDES,
+  MAX_POLYGON_SIDES,
+  INTENSE_SHAPE_MIN_CHAOS,
+  INTENSE_SHAPE_MIN_PROB,
+  INTENSE_SHAPE_MAX_PROB,
+} = PARTICLE_CONFIG;
+
+/**
+ * Chance that a shuffle features spiral/infinity: 0 below chaos 6, then
+ * 5% at chaos 6 rising linearly to 30% at chaos 10.
+ * @param {number} chaosLevel - Chaos level (1-10)
+ * @returns {number} Probability between 0 and 1
+ */
+export const getIntenseShapeProbability = (chaosLevel) => {
+  if (chaosLevel < INTENSE_SHAPE_MIN_CHAOS) return 0;
+  const t = Math.min(1, (chaosLevel - INTENSE_SHAPE_MIN_CHAOS) / 4);
+  return (
+    INTENSE_SHAPE_MIN_PROB +
+    t * (INTENSE_SHAPE_MAX_PROB - INTENSE_SHAPE_MIN_PROB)
+  );
+};
 
 /**
  * @description Encapsulates all logic for generating random particle configurations.
@@ -54,6 +76,12 @@ export const ConfigGenerator = {
 
     const palette = generatePalette(paletteSize, isDarkMode);
     const shapeSubset = getRandomSubset(shapeOptions, shapeSubsetSize);
+    // Spiral/infinity swap in for one shape of the scene (or become the
+    // whole scene when it is single-shape), and only at chaos 6+.
+    if (getRandomBool(getIntenseShapeProbability(chaosLevel))) {
+      const slot = Math.floor(getRandomInRange(0, shapeSubset.length));
+      shapeSubset[slot] = getRandomItem(intenseShapeOptions);
+    }
 
     const shapeOpts = {};
     if (shapeSubset.includes('polygon')) {
@@ -191,10 +219,11 @@ export const ConfigGenerator = {
         connect: { radius: 225 },
         remove: { quantity: chaosLevel },
         trail: { delay: 0.05, quantity: 1 },
-        absorb: { speed: 2 + chaosLevel },
         attract: {
           distance: 200,
           speed: chaosLevel / 2,
+          // How long a click keeps pulling (hover attract ignores this)
+          duration: 1.2,
         },
       },
     };
@@ -255,8 +284,12 @@ export const ConfigGenerator = {
         color: { value: isDarkMode ? '#ffffff' : '#333333' },
         opacity: 0.4,
         width: 1,
+        // Filled triangles stack into bright slabs. Rolled less often than
+        // before (20% at chaos 5, 40% at 10, of linked scenes) and only half
+        // of the possible triangles are drawn; each keeps its distance fade.
         triangles: {
-          enable: getRandomBool(getChaosProbability(0.3, chaosLevel)),
+          enable: getRandomBool(getChaosProbability(0.2, chaosLevel)),
+          frequency: 0.5,
         },
       },
       destroy: currentFx.destroy || { mode: 'none' },

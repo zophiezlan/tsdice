@@ -15,9 +15,13 @@ export const shapeOptions = [
   'heart',
   'rounded-rect',
   'rounded-polygon',
-  'spiral',
-  'infinity',
 ];
+
+/**
+ * Busier shapes that can overwhelm a scene. Kept out of the main pool and
+ * only mixed in at chaos 6+ (see PARTICLE_CONFIG.INTENSE_SHAPE_*).
+ */
+export const intenseShapeOptions = ['spiral', 'infinity'];
 
 /**
  * Path generators from @tsparticles/all. Names match the `addPathGenerator`
@@ -59,9 +63,12 @@ export const hoverModeOptions = [
 ];
 
 /**
- * Click interaction modes (safe for production)
+ * Click interaction modes (safe for production). 'attract' replaces the old
+ * 'absorb', which matched no tsParticles mode, so that click did nothing.
+ * Real absorbers are permanent and pile up with every click; a click-attract
+ * pulls particles in briefly and lets them go.
  */
-export const safeClickModes = ['push', 'bubble', 'remove', 'trail', 'absorb'];
+export const safeClickModes = ['push', 'bubble', 'remove', 'trail', 'attract'];
 
 /**
  * Particle configuration constants
@@ -76,4 +83,10 @@ export const PARTICLE_CONFIG = {
   BATTERY_SAVER_FPS_LIMIT: 60,
   BATTERY_SAVER_PARTICLE_CAP: 160,
   BATTERY_SAVER_MAX_SPEED: 12,
+  /** Chaos level at which spiral/infinity can appear */
+  INTENSE_SHAPE_MIN_CHAOS: 6,
+  /** Chance a shuffle features spiral/infinity at the min chaos level… */
+  INTENSE_SHAPE_MIN_PROB: 0.05,
+  /** …rising linearly to this at chaos 10 */
+  INTENSE_SHAPE_MAX_PROB: 0.3,
 };
