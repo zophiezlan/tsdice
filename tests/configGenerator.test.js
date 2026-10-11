@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   ConfigGenerator,
   getIntenseShapeProbability,
+  getTriangleProbability,
 } from '../js/configGenerator.js';
 import { AppState } from '../js/state.js';
 import * as ATTRACT_CONSTANTS from '../js/constants/particles.js';
@@ -387,19 +388,32 @@ describe('ConfigGenerator', () => {
   });
 
   describe('link triangles', () => {
-    it('draw half the triangles and roll at most 40% of linked scenes', () => {
+    it('favour low chaos and never appear at chaos 8+', () => {
+      expect(getTriangleProbability(1)).toBeCloseTo(0.3);
+      expect(getTriangleProbability(4)).toBeCloseTo(0.3);
+      expect(getTriangleProbability(6)).toBeCloseTo(0.15);
+      expect(getTriangleProbability(8)).toBe(0);
+      expect(getTriangleProbability(10)).toBe(0);
+
+      for (let i = 0; i < 500; i++) {
+        const { links } = ConfigGenerator.generateSpecialFX(
+          {},
+          { chaosLevel: 9 }
+        );
+        expect(links.triangles.enable).toBe(false);
+      }
+
       const runs = 4000;
       let withTriangles = 0;
       for (let i = 0; i < runs; i++) {
         const { links } = ConfigGenerator.generateSpecialFX(
           {},
-          { chaosLevel: 10 }
+          { chaosLevel: 2 }
         );
-        expect(links.triangles.frequency).toBe(0.5);
         if (links.triangles.enable) withTriangles++;
       }
-      expect(withTriangles / runs).toBeGreaterThan(0.35);
-      expect(withTriangles / runs).toBeLessThan(0.45);
+      expect(withTriangles / runs).toBeGreaterThan(0.25);
+      expect(withTriangles / runs).toBeLessThan(0.35);
     });
   });
 

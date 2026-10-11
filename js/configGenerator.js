@@ -26,6 +26,23 @@ const {
 } = PARTICLE_CONFIG;
 
 /**
+ * Chance that a linked scene fills its link triangles: 30% at chaos 1-4,
+ * fading to 0 at chaos 8 and above.
+ * @param {number} chaosLevel - Chaos level (1-10)
+ * @returns {number} Probability between 0 and 1
+ */
+export const getTriangleProbability = (chaosLevel) => {
+  const { TRIANGLE_MAX_PROB, TRIANGLE_FADE_START, TRIANGLE_OFF_AT } =
+    PARTICLE_CONFIG;
+  if (chaosLevel <= TRIANGLE_FADE_START) return TRIANGLE_MAX_PROB;
+  if (chaosLevel >= TRIANGLE_OFF_AT) return 0;
+  return (
+    (TRIANGLE_MAX_PROB * (TRIANGLE_OFF_AT - chaosLevel)) /
+    (TRIANGLE_OFF_AT - TRIANGLE_FADE_START)
+  );
+};
+
+/**
  * Chance that a shuffle features spiral/infinity: 0 below chaos 6, then
  * 5% at chaos 6 rising linearly to 30% at chaos 10.
  * @param {number} chaosLevel - Chaos level (1-10)
@@ -284,12 +301,10 @@ export const ConfigGenerator = {
         color: { value: isDarkMode ? '#ffffff' : '#333333' },
         opacity: 0.4,
         width: 1,
-        // Filled triangles stack into bright slabs. Rolled less often than
-        // before (20% at chaos 5, 40% at 10, of linked scenes) and only half
-        // of the possible triangles are drawn; each keeps its distance fade.
+        // Triangles suit calm, sparse scenes; at high particle counts they
+        // stack into busy white slabs and cost a lot of frame time.
         triangles: {
-          enable: getRandomBool(getChaosProbability(0.2, chaosLevel)),
-          frequency: 0.5,
+          enable: getRandomBool(getTriangleProbability(chaosLevel)),
         },
       },
       destroy: currentFx.destroy || { mode: 'none' },

@@ -83,6 +83,12 @@ export const PARTICLE_CONFIG = {
   BATTERY_SAVER_FPS_LIMIT: 60,
   BATTERY_SAVER_PARTICLE_CAP: 160,
   BATTERY_SAVER_MAX_SPEED: 12,
+  /** Chance a linked scene fills its link triangles at low chaos… */
+  TRIANGLE_MAX_PROB: 0.3,
+  /** …held up to this chaos level… */
+  TRIANGLE_FADE_START: 4,
+  /** …then fading out, off from this level up */
+  TRIANGLE_OFF_AT: 8,
   /** Chaos level at which spiral/infinity can appear */
   INTENSE_SHAPE_MIN_CHAOS: 6,
   /** Chance a shuffle features spiral/infinity at the min chaos level… */

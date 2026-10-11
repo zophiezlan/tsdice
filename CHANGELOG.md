@@ -12,8 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The "absorb" click mode, which never matched a real tsParticles mode and so
   did nothing, is now a 1.2s click-attract that gathers nearby particles
   into a soft ring and lets them go; old share links get it too
-- Link triangles roll a third less often (20% at chaos 5, 40% at chaos 10,
-  of linked scenes) and draw half as many triangles
+- Link triangles now favour calm scenes: 30% of linked scenes at chaos 1-4,
+  fading out by chaos 8 (previously they grew more likely with chaos, which
+  made dense scenes busy and slow)
 - Spiral and infinity shapes only appear at chaos 6+, featuring in 5% of
   shuffles at chaos 6 rising to 30% at chaos 10
 - Browsers without OffscreenCanvas (iOS/Safari before 16.4) get a small
