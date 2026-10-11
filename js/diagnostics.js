@@ -122,13 +122,25 @@ const getCanvasInfo = () => {
   };
 };
 
+// tsParticles v4 transfers the DOM canvas to an OffscreenCanvas, after which
+// getContext() on the DOM element throws. Read back from the container's
+// render canvas instead; fall back to the DOM canvas for older engines.
+const getPixelSource = (canvasEl, container) => {
+  const renderCanvas = container?.canvas?.renderCanvas;
+  if (renderCanvas && typeof renderCanvas.getContext === 'function') {
+    return renderCanvas;
+  }
+  return canvasEl;
+};
+
 const samplePixels = (canvasEl, container) => {
   try {
-    const ctx = canvasEl.getContext('2d', { willReadFrequently: true });
+    const source = getPixelSource(canvasEl, container);
+    const ctx = source.getContext('2d', { willReadFrequently: true });
     if (!ctx) return { ok: false, reason: 'no-2d-context' };
 
-    const w = canvasEl.width;
-    const h = canvasEl.height;
+    const w = source.width;
+    const h = source.height;
     if (!w || !h) return { ok: false, reason: 'zero-sized-canvas', w, h };
 
     const imageData = ctx.getImageData(0, 0, w, h);

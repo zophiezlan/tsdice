@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - tsParticles v4
+
+- Upgraded tsParticles 3.9.1 → 4.4.0, now installed from npm and bundled by
+  Vite instead of loaded from jsDelivr
+- Particle colour and outline moved to v4's `particles.paint.fill` /
+  `particles.paint.stroke` (v4 ignores the old keys and draws white)
+- Share links and saved scenes from before the upgrade are converted to the
+  v4 layout on load (`js/configMigration.js`), so existing my.ket.horse links
+  keep their colours
+- HDR / Display-P3 rendering is turned off so scenes keep their curated
+  colours on HDR screens
+- The reduced-motion freeze is now switched off through the motion plugin's
+  options instead of resetting `retina.reduceFactor` after every load
+- Black-screen diagnostics read pixels from v4's OffscreenCanvas
+
 ### Fixed - Maintenance
 
 - Alt keyboard shortcuts now work on macOS (matched on the physical key, so

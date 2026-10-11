@@ -78,6 +78,25 @@ describe('configLoader', () => {
       expect(window.location.hash).toBe('');
     });
 
+    it('upgrades a v3 share link to the v4 paint layout', () => {
+      const v3 = {
+        particles: {
+          color: { value: '#ff007b' },
+          stroke: { width: 1, color: { value: 'random' } },
+          move: { outModes: { default: 'out' } },
+        },
+        interactivity: { events: { onHover: { mode: 'grab' } } },
+        uiState: { chaosLevel: 5, isDarkMode: true },
+      };
+      setHash(compressToEncodedURIComponent(JSON.stringify(v3)));
+
+      expect(loadConfigFromHash()).toBe(true);
+      const loaded = AppState.particleState.initialConfigFromUrl;
+      expect(loaded.particles.paint.fill.color.value).toBe('#ff007b');
+      expect(loaded.particles.paint.stroke.width).toBe(1);
+      expect(loaded.particles).not.toHaveProperty('color');
+    });
+
     it('clears a bad link without leaving a stray "#"', () => {
       setHash('not-a-valid-payload');
       const replaceSpy = vi.spyOn(window.history, 'replaceState');

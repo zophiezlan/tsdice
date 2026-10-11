@@ -4,6 +4,7 @@ import { SafeStorage } from './storage.js';
 import { ErrorHandler, ErrorType } from './errorHandler.js';
 import { decompressFromEncodedURIComponent } from 'lz-string';
 import { STORAGE_KEYS } from './constants.js';
+import { migrateV3Config } from './configMigration.js';
 
 const HASH_PREFIX = '#config=';
 
@@ -16,7 +17,7 @@ export function loadSavedConfig() {
     const savedConfigString = SafeStorage.getItem(STORAGE_KEYS.LAST_CONFIG);
     if (!savedConfigString) return null;
 
-    const parsed = JSON.parse(savedConfigString);
+    const parsed = migrateV3Config(JSON.parse(savedConfigString));
     if (!ErrorHandler.validateConfig(parsed)) {
       console.warn('Saved config is malformed, ignoring.');
       SafeStorage.removeItem(STORAGE_KEYS.LAST_CONFIG);
@@ -114,6 +115,8 @@ export function loadConfigFromHash() {
     }
 
     applyUiStateFromConfig(parsedConfig);
+    // Links made before the v4 upgrade carry v3 configs
+    migrateV3Config(parsedConfig);
 
     if (!ErrorHandler.validateConfig(parsedConfig)) {
       throw new Error('Invalid particle configuration');

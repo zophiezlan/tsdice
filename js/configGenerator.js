@@ -25,7 +25,7 @@ const { MIN_POLYGON_SIDES, MAX_POLYGON_SIDES } = PARTICLE_CONFIG;
  */
 export const ConfigGenerator = {
   /**
-   * Generates appearance configuration (colors, shapes, opacity, size, stroke)
+   * Generates appearance configuration (paint, shapes, opacity, size)
    * @param {Object} [options] - Optional parameters for pure function behavior
    * @param {number} [options.chaosLevel] - Chaos level (1-10), defaults to AppState
    * @param {boolean} [options.isDarkMode] - Theme mode, defaults to AppState
@@ -84,17 +84,22 @@ export const ConfigGenerator = {
     // Unwrap single-element arrays so tsParticles sees a plain value — avoids
     // the reduceDuplicates machinery churning for nothing at low chaos.
     const appearance = {
-      color: { value: palette.length === 1 ? palette[0] : palette },
+      paint: {
+        fill: {
+          enable: true,
+          color: { value: palette.length === 1 ? palette[0] : palette },
+        },
+        stroke: {
+          width: getRandomBool(getChaosProbability(0.5, chaosLevel))
+            ? getRandomInRange(1, 4)
+            : 0,
+          color: { value: 'random' },
+        },
+      },
       shape: { type: shapeSubset.length === 1 ? shapeSubset[0] : shapeSubset },
       opacity: { value: { min: 0.3, max: 1 } },
       size: {
         value: { min: 1, max: 1 + chaosLevel * 1.5 },
-      },
-      stroke: {
-        width: getRandomBool(getChaosProbability(0.5, chaosLevel))
-          ? getRandomInRange(1, 4)
-          : 0,
-        color: { value: 'random' },
       },
       reduceDuplicates: useShapeArray || useColorArray,
     };

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-vi.mock('https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm', () => ({
+vi.mock('@tsparticles/engine', () => ({
   tsParticles: { load: vi.fn() },
 }));
 
@@ -43,7 +43,7 @@ import { AppState } from '../js/state.js';
 import { PARTICLE_CONFIG } from '../js/constants/particles.js';
 import { THEME_BACKGROUNDS } from '../js/constants/colors.js';
 import { ConfigGenerator } from '../js/configGenerator.js';
-import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
+import { tsParticles } from '@tsparticles/engine';
 import { UIManager } from '../js/uiManager.js';
 import { Telemetry } from '../js/telemetry.js';
 import { Diagnostics } from '../js/diagnostics.js';
@@ -454,7 +454,14 @@ describe('load and theme reload flows', () => {
     expect(firstCall.options.particles.number.value).toBeLessThanOrEqual(
       PARTICLE_CONFIG.BATTERY_SAVER_PARTICLE_CAP
     );
-    expect(loadedContainer.retina.reduceFactor).toBe(1);
+    // Engine overrides: sRGB only, and no reduced-motion freeze
+    expect(firstCall.options.hdr).toBe(false);
+    expect(firstCall.options.motion).toEqual({
+      disable: false,
+      reduce: { value: false },
+    });
+    // The stored config stays free of engine overrides
+    expect(config.hdr).toBe(undefined);
     expect(UIManager.hideLoadingIndicator).toHaveBeenCalled();
     expect(UIManager.syncUI).toHaveBeenCalled();
     expect(markLoadStartSpy).toHaveBeenCalled();
@@ -502,7 +509,11 @@ describe('load and theme reload flows', () => {
     await loadParticles(incoming);
 
     expect(tsParticles.load).toHaveBeenCalledTimes(2);
-    expect(tsParticles.load.mock.calls[1][0].options).toEqual(previous);
+    expect(tsParticles.load.mock.calls[1][0].options).toEqual({
+      ...previous,
+      hdr: false,
+      motion: { disable: false, reduce: { value: false } },
+    });
     expect(AppState.particleState.currentConfig).toEqual(previous);
     expect(UIManager.showToast).toHaveBeenCalledWith(
       'Config error - restored previous state'
@@ -530,7 +541,9 @@ describe('load and theme reload flows', () => {
       background: { color: { value: THEME_BACKGROUNDS.DARK } },
       particles: {
         number: { value: 100 },
-        color: { value: ['#fff', '#aaa'] },
+        paint: {
+          fill: { enable: true, color: { value: ['#fff', '#aaa'] } },
+        },
         links: { enable: true, color: { value: '#ffffff' }, opacity: 0.4 },
         move: { outModes: { default: 'out' }, speed: 2 },
       },
@@ -549,6 +562,14 @@ describe('load and theme reload flows', () => {
     expect(
       AppState.particleState.currentConfig.particles.links.color.value
     ).toBe('#333333');
+    // Palette is rebuilt for the new theme at the same size, under paint.fill
+    const fillColor =
+      AppState.particleState.currentConfig.particles.paint.fill.color.value;
+    expect(fillColor).toHaveLength(2);
+    expect(fillColor).not.toEqual(['#fff', '#aaa']);
+    expect(AppState.particleState.currentConfig.particles.color).toBe(
+      undefined
+    );
     expect(tsParticles.load).toHaveBeenCalledTimes(1);
   });
 });

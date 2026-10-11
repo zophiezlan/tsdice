@@ -13,11 +13,12 @@ describe('ConfigGenerator', () => {
     it('should generate valid appearance configuration', () => {
       const appearance = ConfigGenerator.generateAppearance();
 
-      expect(appearance).toHaveProperty('color');
+      expect(appearance).toHaveProperty('paint.fill.color');
+      expect(appearance).not.toHaveProperty('color');
       expect(appearance).toHaveProperty('shape');
       expect(appearance).toHaveProperty('opacity');
       expect(appearance).toHaveProperty('size');
-      expect(appearance).toHaveProperty('stroke');
+      expect(appearance).toHaveProperty('paint.stroke');
     });
 
     it('should emit hex colour strings in dark mode', () => {
@@ -28,9 +29,9 @@ describe('ConfigGenerator', () => {
       );
 
       appearances.forEach((a) => {
-        const values = Array.isArray(a.color.value)
-          ? a.color.value
-          : [a.color.value];
+        const values = Array.isArray(a.paint.fill.color.value)
+          ? a.paint.fill.color.value
+          : [a.paint.fill.color.value];
         values.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
       });
     });
@@ -43,9 +44,9 @@ describe('ConfigGenerator', () => {
       );
 
       appearances.forEach((a) => {
-        const values = Array.isArray(a.color.value)
-          ? a.color.value
-          : [a.color.value];
+        const values = Array.isArray(a.paint.fill.color.value)
+          ? a.paint.fill.color.value
+          : [a.paint.fill.color.value];
         values.forEach((c) => expect(c).toMatch(/^#[0-9a-f]{6}$/));
       });
     });
@@ -57,7 +58,7 @@ describe('ConfigGenerator', () => {
       );
 
       appearances.forEach((a) => {
-        expect(Array.isArray(a.color.value)).toBe(false);
+        expect(Array.isArray(a.paint.fill.color.value)).toBe(false);
         expect(Array.isArray(a.shape.type)).toBe(false);
         expect(a.reduceDuplicates).toBe(false);
       });
@@ -73,7 +74,7 @@ describe('ConfigGenerator', () => {
         Array.isArray(a.shape.type)
       );
       const colorArrays = appearances.filter((a) =>
-        Array.isArray(a.color.value)
+        Array.isArray(a.paint.fill.color.value)
       );
 
       // Shape variety gated at chaos/20 = 50% at chaos 10.
@@ -104,7 +105,8 @@ describe('ConfigGenerator', () => {
 
       appearances.forEach((a) => {
         const hasArray =
-          Array.isArray(a.color.value) || Array.isArray(a.shape.type);
+          Array.isArray(a.paint.fill.color.value) ||
+          Array.isArray(a.shape.type);
         expect(a.reduceDuplicates).toBe(hasArray);
       });
     });
@@ -200,7 +202,7 @@ describe('ConfigGenerator', () => {
         ConfigGenerator.generateAppearance()
       );
 
-      const withStroke = appearances.filter((a) => a.stroke.width > 0);
+      const withStroke = appearances.filter((a) => a.paint.stroke.width > 0);
       expect(withStroke.length).toBeGreaterThan(0);
     });
   });

@@ -1,5 +1,5 @@
-import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
-import { loadAll } from 'https://cdn.jsdelivr.net/npm/@tsparticles/all@3.9.1/+esm';
+import { tsParticles } from '@tsparticles/engine';
+import { loadAll } from '@tsparticles/all';
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ModalManager } from './modalManager.js';
@@ -518,7 +518,7 @@ if (import.meta.env?.DEV) {
         // Trigger special "party mode" configuration
         const partyConfig = buildConfig({ all: true });
         partyConfig.particles.number.value = 300;
-        partyConfig.particles.color.value = 'random';
+        partyConfig.particles.paint.fill.color = { value: 'random' };
         partyConfig.particles.move.speed = 10;
         partyConfig.particles.shape.type = ['star', 'circle', 'triangle'];
         partyConfig.particles.size.value = { min: 2, max: 8 };

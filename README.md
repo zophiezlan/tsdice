@@ -430,7 +430,7 @@ Rapid prototyping for developers, creative exploration for designers, and sharea
 
 ### Core Stack
 
-- **[tsParticles](https://particles.js.org/)** v3.9.1 — Particle animation engine
+- **[tsParticles](https://particles.js.org/)** v4.4.0 — Particle animation engine (`@tsparticles/all`, bundled by Vite)
 - **[lz-string](https://pieroxy.net/blog/pages/lz-string/index.html)** v1.5.0 — URL compression
 - **[Vite](https://vitejs.dev/)** v8.0.9 — Build tool & dev server (Phase 2)
 - **[Vitest](https://vitest.dev/)** v4.0.16 — Test framework with 111 tests (Phase 2)

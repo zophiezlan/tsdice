@@ -1,4 +1,4 @@
-import { tsParticles } from 'https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.9.1/+esm';
+import { tsParticles } from '@tsparticles/engine';
 import { AppState } from './state.js';
 import { UIManager } from './uiManager.js';
 import { ConfigGenerator } from './configGenerator.js';
@@ -64,6 +64,20 @@ export const applyAdvancedPreferences = (options) => {
       options.particles.links.opacity = Math.min(opacity, 0.4);
     }
   }
+};
+
+/**
+ * Engine-level options tsDice always sets, whatever the scene config says.
+ * - hdr: v4 renders in Display-P3 with HDR tone mapping on capable screens,
+ *   which brightens the curated palettes past normal white. Keep sRGB.
+ * - motion: the motion plugin freezes every particle (reduceFactor 0) when
+ *   the OS prefers reduced motion. tsDice instead announces a hint and lets
+ *   the user pause with Space (see main.js), so opt out of the freeze.
+ */
+export const applyEngineOverrides = (options) => {
+  if (!options) return;
+  options.hdr = false;
+  options.motion = { disable: false, reduce: { value: false } };
 };
 
 /**
@@ -218,6 +232,7 @@ export const loadParticles = async (config) => {
 
     const optionsWithAdvanced = JSON.parse(JSON.stringify(config));
     applyAdvancedPreferences(optionsWithAdvanced);
+    applyEngineOverrides(optionsWithAdvanced);
 
     Diagnostics.markLoadStart(optionsWithAdvanced);
     AppState.ui.particlesContainer = await tsParticles.load({
@@ -225,14 +240,6 @@ export const loadParticles = async (config) => {
       options: optionsWithAdvanced,
     });
     Diagnostics.markLoadResolved();
-
-    // Workaround: in tsParticles 3.9.1, container.retina.reduceFactor can
-    // settle at 0 after load even though Retina.init() sets it to 1. When 0,
-    // the base mover multiplies every per-frame displacement by 0, so
-    // particles hold position while engine/velocity/interactivity look healthy.
-    if (AppState.ui.particlesContainer?.retina) {
-      AppState.ui.particlesContainer.retina.reduceFactor = 1;
-    }
 
     if (containerEl) {
       setTimeout(() => {
@@ -262,9 +269,11 @@ export const loadParticles = async (config) => {
     if (previousConfig && Object.keys(previousConfig).length > 0) {
       AppState.particleState.currentConfig = previousConfig;
       try {
+        const recoveryOptions = JSON.parse(JSON.stringify(previousConfig));
+        applyEngineOverrides(recoveryOptions);
         await tsParticles.load({
           id: 'tsparticles',
-          options: JSON.parse(JSON.stringify(previousConfig)),
+          options: recoveryOptions,
         });
         UIManager.showToast('Config error - restored previous state');
         UIManager.announce('Config error - restored previous state');
@@ -356,13 +365,15 @@ export const updateThemeAndReload = async () => {
     : THEME_BACKGROUNDS.LIGHT;
   // Rebuild the palette for the new theme. Preserve the existing palette size
   // so chaos-scaled variety is maintained across theme toggles.
-  const currentColor = config.particles.color?.value;
-  if (currentColor !== 'random') {
+  const fill = config.particles.paint?.fill;
+  const currentColor = fill?.color?.value;
+  if (fill && currentColor !== 'random') {
     const size = Array.isArray(currentColor) ? currentColor.length : 1;
-    config.particles.color.value = generatePalette(
-      size,
-      AppState.ui.isDarkMode
-    );
+    const palette = generatePalette(size, AppState.ui.isDarkMode);
+    fill.color = {
+      ...fill.color,
+      value: palette.length === 1 ? palette[0] : palette,
+    };
   }
   if (config.particles.links.enable) {
     config.particles.links.color.value = AppState.ui.isDarkMode
