@@ -10,6 +10,7 @@ import { Telemetry } from './telemetry.js';
 import { Diagnostics } from './diagnostics.js';
 import { TIMING } from './constants/ui.js';
 import { STORAGE_KEYS } from './constants/storage.js';
+import { applyComfortLimits } from './comfort.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
 export const applyAdvancedPreferences = (options) => {
@@ -232,6 +233,10 @@ export const loadParticles = async (config) => {
 
     const optionsWithAdvanced = JSON.parse(JSON.stringify(config));
     applyAdvancedPreferences(optionsWithAdvanced);
+    const comfortRules = applyComfortLimits(optionsWithAdvanced);
+    if (comfortRules.length > 0) {
+      Telemetry.log('comfort:limited', { rules: comfortRules });
+    }
     applyEngineOverrides(optionsWithAdvanced);
 
     Diagnostics.markLoadStart(optionsWithAdvanced);
@@ -270,6 +275,8 @@ export const loadParticles = async (config) => {
       AppState.particleState.currentConfig = previousConfig;
       try {
         const recoveryOptions = JSON.parse(JSON.stringify(previousConfig));
+        applyAdvancedPreferences(recoveryOptions);
+        applyComfortLimits(recoveryOptions);
         applyEngineOverrides(recoveryOptions);
         await tsParticles.load({
           id: 'tsparticles',

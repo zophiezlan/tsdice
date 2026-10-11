@@ -70,6 +70,9 @@ export function initKeyboardShortcuts(menuContainer) {
       if (!btnId) return; // leave browser/OS Alt shortcuts alone
 
       e.preventDefault();
+      // One press, one action: a held key would otherwise reshuffle the
+      // whole scene ~30 times a second.
+      if (e.repeat) return;
       const button = document.getElementById(btnId);
       if (button && !isButtonDisabled(button)) {
         button.classList.add('keyboard-press');

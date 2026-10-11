@@ -509,10 +509,18 @@ describe('load and theme reload flows', () => {
     await loadParticles(incoming);
 
     expect(tsParticles.load).toHaveBeenCalledTimes(2);
-    expect(tsParticles.load.mock.calls[1][0].options).toEqual({
-      ...previous,
-      hdr: false,
-      motion: { disable: false, reduce: { value: false } },
+    // The recovery load gets the same treatment as any other load
+    const recoveryOptions = tsParticles.load.mock.calls[1][0].options;
+    expect(recoveryOptions.interactivity).toEqual(previous.interactivity);
+    expect(recoveryOptions.particles.move).toEqual(previous.particles.move);
+    expect(recoveryOptions.particles.number.limit).toEqual({
+      mode: 'wait',
+      value: 300,
+    });
+    expect(recoveryOptions.hdr).toBe(false);
+    expect(recoveryOptions.motion).toEqual({
+      disable: false,
+      reduce: { value: false },
     });
     expect(AppState.particleState.currentConfig).toEqual(previous);
     expect(UIManager.showToast).toHaveBeenCalledWith(

@@ -191,4 +191,20 @@ describe('initKeyboardShortcuts', () => {
     expect(clickSpy).not.toHaveBeenCalled();
     expect(button.classList.contains('keyboard-press')).toBe(false);
   });
+
+  it('ignores auto-repeat from a held Alt shortcut', async () => {
+    const { menuContainer, button } = setupDOM();
+    const clickSpy = vi.fn();
+    button.addEventListener('click', clickSpy);
+    const { initKeyboardShortcuts } =
+      await import('../js/keyboardShortcuts.js');
+    initKeyboardShortcuts(menuContainer);
+
+    fireKey('a', { code: 'KeyA', altKey: true });
+    const repeat = fireKey('a', { code: 'KeyA', altKey: true, repeat: true });
+    fireKey('a', { code: 'KeyA', altKey: true, repeat: true });
+
+    expect(clickSpy).toHaveBeenCalledOnce();
+    expect(repeat.defaultPrevented).toBe(true);
+  });
 });

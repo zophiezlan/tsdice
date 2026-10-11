@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Comfort layer
+
+- `js/comfort.js`: limits every scene stays within before it is drawn,
+  whatever its source (shuffle, undo, saved scene or someone else's share
+  link): particle count, speed and size caps; twinkle and opacity/colour
+  animation kept well under WCAG 2.3.1's three-flashes-a-second; collisions
+  only bounce and nothing self-destructs; only curated hover/click modes.
+  Limits sit at or above anything tsDice generates, so its own scenes are
+  unchanged (tested across every chaos level, toggle and Party Mode)
+- Push-clicks can no longer grow a scene past 300 particles
+- Holding an Alt shortcut fires it once instead of ~30 times a second
+
 ### Changed - tsParticles v4
 
 - The "absorb" click mode, which never matched a real tsParticles mode and so
