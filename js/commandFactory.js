@@ -52,26 +52,6 @@ export const restoreUIState = (appState, uiState) => {
 };
 
 /**
- * Applies a visual burst effect to the particles container
- * @param {string} containerId - The ID of the container element
- * @param {number} brightness - Brightness multiplier (default 1.3)
- * @param {number} duration - Effect duration in ms (default 150)
- */
-export const applyBurstEffect = (
-  containerId = 'tsparticles',
-  brightness = 1.3,
-  duration = 150
-) => {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.style.filter = `brightness(${brightness})`;
-    setTimeout(() => {
-      container.style.filter = '';
-    }, duration);
-  }
-};
-
-/**
  * Factory function to create a shuffle command object.
  * @param {Object} options - Configuration options
  * @param {Object} options.shuffleOptions - Which aspects to shuffle
@@ -106,7 +86,6 @@ export const createShuffleCommand = ({
         uiManager.announce(redoMessage);
       }
 
-      applyBurstEffect();
       await loadParticles(newConfig);
       uiManager.announce('New scene generated.');
     },

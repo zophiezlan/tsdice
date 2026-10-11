@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unchanged (tested across every chaos level, toggle and Party Mode)
 - Push-clicks can no longer grow a scene past 300 particles
 - Holding an Alt shortcut fires it once instead of ~30 times a second
+- Scenes cross-fade over 0.65s (shuffles, undo/redo, theme, toggles)
+  instead of swapping instantly; replaces the 30% opacity dip and the
+  brightness burst on shuffle. Theme changes now ease between dark and
+  light rather than jumping
 
 ### Changed - tsParticles v4
 

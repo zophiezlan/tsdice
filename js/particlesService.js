@@ -11,6 +11,7 @@ import { Diagnostics } from './diagnostics.js';
 import { TIMING } from './constants/ui.js';
 import { STORAGE_KEYS } from './constants/storage.js';
 import { applyComfortLimits } from './comfort.js';
+import { beginSceneTransition } from './sceneTransition.js';
 
 /** Applies advanced preferences (battery saver, auto-pause) to a config copy. */
 export const applyAdvancedPreferences = (options) => {
@@ -210,6 +211,7 @@ export const loadParticles = async (config) => {
     Telemetry.log('particles:load:slow', metrics);
   }, TIMING.PARTICLES_LOAD_HANG);
 
+  let transition = null;
   try {
     AppState.particleState.currentConfig = config;
     SafeStorage.setItem(STORAGE_KEYS.LAST_CONFIG, JSON.stringify(config));
@@ -225,11 +227,8 @@ export const loadParticles = async (config) => {
       })
     );
 
-    const containerEl = document.getElementById('tsparticles');
-    if (containerEl && AppState.ui.particlesContainer) {
-      containerEl.style.transition = 'opacity 0.2s ease';
-      containerEl.style.opacity = '0.3';
-    }
+    // Hold the current frame over the canvas while the new scene loads
+    transition = beginSceneTransition(AppState.ui.particlesContainer);
 
     const optionsWithAdvanced = JSON.parse(JSON.stringify(config));
     applyAdvancedPreferences(optionsWithAdvanced);
@@ -245,12 +244,6 @@ export const loadParticles = async (config) => {
       options: optionsWithAdvanced,
     });
     Diagnostics.markLoadResolved();
-
-    if (containerEl) {
-      setTimeout(() => {
-        containerEl.style.opacity = '1';
-      }, 50);
-    }
 
     AppState.ui.isPaused = false;
     UIManager.syncUI();
@@ -298,6 +291,8 @@ export const loadParticles = async (config) => {
   } finally {
     clearTimeout(loadingTimeout);
     clearTimeout(hangTimeout);
+    // Fade to whatever is now drawing: the new scene, or the restored one
+    transition?.reveal();
   }
 };
 
