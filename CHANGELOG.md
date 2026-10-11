@@ -41,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed - tsParticles v4
 
+- Particle size no longer grows with chaos: every level uses the same
+  1-8.5 range (chaos 5's), as does the hover bubble (20). Chaos means more
+  and busier, not bigger; big particles just make the screen feel small.
+  Older share links with larger particles are drawn at most 8.5
 - The "absorb" click mode, which never matched a real tsParticles mode and so
   did nothing, is now a 1.2s click-attract that gathers nearby particles
   into a soft ring and lets them go; old share links get it too

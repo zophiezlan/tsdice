@@ -116,14 +116,19 @@ describe('ConfigGenerator', () => {
       });
     });
 
-    it('should scale size with chaos level', () => {
-      AppState.particleState.chaosLevel = 1;
-      const lowChaos = ConfigGenerator.generateAppearance();
-
-      AppState.particleState.chaosLevel = 10;
-      const highChaos = ConfigGenerator.generateAppearance();
-
-      expect(highChaos.size.value.max).toBeGreaterThan(lowChaos.size.value.max);
+    it('keeps the same size range at every chaos level', () => {
+      for (let chaos = 1; chaos <= 10; chaos++) {
+        AppState.particleState.chaosLevel = chaos;
+        expect(ConfigGenerator.generateAppearance().size.value).toEqual({
+          min: 1,
+          max: 8.5,
+        });
+        const { bubble } = ConfigGenerator.generateInteraction({
+          chaosLevel: chaos,
+          skipStateUpdate: true,
+        }).modes;
+        expect(bubble.size).toBe(20);
+      }
     });
 
     it('should include polygon sides when polygon is in the shape subset', () => {

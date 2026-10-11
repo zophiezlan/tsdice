@@ -144,7 +144,7 @@ export const ConfigGenerator = {
       shape: { type: shapeSubset.length === 1 ? shapeSubset[0] : shapeSubset },
       opacity: { value: { min: 0.3, max: 1 } },
       size: {
-        value: { min: 1, max: 1 + chaosLevel * 1.5 },
+        value: { ...PARTICLE_CONFIG.PARTICLE_SIZE },
       },
       reduceDuplicates: useShapeArray || useColorArray,
     };
@@ -223,7 +223,7 @@ export const ConfigGenerator = {
         push: { quantity: chaosLevel },
         bubble: {
           distance: 100 + chaosLevel * 15,
-          size: 10 + chaosLevel * 2,
+          size: PARTICLE_CONFIG.BUBBLE_SIZE,
           duration: 2,
         },
         parallax: {

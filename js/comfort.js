@@ -19,8 +19,11 @@ export const COMFORT_LIMITS = Object.freeze({
   MAX_PARTICLES: 300,
   /** Generator tops out at chaos 10 × 2 */
   MAX_SPEED: 20,
-  /** Largest particle radius the generator makes (chaos 10) */
-  MAX_SIZE: 16,
+  /**
+   * Largest particle radius tsDice draws, the generator's fixed maximum.
+   * Older share links (made when size grew with chaos) are brought down to it.
+   */
+  MAX_SIZE: 8.5,
   /**
    * Per-frame chance a particle is drawn at full twinkle opacity. 0.05 is
    * a sparse sparkle on small particles, never a whole-screen flash.

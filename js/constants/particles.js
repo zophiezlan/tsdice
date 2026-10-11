@@ -83,6 +83,13 @@ export const PARTICLE_CONFIG = {
   BATTERY_SAVER_FPS_LIMIT: 60,
   BATTERY_SAVER_PARTICLE_CAP: 160,
   BATTERY_SAVER_MAX_SPEED: 12,
+  /**
+   * Particle size range, the same at every chaos level. Chaos means more
+   * and busier, not bigger: big particles just make the screen feel small.
+   */
+  PARTICLE_SIZE: Object.freeze({ min: 1, max: 8.5 }),
+  /** How big the hover "bubble" swells particles, at every chaos level */
+  BUBBLE_SIZE: 20,
   /** Chance a linked scene fills its link triangles at low chaos… */
   TRIANGLE_MAX_PROB: 0.3,
   /** …held up to this chaos level… */
