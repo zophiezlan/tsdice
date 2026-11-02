@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@tsparticles/all": "^4.4.0",
-    "@tsparticles/engine": "^4.4.0",
+    "@tsparticles/engine": "^4.5.0",
     "lz-string": "^1.5.0"
   },
   "devDependencies": {
